@@ -1,12 +1,11 @@
 // src/app/(dashboard)/tree/components/TreeView.tsx
 import { useState } from "react";
 import { User } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
 import { findNodeById } from "../utils/tree-utils";
 import { useUserTree } from "../hooks/useUserTree";
 import TreeControls from "./controls";
 import TreeNodeHierarchy from "./treenode/TreeNodeHierarchy";
-import NodeDetailPopup from "./detail/NodeDetailPopup";
+import NodeDetailSheet from "./detail/NodeDetailSheet";
 
 interface TreeViewProps {
   userId: string;
@@ -25,7 +24,18 @@ export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
     changeTreeDepth,
   } = useUserTree(userId, initialDepth);
 
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  
+  // Función para manejar la selección de un nodo (para mostrar detalles)
+  const handleNodeSelect = (id: string) => {
+    setSelectedNodeId(id);
+  };
+  
+  // Función para manejar la navegación desde el sheet
+  const handleSheetNavigate = (id: string) => {
+    navigateToNode(id);
+    setSelectedNodeId(id);
+  };
 
   const handleZoomIn = () => {
     if (descendantDepth < 5) {
@@ -50,6 +60,10 @@ export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
     );
   }
 
+  const selectedNode = selectedNodeId 
+    ? findNodeById(nodeContext.node, selectedNodeId) 
+    : undefined;
+
   return (
     <div className="relative">
       {/* Controls section */}
@@ -66,15 +80,14 @@ export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
       />
 
       {/* Tree visualization */}
-      <div className="border rounded-lg bg-muted/10 p-8 overflow-auto min-h-[600px] max-h-[800px] flex items-start justify-center">
-        <div className="flex flex-col items-center">
+      <div className="border rounded-lg bg-muted/10 p-4 overflow-auto min-h-[600px] max-h-[800px] flex items-center justify-center">
+        <div className="flex flex-col items-center scale-95 transform-gpu origin-top py-14">
           <div className="relative">
             <TreeNodeHierarchy
-
               node={nodeContext.node}
-              onNodeClick={navigateToNode}
-              onNodeHover={setHoveredNode}
-              hoveredNodeId={hoveredNode}
+              onNodeClick={handleNodeSelect}
+              onNodeHover={() => {}} // Ya no necesitamos hover para mostrar detalles
+              hoveredNodeId={null}
               currentNodeId={nodeContext.node.id}
               ancestors={nodeContext.ancestors}
               isRoot={true}
@@ -84,16 +97,13 @@ export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
         </div>
       </div>
 
-      {/* Node detail popup */}
-      <AnimatePresence>
-        {hoveredNode && (
-          <NodeDetailPopup
-            node={findNodeById(nodeContext.node, hoveredNode)}
-            onClose={() => setHoveredNode(null)}
-            onNavigate={navigateToNode}
-          />
-        )}
-      </AnimatePresence>
+      {/* Node detail sheet */}
+      <NodeDetailSheet 
+        node={selectedNode}
+        isOpen={!!selectedNodeId}
+        onClose={() => setSelectedNodeId(null)}
+        onNavigate={handleSheetNavigate}
+      />
     </div>
   );
 }

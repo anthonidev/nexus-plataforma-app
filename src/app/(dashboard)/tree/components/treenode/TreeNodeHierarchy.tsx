@@ -1,4 +1,4 @@
-// src/app/(dashboard)/tree/components/TreeNode/TreeNodeHierarchy.tsx
+// src/app/(dashboard)/tree/components/treenode/TreeNodeHierarchy.tsx
 import { TreeNode } from "@/types/tree/tree.types";
 import NodeCard from "./NodeCard";
 import NodeConnectors from "./NodeConnectors";
@@ -7,8 +7,8 @@ import { BreadcrumbPath } from "../controls";
 interface TreeNodeHierarchyProps {
   node: TreeNode;
   onNodeClick: (id: string) => void;
-  onNodeHover: (id: string | null) => void;
-  hoveredNodeId: string | null;
+  onNodeHover?: (id: string | null) => void;
+  hoveredNodeId?: string | null;
   currentNodeId: string;
   ancestors?: TreeNode[];
   isRoot?: boolean;
@@ -35,20 +35,22 @@ export default function TreeNodeHierarchy({
   const hasChildren = hasLeftChild || hasRightChild;
   const hasOnlyOneChild = (hasLeftChild && !hasRightChild) || (!hasLeftChild && hasRightChild);
 
-  // Determine if node is hovered or current
-  const isHovered = hoveredNodeId === node.id;
+  // Determine if node is current
   const isCurrent = currentNodeId === node.id;
 
   return (
     <div className="flex flex-col items-center">
       {/* Breadcrumb path indicator for root node only */}
       {isRoot && ancestors && ancestors.length > 0 && navigateToNode && (
-        <div className="relative">
-          <BreadcrumbPath
-            ancestors={ancestors}
-            currentNode={node}
-            navigateToNode={navigateToNode}
-          />
+        <div className="relative mb-2">
+          {/* Importamos directamente el componente BreadcrumbPath actualizado */}
+          <div className="relative">
+            <BreadcrumbPath
+              ancestors={ancestors}
+              currentNode={node}
+              navigateToNode={navigateToNode}
+            />
+          </div>
         </div>
       )}
 
@@ -56,14 +58,12 @@ export default function TreeNodeHierarchy({
       <NodeCard
         node={node}
         onNodeClick={onNodeClick}
-        onNodeHover={onNodeHover}
-        isHovered={isHovered}
         isCurrent={isCurrent}
         isRoot={isRoot}
         depth={depth}
         hasLeftChild={hasLeftChild}
         hasRightChild={hasRightChild}
-        showNavigationButtons={showNavigationButtons}
+        showNavigationButtons={false}
       />
 
       {/* Tree branches and child nodes */}
@@ -75,7 +75,7 @@ export default function TreeNodeHierarchy({
           <div
             className={`
               flex ${hasOnlyOneChild ? "flex-col" : "flex-row"} 
-              justify-center items-start gap-4 md:gap-8 lg:gap-16
+              justify-center items-start gap-2 md:gap-4 lg:gap-8 mt-2
             `}
           >
             {/* Left child */}
@@ -84,8 +84,6 @@ export default function TreeNodeHierarchy({
                 <TreeNodeHierarchy
                   node={node.children!.left!}
                   onNodeClick={onNodeClick}
-                  onNodeHover={onNodeHover}
-                  hoveredNodeId={hoveredNodeId}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
                 />
@@ -98,8 +96,6 @@ export default function TreeNodeHierarchy({
                 <TreeNodeHierarchy
                   node={node.children!.right!}
                   onNodeClick={onNodeClick}
-                  onNodeHover={onNodeHover}
-                  hoveredNodeId={hoveredNodeId}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
                 />

@@ -20,7 +20,7 @@ export default function Tree() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Árbol de Red</h1>
         <p className="text-muted-foreground">
-          Gestiona la estructura de tu red de usuarios
+          Visualiza y gestiona la estructura de tu red de usuarios
         </p>
       </div>
 
