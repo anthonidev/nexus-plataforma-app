@@ -1,4 +1,4 @@
-// src/app/(dashboard)/tree/components/TreeControls/NavigationControls.tsx
+// src/app/(dashboard)/tree/components/controls/NavigationControls.tsx
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

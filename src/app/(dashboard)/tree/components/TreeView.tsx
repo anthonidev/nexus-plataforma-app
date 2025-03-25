@@ -6,13 +6,14 @@ import { useUserTree } from "../hooks/useUserTree";
 import TreeControls from "./controls";
 import TreeNodeHierarchy from "./treenode/TreeNodeHierarchy";
 import NodeDetailSheet from "./detail/NodeDetailSheet";
+import ViewBox from "./ViewBox";
 
 interface TreeViewProps {
   userId: string;
   initialDepth?: number;
 }
 
-export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
+export default function TreeView({ userId, initialDepth = 2 }: TreeViewProps) {
   const {
     nodeContext,
     nodeLoading,
@@ -79,22 +80,21 @@ export default function TreeView({ userId, initialDepth = 3 }: TreeViewProps) {
         handleZoomOut={handleZoomOut}
       />
 
-      {/* Tree visualization */}
-      <div className="border rounded-lg bg-muted/10 p-4 overflow-auto min-h-[600px] max-h-[800px] flex items-center justify-center">
-        <div className="flex flex-col items-center scale-95 transform-gpu origin-top py-14">
-          <div className="relative">
-            <TreeNodeHierarchy
-              node={nodeContext.node}
-              onNodeClick={handleNodeSelect}
-              onNodeHover={() => {}} // Ya no necesitamos hover para mostrar detalles
-              hoveredNodeId={null}
-              currentNodeId={nodeContext.node.id}
-              ancestors={nodeContext.ancestors}
-              isRoot={true}
-              navigateToNode={navigateToNode}
-            />
-          </div>
-        </div>
+      {/* Tree visualization - Ajustados overflow y padding */}
+      <div className="border rounded-lg bg-muted/10 p-4 overflow-x-hidden overflow-y-auto min-h-[600px] max-h-[800px]">
+        <ViewBox>
+          <TreeNodeHierarchy
+            node={nodeContext.node}
+            onNodeClick={handleNodeSelect}
+            onNodeHover={() => {}}
+            hoveredNodeId={null}
+            currentNodeId={nodeContext.node.id}
+            ancestors={nodeContext.ancestors}
+            isRoot={true}
+            navigateToNode={navigateToNode}
+            zoomLevel={descendantDepth}
+          />
+        </ViewBox>
       </div>
 
       {/* Node detail sheet */}

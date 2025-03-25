@@ -1,4 +1,4 @@
-// src/app/(dashboard)/tree/components/TreeControls/index.tsx
+// src/app/(dashboard)/tree/components/controls/index.tsx
 import { TreeNode } from "@/types/tree/tree.types";
 import BreadcrumbPath from "./BreadcrumbPath";
 import NavigationControls from "./NavigationControls";
@@ -33,7 +33,7 @@ export default function TreeControls({
   return (
     <>
       {/* Top control bars */}
-      <div className="flex justify-between mb-6">
+      <div className="flex flex-wrap gap-4 justify-between mb-6">
         <NavigationControls
           ancestors={ancestors}
           navigateToRoot={navigateToRoot}

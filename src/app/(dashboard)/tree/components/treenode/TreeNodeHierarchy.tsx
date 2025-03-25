@@ -15,6 +15,7 @@ interface TreeNodeHierarchyProps {
   depth?: number;
   showNavigationButtons?: boolean;
   navigateToNode?: (id: string) => void;
+  zoomLevel?: number; // Nuevo prop para controlar el tamaño según el zoom
 }
 
 export default function TreeNodeHierarchy({
@@ -28,6 +29,7 @@ export default function TreeNodeHierarchy({
   depth = 0,
   showNavigationButtons = true,
   navigateToNode,
+  zoomLevel = 2,
 }: TreeNodeHierarchyProps) {
   // Determine if this node has children
   const hasLeftChild = !!node.children?.left;
@@ -38,12 +40,24 @@ export default function TreeNodeHierarchy({
   // Determine if node is current
   const isCurrent = currentNodeId === node.id;
 
+  // Calcular el espacio entre nodos basado en el zoom
+  const getSpacing = () => {
+    // Ajustar espaciado según nivel de zoom - más niveles = menos espacio
+    switch(zoomLevel) {
+      case 1: return 64;
+      case 2: return 48;
+      case 3: return 32;
+      case 4: return 24;
+      case 5: return 16;
+      default: return 48;
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center max-w-full">
       {/* Breadcrumb path indicator for root node only */}
       {isRoot && ancestors && ancestors.length > 0 && navigateToNode && (
         <div className="relative mb-2">
-          {/* Importamos directamente el componente BreadcrumbPath actualizado */}
           <div className="relative">
             <BreadcrumbPath
               ancestors={ancestors}
@@ -64,19 +78,24 @@ export default function TreeNodeHierarchy({
         hasLeftChild={hasLeftChild}
         hasRightChild={hasRightChild}
         showNavigationButtons={false}
+        zoomLevel={zoomLevel}
       />
 
       {/* Tree branches and child nodes */}
       {hasChildren && (
-        <>
-          <NodeConnectors hasOnlyOneChild={hasOnlyOneChild} />
+        <div className="flex flex-col items-center w-full">
+          <NodeConnectors 
+            hasOnlyOneChild={hasOnlyOneChild} 
+            zoomLevel={zoomLevel}
+          />
 
           {/* Children nodes */}
           <div
-            className={`
-              flex ${hasOnlyOneChild ? "flex-col" : "flex-row"} 
-              justify-center items-start gap-2 md:gap-4 lg:gap-8 mt-2
-            `}
+            className="flex justify-center items-start w-full"
+            style={{ 
+              flexDirection: hasOnlyOneChild ? 'column' : 'row',
+              gap: `${getSpacing()}px`
+            }}
           >
             {/* Left child */}
             {hasLeftChild && (
@@ -86,6 +105,7 @@ export default function TreeNodeHierarchy({
                   onNodeClick={onNodeClick}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
+                  zoomLevel={zoomLevel}
                 />
               </div>
             )}
@@ -98,11 +118,12 @@ export default function TreeNodeHierarchy({
                   onNodeClick={onNodeClick}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
+                  zoomLevel={zoomLevel}
                 />
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

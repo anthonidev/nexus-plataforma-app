@@ -9,9 +9,9 @@ import { toast } from "sonner";
 /**
  * Hook personalizado para manejar la navegación y visualización del árbol de usuario
  * @param userId ID del usuario logueado o punto de inicio para visualizar el árbol (obligatorio)
- * @param initialDepth Profundidad inicial del árbol (por defecto: 3)
+ * @param initialDepth Profundidad inicial del árbol (por defecto: 2)
  */
-export function useUserTree(userId: string, initialDepth: number = 3) {
+export function useUserTree(userId: string, initialDepth: number = 2) {
   // Estados para el árbol completo
   const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [treeLoading, setTreeLoading] = useState<boolean>(true);

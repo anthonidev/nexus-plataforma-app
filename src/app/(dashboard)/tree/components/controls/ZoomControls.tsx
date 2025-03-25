@@ -1,4 +1,4 @@
-// src/app/(dashboard)/tree/components/TreeControls/ZoomControls.tsx
+// src/app/(dashboard)/tree/components/controls/ZoomControls.tsx
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
 
@@ -33,7 +33,7 @@ export default function ZoomControls({
         size="icon"
         onClick={zoomIn}
         disabled={!canZoomIn}
-        title="Mostrar más niveles"
+        title="Aumentar profundidad"
       >
         <ZoomIn className="h-4 w-4" />
       </Button>
@@ -43,7 +43,7 @@ export default function ZoomControls({
         size="icon"
         onClick={zoomOut}
         disabled={!canZoomOut}
-        title="Mostrar menos niveles"
+        title="Reducir profundidad"
       >
         <ZoomOut className="h-4 w-4" />
       </Button>
