@@ -8,10 +8,8 @@ import {
   Hash, 
   GitBranchPlus, 
   Activity,
-  Plus,
   ShieldCheck
 } from "lucide-react";
-import { motion } from "framer-motion";
 import {
   Sheet,
   SheetContent,
@@ -44,14 +42,14 @@ export default function NodeDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full sm:max-w-md border-l overflow-y-auto p-6">
-        <SheetHeader className="text-left pb-6">
+      <SheetContent className="w-full sm:max-w-md border-l overflow-y-auto p-4 sm:p-6">
+        <SheetHeader className="text-left pb-4 sm:pb-6">
           <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center bg-gradient-to-br from-primary/70 to-primary text-primary-foreground">
-              <User size={24} />
+            <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center bg-gradient-to-br from-primary/70 to-primary text-primary-foreground">
+              <User size={20} />
             </div>
             <div>
-              <SheetTitle className="text-xl">
+              <SheetTitle className="text-lg sm:text-xl">
                 {node.fullName || node.email.split('@')[0]}
               </SheetTitle>
               <SheetDescription className="flex items-center gap-1">
@@ -65,33 +63,33 @@ export default function NodeDetailSheet({
           </div>
         </SheetHeader>
 
-        <Separator className="my-6" />
+        <Separator className="my-4 sm:my-6" />
 
         {/* Detalles principales */}
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-5">
             <div className="flex gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <Mail className="w-5 h-5 text-primary" />
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Correo Electrónico</Label>
-                <p className="font-medium">{node.email}</p>
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Correo Electrónico</Label>
+                <p className="font-medium text-sm sm:text-base break-all">{node.email}</p>
               </div>
             </div>
 
             <div className="flex gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <Hash className="w-5 h-5 text-primary" />
+                <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-sm text-muted-foreground">Código de Referencia</Label>
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{node.referralCode}</p>
+                <Label className="text-xs sm:text-sm text-muted-foreground">Código de Referencia</Label>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <p className="font-medium text-sm sm:text-base">{node.referralCode}</p>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-8 rounded-full"
+                    className="h-7 sm:h-8 rounded-full"
                     onClick={() => {
                       navigator.clipboard.writeText(node.referralCode);
                     }}
@@ -104,21 +102,21 @@ export default function NodeDetailSheet({
 
             <div className="flex gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <GitBranchPlus className="w-5 h-5 text-primary" />
+                <GitBranchPlus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Posición</Label>
-                <p className="font-medium">{node.position}</p>
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Posición</Label>
+                <p className="font-medium text-sm sm:text-base">{node.position}</p>
               </div>
             </div>
 
             <div className="flex gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <Activity className="w-5 h-5 text-primary" />
+                <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Estado</Label>
-                <div className="font-medium flex items-center gap-2">
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Estado</Label>
+                <div className="font-medium text-sm sm:text-base flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${node.isActive ? "bg-green-500" : "bg-red-500"}`}></div>
                   {node.isActive ? "Usuario activo" : "Usuario inactivo"}
                 </div>
@@ -127,32 +125,74 @@ export default function NodeDetailSheet({
 
             <div className="flex gap-3">
               <div className="bg-primary/10 p-2 rounded-full">
-                <ShieldCheck className="w-5 h-5 text-primary" />
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Posición en la Red</Label>
-                <p className="font-medium">Nivel {node.depth} de profundidad</p>
+              <div className="space-y-1 flex-1">
+                <Label className="text-xs sm:text-sm text-muted-foreground">Posición en la Red</Label>
+                <p className="font-medium text-sm sm:text-base">Nivel {node.depth} de profundidad</p>
               </div>
             </div>
           </div>
 
           {/* Acción principal */}
-          <Separator className="my-6" />
+          <Separator className="my-4 sm:my-6" />
           <div>
             <Button
-              className="w-full h-12 text-base"
+              className="w-full h-10 sm:h-12 text-sm sm:text-base"
               onClick={() => {
                 onNavigate(node.id);
                 onClose();
               }}
             >
-              <div className="flex items-center gap-3">
-                <GitBranchPlus className="h-5 w-5" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <GitBranchPlus className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Ver árbol de este usuario</span>
               </div>
             </Button>
           </div>
         </div>
+
+        {/* Navegación a hijos si existen */}
+        {hasChildren && (
+          <div className="mt-4 pt-3 border-t">
+            <p className="text-sm text-muted-foreground mb-3">Hijos directos:</p>
+            <div className="flex flex-wrap gap-2">
+              {hasLeftChild && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => {
+                    onNavigate(node.children!.left!.id);
+                    onClose();
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-blue-500 mr-1"></div>
+                  <span className="truncate max-w-[100px]">
+                    {node.children?.left?.fullName || node.children?.left?.email.split('@')[0] || "Hijo Izq."}
+                  </span>
+                </Button>
+              )}
+
+              {hasRightChild && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => {
+                    onNavigate(node.children!.right!.id);
+                    onClose();
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
+                  <span className="truncate max-w-[100px]">
+                    {node.children?.right?.fullName || node.children?.right?.email.split('@')[0] || "Hijo Der."}
+                  </span>
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );

@@ -16,6 +16,7 @@ interface NavigationControlsProps {
   navigateToRoot: () => void;
   navigateToParent: () => void;
   navigateToNode: (id: string) => void;
+  isMobile?: boolean;
 }
 
 export default function NavigationControls({
@@ -23,14 +24,15 @@ export default function NavigationControls({
   navigateToRoot,
   navigateToParent,
   navigateToNode,
+  isMobile = false,
 }: NavigationControlsProps) {
   const hasAncestors = ancestors && ancestors.length > 0;
 
   return (
-    <div className="flex gap-2 z-10">
+    <div className={`flex gap-2 z-10 ${isMobile ? 'w-full flex-wrap' : ''}`}>
       <Button
         variant="outline"
-        size="sm"
+        size={isMobile ? "sm" : "default"}
         onClick={navigateToRoot}
         className="flex items-center gap-1"
         title="Ir a la raíz"
@@ -41,7 +43,7 @@ export default function NavigationControls({
       
       <Button
         variant="outline"
-        size="sm"
+        size={isMobile ? "sm" : "default"}
         onClick={navigateToParent}
         className="flex items-center gap-1"
         disabled={!hasAncestors}
@@ -53,20 +55,22 @@ export default function NavigationControls({
 
       {/* Ancestor breadcrumb navigation */}
       {hasAncestors && (
-        <div className="relative ml-2">
+        <div className={`relative ${isMobile ? 'flex-1' : 'ml-2'}`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
-                className="flex items-center gap-1"
+                size={isMobile ? "sm" : "default"}
+                className={`flex items-center gap-1 ${isMobile ? 'w-full justify-between' : ''}`}
               >
-                <Users className="h-4 w-4" />
-                <span>Ancestros</span>
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span>Ancestros</span>
+                </div>
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuContent align={isMobile ? "center" : "start"} className="w-56">
               <DropdownMenuLabel>Ancestros</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {ancestors.map((ancestor) => (
@@ -75,7 +79,9 @@ export default function NavigationControls({
                   onClick={() => navigateToNode(ancestor.id)}
                   className="cursor-pointer"
                 >
-                  <span>{ancestor.fullName || ancestor.email}</span>
+                  <span className="truncate">
+                    {ancestor.fullName || ancestor.email}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

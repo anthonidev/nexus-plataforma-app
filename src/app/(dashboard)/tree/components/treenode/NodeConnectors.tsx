@@ -2,34 +2,48 @@
 
 interface NodeConnectorsProps {
   hasOnlyOneChild: boolean;
-  zoomLevel?: number; // Nuevo prop para ajustar conectores según zoom
+  zoomLevel?: number;
+  isMobile?: boolean;
 }
 
 export default function NodeConnectors({ 
   hasOnlyOneChild,
-  zoomLevel = 2
+  zoomLevel = 2,
+  isMobile = false
 }: NodeConnectorsProps) {
-  // Calcular alturas y anchuras de los conectores basado en el zoom
+  // Calcular alturas y anchuras de los conectores basado en el zoom y dispositivo
   const getLineHeight = () => {
-    switch(zoomLevel) {
-      case 1: return 64;
-      case 2: return 56;
-      case 3: return 48;
-      case 4: return 40;
-      case 5: return 32;
-      default: return 56;
+    const baseHeight = {
+      1: 64,
+      2: 56,
+      3: 48,
+      4: 40,
+      5: 32
+    };
+    
+    // Reducir altura para móviles
+    if (isMobile) {
+      return baseHeight[zoomLevel as keyof typeof baseHeight] * 0.8;
     }
+    
+    return baseHeight[zoomLevel as keyof typeof baseHeight];
   };
 
   const getLineWidth = () => {
-    switch(zoomLevel) {
-      case 1: return 240;
-      case 2: return 200;
-      case 3: return 160;
-      case 4: return 120;
-      case 5: return 100;
-      default: return 200;
+    const baseWidth = {
+      1: 240,
+      2: 200,
+      3: 160,
+      4: 120,
+      5: 100
+    };
+    
+    // Reducir anchura para móviles
+    if (isMobile) {
+      return baseWidth[zoomLevel as keyof typeof baseWidth] * 0.7;
     }
+    
+    return baseWidth[zoomLevel as keyof typeof baseWidth];
   };
 
   return (

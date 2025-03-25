@@ -3,6 +3,7 @@ import { TreeNode } from "@/types/tree/tree.types";
 import NodeCard from "./NodeCard";
 import NodeConnectors from "./NodeConnectors";
 import { BreadcrumbPath } from "../controls";
+import { useEffect, useState } from "react";
 
 interface TreeNodeHierarchyProps {
   node: TreeNode;
@@ -15,7 +16,7 @@ interface TreeNodeHierarchyProps {
   depth?: number;
   showNavigationButtons?: boolean;
   navigateToNode?: (id: string) => void;
-  zoomLevel?: number; // Nuevo prop para controlar el tamaño según el zoom
+  zoomLevel?: number;
 }
 
 export default function TreeNodeHierarchy({
@@ -31,6 +32,8 @@ export default function TreeNodeHierarchy({
   navigateToNode,
   zoomLevel = 2,
 }: TreeNodeHierarchyProps) {
+  const [isMobile, setIsMobile] = useState(false);
+  
   // Determine if this node has children
   const hasLeftChild = !!node.children?.left;
   const hasRightChild = !!node.children?.right;
@@ -40,17 +43,37 @@ export default function TreeNodeHierarchy({
   // Determine if node is current
   const isCurrent = currentNodeId === node.id;
 
-  // Calcular el espacio entre nodos basado en el zoom
+  // Detectar si estamos en un dispositivo móvil
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+  
+  // Calcular el espacio entre nodos basado en el zoom y el dispositivo
   const getSpacing = () => {
-    // Ajustar espaciado según nivel de zoom - más niveles = menos espacio
-    switch(zoomLevel) {
-      case 1: return 64;
-      case 2: return 48;
-      case 3: return 32;
-      case 4: return 24;
-      case 5: return 16;
-      default: return 48;
+    // Base spacing by zoom level
+    const baseSpacing = {
+      1: 64,
+      2: 48,
+      3: 32,
+      4: 24,
+      5: 16
+    };
+    
+    // Reducir espacio para móviles
+    if (isMobile) {
+      return baseSpacing[zoomLevel as keyof typeof baseSpacing] * 0.7;
     }
+    
+    return baseSpacing[zoomLevel as keyof typeof baseSpacing];
   };
 
   return (
@@ -72,6 +95,8 @@ export default function TreeNodeHierarchy({
       <NodeCard
         node={node}
         onNodeClick={onNodeClick}
+        onNodeHover={onNodeHover}
+        isHovered={hoveredNodeId === node.id}
         isCurrent={isCurrent}
         isRoot={isRoot}
         depth={depth}
@@ -87,6 +112,7 @@ export default function TreeNodeHierarchy({
           <NodeConnectors 
             hasOnlyOneChild={hasOnlyOneChild} 
             zoomLevel={zoomLevel}
+            isMobile={isMobile}
           />
 
           {/* Children nodes */}
@@ -103,6 +129,8 @@ export default function TreeNodeHierarchy({
                 <TreeNodeHierarchy
                   node={node.children!.left!}
                   onNodeClick={onNodeClick}
+                  onNodeHover={onNodeHover}
+                  hoveredNodeId={hoveredNodeId}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
                   zoomLevel={zoomLevel}
@@ -116,6 +144,8 @@ export default function TreeNodeHierarchy({
                 <TreeNodeHierarchy
                   node={node.children!.right!}
                   onNodeClick={onNodeClick}
+                  onNodeHover={onNodeHover}
+                  hoveredNodeId={hoveredNodeId}
                   currentNodeId={currentNodeId}
                   depth={depth + 1}
                   zoomLevel={zoomLevel}

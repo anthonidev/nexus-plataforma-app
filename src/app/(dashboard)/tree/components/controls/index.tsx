@@ -3,6 +3,7 @@ import { TreeNode } from "@/types/tree/tree.types";
 import BreadcrumbPath from "./BreadcrumbPath";
 import NavigationControls from "./NavigationControls";
 import ZoomControls from "./ZoomControls";
+import { useEffect, useState } from "react";
 
 interface TreeControlsProps {
   // Navigation props
@@ -30,15 +31,32 @@ export default function TreeControls({
   handleZoomIn,
   handleZoomOut,
 }: TreeControlsProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar si estamos en un dispositivo móvil
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+
   return (
     <>
-      {/* Top control bars */}
-      <div className="flex flex-wrap gap-4 justify-between mb-6">
+      {/* Top control bars - responsive layout */}
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-wrap'} gap-4 ${isMobile ? 'items-start' : 'justify-between'} mb-6`}>
         <NavigationControls
           ancestors={ancestors}
           navigateToRoot={navigateToRoot}
           navigateToParent={navigateToParent}
           navigateToNode={navigateToNode}
+          isMobile={isMobile}
         />
         
         <ZoomControls
@@ -49,8 +67,6 @@ export default function TreeControls({
           canZoomOut={descendantDepth > 1}
         />
       </div>
-      
-      {/* Breadcrumb component is exported but used in TreeNodeHierarchy component */}
     </>
   );
 }

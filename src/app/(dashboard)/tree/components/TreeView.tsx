@@ -66,35 +66,44 @@ export default function TreeView({ userId, initialDepth = 2 }: TreeViewProps) {
     : undefined;
 
   return (
-    <div className="relative">
-      {/* Controls section */}
-      <TreeControls
-        ancestors={nodeContext.ancestors}
-        currentNode={nodeContext.node}
-        navigateToRoot={navigateToRoot}
-        navigateToParent={navigateToParent}
-        navigateToNode={navigateToNode}
-        refreshTree={refreshTree}
-        descendantDepth={descendantDepth}
-        handleZoomIn={handleZoomIn}
-        handleZoomOut={handleZoomOut}
-      />
+    <div className="flex flex-col h-full">
+      {/* Controls section - fixed height */}
+      <div className="mb-4">
+        <TreeControls
+          ancestors={nodeContext.ancestors}
+          currentNode={nodeContext.node}
+          navigateToRoot={navigateToRoot}
+          navigateToParent={navigateToParent}
+          navigateToNode={navigateToNode}
+          refreshTree={refreshTree}
+          descendantDepth={descendantDepth}
+          handleZoomIn={handleZoomIn}
+          handleZoomOut={handleZoomOut}
+        />
+      </div>
 
-      {/* Tree visualization - Ajustados overflow y padding */}
-      <div className="border rounded-lg bg-muted/10 p-4 overflow-x-hidden overflow-y-auto min-h-[600px] max-h-[800px]">
-        <ViewBox>
-          <TreeNodeHierarchy
-            node={nodeContext.node}
-            onNodeClick={handleNodeSelect}
-            onNodeHover={() => {}}
-            hoveredNodeId={null}
-            currentNodeId={nodeContext.node.id}
-            ancestors={nodeContext.ancestors}
-            isRoot={true}
-            navigateToNode={navigateToNode}
-            zoomLevel={descendantDepth}
-          />
-        </ViewBox>
+      {/* Tree visualization container - flexible height with contained scroll */}
+      <div className="flex-1 flex flex-col">
+        <div className="border rounded-lg bg-muted/10 flex-1 relative overflow-hidden" style={{ minHeight: "600px", maxHeight: "calc(100vh - 250px)" }}>
+          {/* ScrollArea for contained scrolling */}
+          <div className="absolute inset-0 overflow-auto">
+            <div className="p-4 min-w-full min-h-full flex items-start justify-center">
+              <ViewBox>
+                <TreeNodeHierarchy
+                  node={nodeContext.node}
+                  onNodeClick={handleNodeSelect}
+                  onNodeHover={() => {}}
+                  hoveredNodeId={null}
+                  currentNodeId={nodeContext.node.id}
+                  ancestors={nodeContext.ancestors}
+                  isRoot={true}
+                  navigateToNode={navigateToNode}
+                  zoomLevel={descendantDepth}
+                />
+              </ViewBox>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Node detail sheet */}
