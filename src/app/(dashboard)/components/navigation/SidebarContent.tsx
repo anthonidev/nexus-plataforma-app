@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, LogOut, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import SidebarLink from "./SidebarLink";
+import Image from "next/image";
 type Props = {
   isCollapsed: boolean;
   setIsCollapsed: (value: boolean) => void;
@@ -44,7 +45,7 @@ const SidebarContent = ({
           transition={{ duration: 0.2 }}
           className="font-bold text-xl overflow-hidden whitespace-nowrap"
         >
-          Nexus
+          <Image src="/imgs/logo.png" alt="Logo" width={40} height={40} />
         </motion.span>
         {!isMobile && (
           <motion.button
