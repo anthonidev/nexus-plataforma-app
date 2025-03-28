@@ -44,7 +44,7 @@ const SidebarContent = ({
           transition={{ duration: 0.2 }}
           className="font-bold text-xl overflow-hidden whitespace-nowrap"
         >
-          Property Pro
+          Nexus
         </motion.span>
         {!isMobile && (
           <motion.button

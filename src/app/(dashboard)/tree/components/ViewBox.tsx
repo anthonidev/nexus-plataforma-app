@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Plus, Minus, XCircle } from 'lucide-react';
 
 interface ViewBoxProps {
   children: React.ReactNode;
@@ -8,145 +9,108 @@ interface ViewBoxProps {
 }
 
 export default function ViewBox({ children, initialZoom = 1, className = "" }: ViewBoxProps) {
-  const [scale, setScale] = useState(initialZoom);
-  const [isDragging, setIsDragging] = useState(false);
+  // Estado para controlar el zoom y posición
+  const [zoom, setZoom] = useState(initialZoom);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  // Estado para controlar el arrastre
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   
-  // Ajustar escala basada en el contenido y el contenedor
-  useEffect(() => {
-    const fitContentToContainer = () => {
-      if (!containerRef.current || !contentRef.current) return;
-      
-      const container = containerRef.current;
-      const content = contentRef.current;
-      
-      const containerWidth = container.clientWidth;
-      const contentWidth = content.scrollWidth;
-      
-      // Este factor asegura un pequeño margen a los lados
-      const safetyFactor = 0.9;
-      
-      // Si el contenido es más ancho que el contenedor, SIEMPRE reducimos la escala
-      // para prevenir scroll horizontal
-      if (contentWidth > containerWidth * safetyFactor) {
-        // Calcular escala para que todo el contenido sea visible sin scroll horizontal
-        const newScale = (containerWidth * safetyFactor) / contentWidth;
-        setScale(newScale);
-      } else if (scale !== initialZoom) {
-        // Solo restauramos al initialZoom si hemos cambiado antes
-        setScale(initialZoom);
-      }
-      
-      // Reiniciar la posición cuando cambia el contenido
-      setPosition({ x: 0, y: 0 });
-    };
-    
-    fitContentToContainer();
-    
-    // Observar cambios en el tamaño
-    const resizeObserver = new ResizeObserver(fitContentToContainer);
-    if (containerRef.current) resizeObserver.observe(containerRef.current);
-    if (contentRef.current) resizeObserver.observe(contentRef.current);
-    
-    // También observamos cambios después de un pequeño retraso
-    // para capturar actualizaciones posteriores a la renderización
-    const timeout = setTimeout(fitContentToContainer, 300);
-    
-    // Limpiar al desmontar
-    return () => {
-      resizeObserver.disconnect();
-      clearTimeout(timeout);
-    };
-  }, [children, initialZoom, scale]);
-
-  // Manejar eventos de arrastrar (panning)
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setStartPos({ x: e.clientX - position.x, y: e.clientY - position.y });
+  // Limites de zoom
+  const MIN_ZOOM = 0.2;
+  const MAX_ZOOM = 2;
+  const ZOOM_STEP = 0.1;
+  
+  // Función para aumentar el zoom
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + ZOOM_STEP, MAX_ZOOM));
   };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    setPosition({
-      x: e.clientX - startPos.x,
-      y: e.clientY - startPos.y
+  
+  // Función para reducir el zoom
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - ZOOM_STEP, MIN_ZOOM));
+  };
+  
+  // Función para resetear la vista
+  const handleReset = () => {
+    setZoom(initialZoom);
+    setPosition({ x: 0, y: 0 });
+  };
+  
+  // Eventos de ratón para arrastrar (mouse)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
     });
   };
-
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    setPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+  
   const handleMouseUp = () => {
     setIsDragging(false);
   };
-
-  // Manejo de eventos táctiles para dispositivos móviles
+  
+  // Eventos táctiles para arrastrar (touch)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      setIsDragging(true);
-      setStartPos({
-        x: e.touches[0].clientX - position.x,
-        y: e.touches[0].clientY - position.y
-      });
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || e.touches.length !== 1) return;
-    e.preventDefault(); // Prevenir scroll
-    
-    setPosition({
-      x: e.touches[0].clientX - startPos.x,
-      y: e.touches[0].clientY - startPos.y
+    if (e.touches.length !== 1) return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.touches[0].clientX - position.x,
+      y: e.touches[0].clientY - position.y
     });
   };
-
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    e.preventDefault();
+    setPosition({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y
+    });
+  };
+  
   const handleTouchEnd = () => {
     setIsDragging(false);
   };
   
-  // Controlar zoom con rueda del mouse
+  // Evento de rueda para zoom
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    
-    // Ajustar escala basado en dirección de la rueda
-    const delta = e.deltaY * -0.01;
-    const newScale = Math.min(Math.max(0.2, scale + delta), 2); // Limitar zoom entre 0.2x y 2x
-    
-    // Verificar que el nuevo nivel de zoom no cause desbordamiento horizontal
-    if (contentRef.current && containerRef.current) {
-      const container = containerRef.current;
-      const content = contentRef.current;
-      
-      const containerWidth = container.clientWidth;
-      const contentWidthAfterZoom = (content.scrollWidth / scale) * newScale;
-      
-      // Si el contenido sería más ancho que el contenedor después del zoom,
-      // calcular un nivel de zoom que ajuste perfectamente
-      if (contentWidthAfterZoom > containerWidth * 0.95) {
-        const constrainedScale = (containerWidth * 0.95) / (content.scrollWidth / scale);
-        // Solo aplicar esta restricción si intentamos hacer zoom in
-        if (delta > 0) {
-          setScale(Math.min(newScale, constrainedScale));
-          return;
-        }
-      }
-    }
-    
-    setScale(newScale);
+    const delta = -e.deltaY * 0.01;
+    setZoom(prev => {
+      const newZoom = prev + delta;
+      return Math.max(MIN_ZOOM, Math.min(newZoom, MAX_ZOOM));
+    });
   };
-
-  // Método para centrar el contenido
-  const resetView = () => {
-    setPosition({ x: 0, y: 0 });
-    setScale(initialZoom);
-  };
-
+  
+  // Efecto para limpiar los eventos cuando el componente se desmonta
+  useEffect(() => {
+    const handleGlobalMouseUp = () => setIsDragging(false);
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalMouseUp);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+  
   return (
     <div 
-      ref={containerRef}
-      className={`relative overflow-hidden h-full w-full flex items-center justify-center ${className}`}
+      className={`relative overflow-hidden h-full w-full ${className}`}
+      style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -155,55 +119,41 @@ export default function ViewBox({ children, initialZoom = 1, className = "" }: V
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
-      style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
     >
+      {/* Contenido con transformación */}
       <div 
-        ref={contentRef}
-        style={{ 
-          transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+        className="flex justify-center items-center w-full h-full"
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
           transformOrigin: 'center center',
-          transition: isDragging ? 'none' : 'transform 0.3s ease',
-          maxWidth: '100%' // Asegurar que el contenido nunca sea más ancho que el contenedor
+          transition: isDragging ? 'none' : 'transform 0.2s ease',
         }}
-        className="flex justify-center"
       >
         {children}
       </div>
       
-      {/* Mini-controles de navegación - opcional */}
-      <div className="absolute bottom-2 right-2 flex gap-1 bg-background/80 backdrop-blur-sm p-1 rounded-md shadow-sm border z-50">
+      {/* Controles de zoom */}
+      <div className="absolute bottom-3 right-3 flex gap-1 bg-background/80 backdrop-blur-sm p-1 rounded-md shadow-sm border z-50">
         <button 
-          onClick={() => {
-            if (contentRef.current && containerRef.current) {
-              const container = containerRef.current;
-              const content = contentRef.current;
-              const containerWidth = container.clientWidth;
-              const contentWidthAfterZoom = (content.scrollWidth / scale) * (scale + 0.1);
-              
-              // Evitar zoom si causaría desbordamiento horizontal
-              if (contentWidthAfterZoom <= containerWidth * 0.95) {
-                setScale(Math.min(scale + 0.1, 2));
-              }
-            }
-          }}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-xs"
+          onClick={handleZoomIn}
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
           title="Acercar"
         >
-          +
+          <Plus size={16} />
         </button>
         <button 
-          onClick={() => setScale(Math.max(scale - 0.1, 0.2))}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-xs"
+          onClick={handleZoomOut}
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
           title="Alejar"
         >
-          -
+          <Minus size={16} />
         </button>
         <button 
-          onClick={resetView}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-xs"
-          title="Centrar"
+          onClick={handleReset}
+          className="w-8 h-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
+          title="Restablecer vista"
         >
-          ⊕
+          <XCircle size={16} />
         </button>
       </div>
     </div>
