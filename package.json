@@ -17,6 +17,8 @@
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@react-three/drei": "^10.0.5",
+    "@react-three/fiber": "^9.0.0-alpha.8",
     "@tailwindcss/postcss": "^4.0.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -35,6 +37,8 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.14",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.175.0",
+    "three-globe": "^2.42.3",
     "tsparticles": "^3.8.1",
     "tsparticles-slim": "^2.12.0",
     "zod": "^3.24.2"

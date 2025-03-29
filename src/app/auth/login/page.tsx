@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Globe } from "@/components/ui/globe";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,6 +32,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import GlobeLogin from "../components/GlobeLogin";
 
 // Importamos los componentes específicos de forma dinámica para evitar errores de SSR
 const NexusGrowthVisual = dynamic(
@@ -279,7 +281,8 @@ export default function LoginPage() {
         >
           {/* Componente de globo 3D */}
           <div className="flex items-center justify-center">
-            <NexusGrowthVisual size={320} />
+            {/* <NexusGrowthVisual size={320} /> */}
+            <GlobeLogin />
           </div>
 
           {/* Texto descriptivo */}
