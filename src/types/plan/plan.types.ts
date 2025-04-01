@@ -13,3 +13,18 @@ export interface MembershipPlan {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PaymentDetail {
+  bankName?: string;
+  transactionReference: string;
+  transactionDate: string;
+  amount: number;
+  fileIndex: number;
+}
+
+export interface MembershipSubscriptionData {
+  planId: number;
+  totalAmount: number;
+  notes?: string;
+  payments: PaymentDetail[];
+}
