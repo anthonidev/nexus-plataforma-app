@@ -45,7 +45,7 @@ const SidebarContent = ({
           transition={{ duration: 0.2 }}
           className="font-bold text-xl overflow-hidden whitespace-nowrap"
         >
-          <Image src="/imgs/logo.png" alt="Logo" width={40} height={40} />
+          <Image src="/imgs/logo.png" alt="Logo" width={100} height={100} />
         </motion.span>
         {!isMobile && (
           <motion.button

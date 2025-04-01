@@ -16,7 +16,7 @@ declare module "@react-three/fiber" {
 
 extend({ ThreeGlobe: ThreeGlobe });
 
-const RING_PROPAGATION_SPEED = 3;
+const RING_PROPAGATION_SPEED = 4;
 const aspect = 1.2;
 const cameraZ = 300;
 
@@ -225,7 +225,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
         }));
 
       globeRef.current.ringsData(ringsData);
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearInterval(interval);

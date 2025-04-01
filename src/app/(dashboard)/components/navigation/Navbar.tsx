@@ -101,7 +101,6 @@ const Navbar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
         <Separator orientation="vertical" className="h-6 bg-border" />
-        {}
         <ThemeSwitch />
       </div>
     </motion.nav>

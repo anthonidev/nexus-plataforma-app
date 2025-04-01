@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Globe } from "@/components/ui/globe";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnimatePresence, motion } from "framer-motion";
@@ -32,28 +31,13 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import GlobeLogin from "../components/GlobeLogin";
+import GlobeLogin from "../components/NexusGlobeComponent";
 
-// Importamos los componentes específicos de forma dinámica para evitar errores de SSR
-const NexusGrowthVisual = dynamic(
-  () => import("../components/NexusGrowthVisual"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
-      </div>
-    ),
-  }
-);
 const NexusParticlesBackground = dynamic(
   () => import("../components/NexusParticlesBackground"),
   { ssr: false }
 );
 
-// Importar estilos de animación
-
-// Tipos para los datos del formulario
 interface FormData {
   email: string;
   password: string;
@@ -271,7 +255,7 @@ export default function LoginPage() {
       >
         {/* Lado izquierdo - Globo 3D con efectos */}
         <motion.div
-          className="relative w-full max-w-md order-2 md:order-1"
+          className="relative w-full max-w-xl order-2 md:order-1 hidden lg:block"
           initial={{ opacity: 0, y: 20 }}
           animate={{
             opacity: isGlobeLoaded ? 1 : 0,
@@ -293,7 +277,7 @@ export default function LoginPage() {
             transition={{ delay: 1.2 }}
           >
             <h2 className="text-2xl font-bold text-primary mb-2">
-              Nexus Global Network
+              Nexus H. Global
             </h2>
             <p className="text-muted-foreground max-w-sm mx-auto">
               Conectando personas, construyendo futuro. Únete a nuestra red
@@ -438,7 +422,7 @@ export default function LoginPage() {
                       transition={{ delay: 0.6 }}
                       className="relative inline-block"
                     >
-                      Bienvenido a Nexus
+                      Bienvenido a NEXUS
                       <motion.span
                         className="absolute bottom-0 left-0 bg-primary h-0.5 w-0"
                         animate={{ width: "100%" }}
@@ -674,7 +658,7 @@ export default function LoginPage() {
                   <div className="relative w-full flex items-center justify-center my-2">
                     <div className="absolute w-full h-px bg-border" />
                     <span className="relative bg-card px-3 text-xs text-muted-foreground z-10">
-                      NEXUS GLOBAL NETWORK
+                      NEXUS H. GLOBAL
                     </span>
                   </div>
 

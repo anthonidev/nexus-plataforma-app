@@ -8,6 +8,7 @@ export interface UserClient {
   email: string;
   role: Role;
   views: View[];
+  membership: Membership;
 }
 export interface Role {
   id: number;
@@ -23,4 +24,8 @@ export interface View {
   order: number;
   metadata: null;
   children: View[];
+}
+
+export interface Membership {
+  hasMembership: boolean;
 }

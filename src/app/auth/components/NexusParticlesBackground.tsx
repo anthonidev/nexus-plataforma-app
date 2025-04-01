@@ -21,16 +21,16 @@ const NexusParticlesBackground = () => {
     if (theme === "dark") {
       return {
         background: "#1a202c",
-        particle: "#0d9488", // verde teal
-        links: "#065f46", // verde esmeralda oscuro
-        hover: "#10b981", // verde esmeralda
+        particle: "#34d399", // Verde más brillante
+        links: "#10b981", // Verde esmeralda más visible
+        hover: "#6ee7b7", // Verde claro para hover
       };
     }
     return {
       background: "#f8fafc",
-      particle: "#0d9488", // verde teal
-      links: "#a7f3d0", // verde esmeralda claro
-      hover: "#059669", // verde esmeralda oscuro
+      particle: "#059669", // Verde más oscuro para modo claro
+      links: "#10b981", // Verde esmeralda medio
+      hover: "#34d399", // Verde claro para hover
     };
   };
 
@@ -57,11 +57,11 @@ const NexusParticlesBackground = () => {
       },
       modes: {
         push: {
-          quantity: 4,
+          quantity: 6, // Más partículas al hacer clic
         },
         repulse: {
-          distance: 100,
-          duration: 0.4,
+          distance: 150, // Mayor distancia de repulsión
+          duration: 0.6, // Mayor duración del efecto
         },
       },
     },
@@ -71,10 +71,13 @@ const NexusParticlesBackground = () => {
       },
       links: {
         color: colors.links,
-        distance: 150,
+        distance: 170, // Mayor distancia entre enlaces
         enable: true,
-        opacity: 0.5,
-        width: 1,
+        opacity: 0.7, // Mayor opacidad en los enlaces
+        width: 1.5, // Enlaces más gruesos
+      },
+      collisions: {
+        enable: true, // Habilitar colisiones para movimiento más realista
       },
       move: {
         direction: "none" as const,
@@ -83,24 +86,52 @@ const NexusParticlesBackground = () => {
           default: "bounce",
         },
         random: false,
-        speed: 1,
+        speed: 1.2, // Ligeramente más rápido
         straight: false,
+        attract: {
+          // Añadir algo de atracción
+          enable: true,
+          rotateX: 600,
+          rotateY: 1200,
+        },
       },
       number: {
         density: {
           enable: true,
           area: 800,
         },
-        value: 80,
+        value: 100, // Más partículas
       },
       opacity: {
-        value: 0.5,
+        value: 0.8, // Mayor opacidad
+        random: true, // Opacidad aleatoria para más profundidad
+        anim: {
+          enable: true,
+          speed: 1,
+          opacity_min: 0.4,
+          sync: false,
+        },
       },
       shape: {
         type: "circle",
       },
       size: {
-        value: { min: 1, max: 3 },
+        value: { min: 1.5, max: 4 }, // Partículas más grandes
+        random: true, // Tamaños aleatorios
+        anim: {
+          enable: true,
+          speed: 2,
+          size_min: 0.5,
+          sync: false,
+        },
+      },
+      twinkle: {
+        // Efecto de destello
+        particles: {
+          enable: true,
+          frequency: 0.05,
+          opacity: 0.9,
+        },
       },
     },
     detectRetina: true,
