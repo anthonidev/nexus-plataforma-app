@@ -1,19 +1,25 @@
-export interface MembershipPlanResponse {
-  plans: MembershipPlan[];
-  userMembership: {
-    hasMembership: boolean;
-    status?: "PENDING" | "ACTIVE" | "EXPIRED" | "INACTIVE";
-    plan?: {
-      id: number;
-      name: string;
-      price: string;
-    };
-    nextReconsumptionDate?: string;
-    endDate?: string;
-    message?: string;
+interface UserMembership {
+  hasMembership: boolean;
+  status?: "PENDING" | "ACTIVE" | "EXPIRED" | "INACTIVE";
+  plan?: {
+    id: number;
+    name: string;
+    price: string;
   };
+  nextReconsumptionDate?: string;
+  endDate?: string;
+  message?: string;
 }
 
+export interface MembershipPlanResponse {
+  plans: MembershipPlan[];
+  userMembership: UserMembership;
+}
+
+export interface MembershipDetail {
+  plan: MembershipPlan;
+  userMembership: UserMembership;
+}
 export interface MembershipPlan {
   id: number;
   name: string;

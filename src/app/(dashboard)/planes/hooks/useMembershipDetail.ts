@@ -1,33 +1,33 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
   getMembershipPlanById,
   subscribeToPlan,
+  upgradeToPlan,
 } from "@/lib/actions/users/plans.action";
 import { MembershipPlan } from "@/types/plan/plan.types";
 
 export function useMembershipDetail(planId: number) {
   const router = useRouter();
 
-  // Plan details state
   const [plan, setPlan] = useState<MembershipPlan | null>(null);
+  const [userMembership, setUserMembership] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Subscription states
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch plan details
   const fetchPlanDetails = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const planDetails = await getMembershipPlanById(planId);
-      setPlan(planDetails);
+      const response = await getMembershipPlanById(planId);
+      setPlan(response.plan);
+      setUserMembership(response.userMembership);
     } catch (err) {
       const errorMessage =
         err instanceof Error
@@ -40,17 +40,14 @@ export function useMembershipDetail(planId: number) {
     }
   }, [planId]);
 
-  // Subscribe to membership plan
   const handleSubscription = useCallback(
     async (formData: FormData) => {
       try {
         setIsSubmitting(true);
 
-        // Validate files
         const paymentImages = formData.getAll("paymentImages") as File[];
         const payments = JSON.parse(formData.get("payments") as string);
 
-        // Validate file count matches payment count
         if (paymentImages.length !== payments.length) {
           toast.error(
             "El número de imágenes debe coincidir con el número de pagos"
@@ -58,58 +55,63 @@ export function useMembershipDetail(planId: number) {
           return;
         }
 
-        // Validate file sizes
         if (paymentImages.some((file) => file.size > 5 * 1024 * 1024)) {
           toast.error("Las imágenes no deben superar 5MB cada una");
           return;
         }
 
-        // Validate file types
         const validTypes = ["image/jpeg", "image/png", "image/jpg"];
         if (paymentImages.some((file) => !validTypes.includes(file.type))) {
           toast.error("Solo se permiten imágenes JPG, JPEG o PNG");
           return;
         }
 
-        const result = await subscribeToPlan(formData);
+        let result;
+        if (plan?.isUpgrade) {
+          result = await upgradeToPlan(formData);
+        } else {
+          result = await subscribeToPlan(formData);
+        }
 
         if (result.success) {
           toast.success(result.message);
           router.push("/planes");
         } else {
-          toast.error(result.message || "Error al procesar la suscripción");
+          toast.error(result.message || "Error al procesar la solicitud");
         }
       } catch (err) {
         const errorMessage =
           err instanceof Error
             ? err.message
+            : plan?.isUpgrade
+            ? "Ocurrió un error al actualizar el plan"
             : "Ocurrió un error al suscribirse al plan";
 
         toast.error(errorMessage);
-        console.error("Subscription error:", err);
+        console.error(
+          plan?.isUpgrade ? "Upgrade error:" : "Subscription error:",
+          err
+        );
       } finally {
         setIsSubmitting(false);
       }
     },
-    [router]
+    [router, plan]
   );
 
-  // Fetch plan details on component mount
   useEffect(() => {
     fetchPlanDetails();
   }, [fetchPlanDetails]);
 
   return {
-    // Plan details
     plan,
+    userMembership,
     isLoading,
     error,
 
-    // Subscription methods
     handleSubscription,
     isSubmitting,
 
-    // Refresh method
     refetchPlan: fetchPlanDetails,
   };
 }

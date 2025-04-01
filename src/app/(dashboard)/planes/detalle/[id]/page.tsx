@@ -14,6 +14,8 @@ import {
   FileText,
   Package,
   Plus,
+  RefreshCw,
+  ArrowUpRight,
 } from "lucide-react";
 import { PaymentImageModal } from "../../components/PaymentImageModal";
 import { PaymentSummary } from "../../components/PaymentSummary";
@@ -35,12 +37,21 @@ export default function MembershipPlanDetailPage() {
   }
 
   // Use custom hook for plan details and subscription
-  const { plan, isLoading, error, handleSubscription, isSubmitting } =
-    useMembershipDetail(planId);
+  const {
+    plan,
+    userMembership,
+    isLoading,
+    error,
+    handleSubscription,
+    isSubmitting,
+  } = useMembershipDetail(planId);
 
   // State for payment modal and payment list
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [payments, setPayments] = useState<PaymentImageModalType[]>([]);
+
+  // Determinar si es una actualización o una nueva suscripción
+  const isUpgrade = plan?.isUpgrade || false;
 
   // Calculate total paid amount
   const totalPaidAmount = useMemo(() => {
@@ -103,9 +114,12 @@ export default function MembershipPlanDetailPage() {
   };
 
   // Submit handler
-  // Modify the onSubmit function in src/app/(dashboard)/planes/detalle/[id]/page.tsx
   const onSubmit = (data: SubscriptionType) => {
-    const planPrice = plan ? parseFloat(plan.price) : 0;
+    const planPrice = plan
+      ? isUpgrade && plan.upgradeCost
+        ? plan.upgradeCost
+        : parseFloat(plan.price)
+      : 0;
 
     // Validate total amount matches plan price
     const totalPaidAmount = payments.reduce(
@@ -145,12 +159,18 @@ export default function MembershipPlanDetailPage() {
     // Call subscription handler
     handleSubscription(formData);
   };
+
   useEffect(() => {
     if (plan) {
-      const planPrice = parseFloat(plan.price);
+      const planPrice =
+        isUpgrade && plan.upgradeCost
+          ? plan.upgradeCost
+          : parseFloat(plan.price);
+
       setValue("totalAmount", planPrice);
     }
-  }, [plan, setValue]);
+  }, [plan, isUpgrade, setValue]);
+
   // Loading state
   if (isLoading) {
     return <div>Cargando detalles del plan...</div>;
@@ -167,7 +187,11 @@ export default function MembershipPlanDetailPage() {
       </div>
     );
   }
-  const planPrice = parseFloat(plan.price);
+
+  // Calcular el precio a mostrar (normal o de actualización)
+  const planPrice =
+    isUpgrade && plan.upgradeCost ? plan.upgradeCost : parseFloat(plan.price);
+
   return (
     <div className="container mx-auto p-6 grid md:grid-cols-2 gap-8">
       {/* Plan Details */}
@@ -175,7 +199,12 @@ export default function MembershipPlanDetailPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-primary" />
-            Detalles del Plan {plan.name}
+            {isUpgrade ? "Actualización a " : "Detalles del Plan "} {plan.name}
+            {isUpgrade && (
+              <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-300 text-xs rounded-full">
+                Actualización
+              </span>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -187,13 +216,45 @@ export default function MembershipPlanDetailPage() {
                 {new Intl.NumberFormat("es-PE", {
                   style: "currency",
                   currency: "PEN",
-                }).format(parseFloat(plan.price))}
+                }).format(planPrice)}
               </p>
               <p className="text-sm text-muted-foreground">
-                Precio total del plan
+                {isUpgrade ? "Costo de actualización" : "Precio total del plan"}
               </p>
+
+              {isUpgrade && (
+                <div className="mt-2 text-sm flex items-center gap-1">
+                  <span className="line-through text-muted-foreground">
+                    {new Intl.NumberFormat("es-PE", {
+                      style: "currency",
+                      currency: "PEN",
+                    }).format(parseFloat(plan.price))}
+                  </span>
+                  <span className="text-green-600 font-medium">
+                    (Ahorro de{" "}
+                    {new Intl.NumberFormat("es-PE", {
+                      style: "currency",
+                      currency: "PEN",
+                    }).format(parseFloat(plan.price) - planPrice)}
+                    )
+                  </span>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Current Plan if upgrading */}
+          {isUpgrade && userMembership?.plan && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
+                Actualizando desde:
+              </h3>
+              <div className="flex items-center justify-between">
+                <span>{userMembership.plan.name}</span>
+                <ArrowUpRight className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+          )}
 
           {/* Products */}
           <div>
@@ -232,7 +293,9 @@ export default function MembershipPlanDetailPage() {
       {/* Subscription Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Suscripción al Plan</CardTitle>
+          <CardTitle>
+            {isUpgrade ? "Actualización de Plan" : "Suscripción al Plan"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -298,21 +361,30 @@ export default function MembershipPlanDetailPage() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full"
+              className={`w-full ${
+                isUpgrade ? "bg-blue-600 hover:bg-blue-700" : ""
+              }`}
               disabled={
                 payments.length === 0 ||
                 isSubmitting ||
                 totalPaidAmount !== planPrice
               }
             >
-              {totalPaidAmount < planPrice
-                ? `Pendiente: ${new Intl.NumberFormat("es-PE", {
-                    style: "currency",
-                    currency: "PEN",
-                  }).format(planPrice - totalPaidAmount)}`
-                : isSubmitting
-                ? "Procesando..."
-                : "Suscribirse al Plan"}
+              {isSubmitting ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : totalPaidAmount < planPrice ? (
+                `Pendiente: ${new Intl.NumberFormat("es-PE", {
+                  style: "currency",
+                  currency: "PEN",
+                }).format(planPrice - totalPaidAmount)}`
+              ) : isUpgrade ? (
+                "Actualizar Plan"
+              ) : (
+                "Suscribirse al Plan"
+              )}
             </Button>
           </form>
         </CardContent>
@@ -327,7 +399,10 @@ export default function MembershipPlanDetailPage() {
           bankName: "",
           transactionReference: "",
           transactionDate: new Date().toISOString().split("T")[0],
-          amount: plan.price ? parseFloat(plan.price) : 0,
+          amount:
+            plan.isUpgrade && plan.upgradeCost
+              ? plan.upgradeCost
+              : parseFloat(plan.price),
           file: undefined,
         }}
       />
