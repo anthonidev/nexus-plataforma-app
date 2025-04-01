@@ -1,31 +1,17 @@
+// src/app/(dashboard)/planes/detalle/[id]/page.tsx
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { notFound, useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertCircle,
-  Award,
-  DollarSign,
-  FileText,
-  Package,
-  Plus,
-  RefreshCw,
-  ArrowUpRight,
-} from "lucide-react";
 import { PaymentImageModal } from "../../components/PaymentImageModal";
-import { PaymentSummary } from "../../components/PaymentSummary";
 import { useMembershipDetail } from "../../hooks/useMembershipDetail";
 import {
-  PaymentImageModalType,
-  SubscriptionSchema,
-  SubscriptionType,
-} from "../../validations/suscription.zod";
-import { toast } from "sonner";
+  ErrorState,
+  LoadingState,
+} from "../../components/detail/LoadingAndErrorStates";
+import { PlanDetailsCard } from "../../components/detail/PlanDetailsCard";
+import { SubscriptionFormCard } from "../../components/detail/SubscriptionFormCard";
 
 export default function MembershipPlanDetailPage() {
   const params = useParams<{ id: string }>();
@@ -42,370 +28,103 @@ export default function MembershipPlanDetailPage() {
     userMembership,
     isLoading,
     error,
-    handleSubscription,
     isSubmitting,
+
+    // Payment data
+    payments,
+    isPaymentModalOpen,
+    totalPaidAmount,
+    remainingAmount,
+    planPrice,
+    isPaymentComplete,
+
+    // Payment actions
+    addPayment,
+    deletePayment,
+    editPayment,
+    handlePaymentModalOpen,
+    handlePaymentModalClose,
+
+    // Form submission
+    handleSubscription,
   } = useMembershipDetail(planId);
 
-  // State for payment modal and payment list
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [payments, setPayments] = useState<PaymentImageModalType[]>([]);
+  // Estado para edición de pagos
+  const [editingPayment, setEditingPayment] = useState<{
+    index: number;
+    payment: any;
+  } | null>(null);
 
   // Determinar si es una actualización o una nueva suscripción
   const isUpgrade = plan?.isUpgrade || false;
 
-  // Calculate total paid amount
-  const totalPaidAmount = useMemo(() => {
-    return payments.reduce((sum, payment) => sum + payment.amount, 0);
-  }, [payments]);
-
-  // Form handling
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<SubscriptionType>({
-    resolver: zodResolver(SubscriptionSchema),
-    defaultValues: {
-      planId: planId,
-      totalAmount: plan?.price ? parseFloat(plan.price) : 0,
-      payments: [],
-    },
-  });
-
-  // Payment handling functions
-  const addPayment = (payment: Omit<PaymentImageModalType, "fileIndex">) => {
-    const updatedPayments: PaymentImageModalType[] = [
-      ...payments,
-      {
-        ...payment,
-        bankName: payment.bankName || "",
-        fileIndex: payments.length,
-      },
-    ];
-    setPayments(updatedPayments);
-    setValue("payments", updatedPayments);
-    setIsPaymentModalOpen(false);
+  // Handler para editar un pago
+  const handleEditPayment = (index: number, payment: any) => {
+    setEditingPayment({ index, payment });
   };
 
-  const deletePayment = (index: number) => {
-    const updatedPayments: PaymentImageModalType[] = payments
-      .filter((_, i) => i !== index)
-      .map((payment, newIndex) => ({
-        ...payment,
-        fileIndex: newIndex,
-      }));
-    setPayments(updatedPayments);
-    setValue("payments", updatedPayments);
-  };
-
-  const editPayment = (
-    index: number,
-    updatedPayment: Omit<PaymentImageModalType, "fileIndex">
-  ) => {
-    const updatedPayments: PaymentImageModalType[] = [...payments];
-    updatedPayments[index] = {
-      ...updatedPayment,
-      bankName: updatedPayment.bankName || "",
-      fileIndex: index,
-    };
-    setPayments(updatedPayments);
-    setValue("payments", updatedPayments);
-  };
-
-  // Submit handler
-  const onSubmit = (data: SubscriptionType) => {
-    const planPrice = plan
-      ? isUpgrade && plan.upgradeCost
-        ? plan.upgradeCost
-        : parseFloat(plan.price)
-      : 0;
-
-    // Validate total amount matches plan price
-    const totalPaidAmount = payments.reduce(
-      (sum, payment) => sum + payment.amount,
-      0
-    );
-    if (totalPaidAmount !== planPrice) {
-      toast.error(`El monto total debe ser ${planPrice}`);
-      return;
+  // Handler para completar edición
+  const handleEditComplete = (payment: any) => {
+    if (editingPayment) {
+      editPayment(editingPayment.index, payment);
+      setEditingPayment(null);
     }
-
-    // Create FormData
-    const formData = new FormData();
-
-    // Append basic details
-    formData.append("planId", data.planId.toString());
-    formData.append("totalAmount", planPrice.toFixed(2));
-    if (data.notes) formData.append("notes", data.notes);
-
-    // Prepare payments with correct structure
-    const paymentsData = payments.map((payment, index) => ({
-      bankName: payment.bankName || "",
-      transactionReference: payment.transactionReference,
-      transactionDate: payment.transactionDate,
-      amount: payment.amount,
-      fileIndex: index,
-    }));
-
-    // Append payments as JSON string
-    formData.append("payments", JSON.stringify(paymentsData));
-
-    // Append payment images in order
-    payments.forEach((payment) => {
-      formData.append("paymentImages", payment.file);
-    });
-
-    // Call subscription handler
-    handleSubscription(formData);
   };
-
-  useEffect(() => {
-    if (plan) {
-      const planPrice =
-        isUpgrade && plan.upgradeCost
-          ? plan.upgradeCost
-          : parseFloat(plan.price);
-
-      setValue("totalAmount", planPrice);
-    }
-  }, [plan, isUpgrade, setValue]);
 
   // Loading state
   if (isLoading) {
-    return <div>Cargando detalles del plan...</div>;
+    return <LoadingState />;
   }
 
   // Error state
   if (error || !plan) {
-    return (
-      <div className="flex items-center justify-center p-6">
-        <div className="bg-red-50 p-4 rounded-lg border border-red-200 flex items-center">
-          <AlertCircle className="mr-2 text-red-500" />
-          <p className="text-red-700">{error || "Plan no encontrado"}</p>
-        </div>
-      </div>
-    );
+    return <ErrorState error={error || "Plan no encontrado"} />;
   }
-
-  // Calcular el precio a mostrar (normal o de actualización)
-  const planPrice =
-    isUpgrade && plan.upgradeCost ? plan.upgradeCost : parseFloat(plan.price);
 
   return (
     <div className="container mx-auto p-6 grid md:grid-cols-2 gap-8">
-      {/* Plan Details */}
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <FileText className="h-6 w-6 text-primary" />
-            {isUpgrade ? "Actualización a " : "Detalles del Plan "} {plan.name}
-            {isUpgrade && (
-              <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-800/30 dark:text-blue-300 text-xs rounded-full">
-                Actualización
-              </span>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Pricing */}
-          <div className="flex items-center gap-3">
-            <DollarSign className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-2xl font-bold">
-                {new Intl.NumberFormat("es-PE", {
-                  style: "currency",
-                  currency: "PEN",
-                }).format(planPrice)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {isUpgrade ? "Costo de actualización" : "Precio total del plan"}
-              </p>
+      <PlanDetailsCard
+        plan={plan}
+        isUpgrade={isUpgrade}
+        planPrice={planPrice}
+        userMembership={userMembership}
+      />
 
-              {isUpgrade && (
-                <div className="mt-2 text-sm flex items-center gap-1">
-                  <span className="line-through text-muted-foreground">
-                    {new Intl.NumberFormat("es-PE", {
-                      style: "currency",
-                      currency: "PEN",
-                    }).format(parseFloat(plan.price))}
-                  </span>
-                  <span className="text-green-600 font-medium">
-                    (Ahorro de{" "}
-                    {new Intl.NumberFormat("es-PE", {
-                      style: "currency",
-                      currency: "PEN",
-                    }).format(parseFloat(plan.price) - planPrice)}
-                    )
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
+      <SubscriptionFormCard
+        isUpgrade={isUpgrade}
+        planPrice={planPrice}
+        totalPaidAmount={totalPaidAmount}
+        remainingAmount={remainingAmount}
+        isSubmitting={isSubmitting}
+        isPaymentComplete={isPaymentComplete}
+        payments={payments}
+        onOpenPaymentModal={handlePaymentModalOpen}
+        onDeletePayment={deletePayment}
+        onEditPayment={handleEditPayment}
+        onSubmit={handleSubscription}
+      />
 
-          {/* Current Plan if upgrading */}
-          {isUpgrade && userMembership?.plan && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
-              <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
-                Actualizando desde:
-              </h3>
-              <div className="flex items-center justify-between">
-                <span>{userMembership.plan.name}</span>
-                <ArrowUpRight className="h-5 w-5 text-blue-500" />
-              </div>
-            </div>
-          )}
-
-          {/* Products */}
-          <div>
-            <h3 className="flex items-center gap-2 mb-2 font-semibold">
-              <Package className="h-5 w-5 text-primary" />
-              Productos Incluidos
-            </h3>
-            <ul className="space-y-1 text-sm">
-              {plan.products.map((product, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 bg-primary rounded-full" />
-                  {product}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Benefits */}
-          <div>
-            <h3 className="flex items-center gap-2 mb-2 font-semibold">
-              <Award className="h-5 w-5 text-primary" />
-              Beneficios
-            </h3>
-            <ul className="space-y-1 text-sm">
-              {plan.benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 bg-primary rounded-full" />
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subscription Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {isUpgrade ? "Actualización de Plan" : "Suscripción al Plan"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleSubmit(onSubmit, (errors) => {
-              console.error("Form Errors:", errors);
-            })}
-            className="space-y-6"
-          >
-            {/* Payment Summary */}
-            <PaymentSummary
-              payments={payments}
-              onDeletePayment={deletePayment}
-              onEditPayment={editPayment}
-            />
-
-            {/* Total Paid Amount */}
-            <div className="flex justify-between items-center border-t pt-4">
-              <span className="font-medium">Total Pagado:</span>
-              <span
-                className={`font-bold ${
-                  totalPaidAmount === planPrice
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
-              >
-                {new Intl.NumberFormat("es-PE", {
-                  style: "currency",
-                  currency: "PEN",
-                }).format(totalPaidAmount)}
-              </span>
-            </div>
-
-            {/* Remaining Amount */}
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Monto Pendiente:</span>
-              <span
-                className={`font-bold ${
-                  totalPaidAmount === planPrice
-                    ? "text-green-600"
-                    : "text-red-600"
-                }`}
-              >
-                {new Intl.NumberFormat("es-PE", {
-                  style: "currency",
-                  currency: "PEN",
-                }).format(Math.max(0, planPrice - totalPaidAmount))}
-              </span>
-            </div>
-
-            {/* Add Payment Button */}
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => setIsPaymentModalOpen(true)}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Agregar Comprobante de Pago
-              </Button>
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className={`w-full ${
-                isUpgrade ? "bg-blue-600 hover:bg-blue-700" : ""
-              }`}
-              disabled={
-                payments.length === 0 ||
-                isSubmitting ||
-                totalPaidAmount !== planPrice
-              }
-            >
-              {isSubmitting ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Procesando...
-                </>
-              ) : totalPaidAmount < planPrice ? (
-                `Pendiente: ${new Intl.NumberFormat("es-PE", {
-                  style: "currency",
-                  currency: "PEN",
-                }).format(planPrice - totalPaidAmount)}`
-              ) : isUpgrade ? (
-                "Actualizar Plan"
-              ) : (
-                "Suscribirse al Plan"
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Payment Image Modal */}
       <PaymentImageModal
         isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
+        onClose={handlePaymentModalClose}
         onSubmit={addPayment}
         initialData={{
           bankName: "",
           transactionReference: "",
           transactionDate: new Date().toISOString().split("T")[0],
-          amount:
-            plan.isUpgrade && plan.upgradeCost
-              ? plan.upgradeCost
-              : parseFloat(plan.price),
+          amount: remainingAmount > 0 ? remainingAmount : planPrice,
           file: undefined,
         }}
       />
+
+      {editingPayment && (
+        <PaymentImageModal
+          isOpen={!!editingPayment}
+          onClose={() => setEditingPayment(null)}
+          onSubmit={handleEditComplete}
+          initialData={editingPayment.payment}
+        />
+      )}
     </div>
   );
 }
