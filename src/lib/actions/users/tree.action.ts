@@ -6,12 +6,6 @@ import {
   GetUserTreeResponse,
 } from "@/types/tree/tree.types";
 
-/**
- * Obtiene el árbol de usuarios a partir de un ID de usuario raíz
- * @param userId ID del usuario raíz
- * @param depth Profundidad máxima del árbol (default: 3)
- * @returns Estructura del árbol y metadatos
- */
 export async function getUserTree(
   userId: string,
   depth: number = 3
@@ -26,13 +20,6 @@ export async function getUserTree(
   }
 }
 
-/**
- * Obtiene un nodo específico con sus ancestros y descendientes
- * @param nodeId ID del nodo a consultar
- * @param descendantDepth Profundidad máxima para descendientes (default: 3)
- * @param ancestorDepth Profundidad máxima para ancestros (default: 3)
- * @returns Contexto completo del nodo
- */
 export async function getNodeWithContext(
   nodeId: string,
   descendantDepth: number = 3,
