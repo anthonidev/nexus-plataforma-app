@@ -46,10 +46,28 @@ export function useMembershipDetail(planId: number) {
       try {
         setIsSubmitting(true);
 
-        // Validate files (optional but recommended)
+        // Validate files
         const paymentImages = formData.getAll("paymentImages") as File[];
+        const payments = JSON.parse(formData.get("payments") as string);
+
+        // Validate file count matches payment count
+        if (paymentImages.length !== payments.length) {
+          toast.error(
+            "El número de imágenes debe coincidir con el número de pagos"
+          );
+          return;
+        }
+
+        // Validate file sizes
         if (paymentImages.some((file) => file.size > 5 * 1024 * 1024)) {
           toast.error("Las imágenes no deben superar 5MB cada una");
+          return;
+        }
+
+        // Validate file types
+        const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+        if (paymentImages.some((file) => !validTypes.includes(file.type))) {
+          toast.error("Solo se permiten imágenes JPG, JPEG o PNG");
           return;
         }
 
@@ -57,7 +75,6 @@ export function useMembershipDetail(planId: number) {
 
         if (result.success) {
           toast.success(result.message);
-          // Redirect to plans page or dashboard
           router.push("/planes");
         } else {
           toast.error(result.message || "Error al procesar la suscripción");

@@ -1,20 +1,24 @@
 "use server";
 
 import { httpClient } from "@/lib/api/http-client";
-import { MembershipPlan, PaymentDetail } from "@/types/plan/plan.types";
+import {
+  MembershipPlan,
+  MembershipPlanResponse,
+} from "@/types/plan/plan.types";
 import { revalidatePath } from "next/cache";
 
 export async function getMembershipPlans(
   isActive?: boolean
-): Promise<MembershipPlan[]> {
+): Promise<MembershipPlanResponse> {
   try {
     const params = isActive !== undefined ? { isActive } : undefined;
-    const response = await httpClient<MembershipPlan[]>(
+    const response = await httpClient<MembershipPlanResponse>(
       "/api/membership-plans",
       {
         params,
       }
     );
+    console.log("Planes de membresía obtenidos:", response);
 
     return response;
   } catch (error) {
@@ -37,24 +41,38 @@ export async function subscribeToPlan(
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
-    // Parse payments from the FormData
+    // Parse and validate payments
     const paymentsString = formData.get("payments") as string;
-    let payments: PaymentDetail[] = [];
+    const payments = JSON.parse(paymentsString);
+    const paymentImages = formData.getAll("paymentImages") as File[];
 
-    try {
-      // Ensure payments is a valid JSON array
-      payments = JSON.parse(paymentsString);
+    // Validate payments structure
+    if (!Array.isArray(payments) || payments.length === 0) {
+      throw new Error("Debe proporcionar al menos un pago");
+    }
 
-      // Validate payments structure
-      if (!Array.isArray(payments) || payments.length === 0) {
-        throw new Error("Pagos inválidos");
-      }
-    } catch (parseError) {
-      console.error("Error parsing payments:", parseError);
-      throw new Error("No se pudieron procesar los comprobantes de pago");
+    // Validate file count matches payment count
+    if (paymentImages.length !== payments.length) {
+      throw new Error(
+        "El número de imágenes debe coincidir con el número de pagos"
+      );
+    }
+
+    // Validate total amount
+    const totalAmount = parseFloat(formData.get("totalAmount") as string);
+    const paymentTotal = payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+
+    if (Math.abs(totalAmount - paymentTotal) > 0.01) {
+      throw new Error(
+        `La suma de los pagos (${paymentTotal}) debe ser igual al monto total (${totalAmount})`
+      );
     }
 
     // Send subscription request
+    console.log("Enviando datos de suscripción:", formData);
     const response = await httpClient<{ success: boolean; message: string }>(
       "/api/user-memberships/subscribe",
       {

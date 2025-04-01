@@ -1,3 +1,19 @@
+export interface MembershipPlanResponse {
+  plans: MembershipPlan[];
+  userMembership: {
+    hasMembership: boolean;
+    status?: "PENDING" | "ACTIVE" | "EXPIRED" | "INACTIVE";
+    plan?: {
+      id: number;
+      name: string;
+      price: string;
+    };
+    nextReconsumptionDate?: string;
+    endDate?: string;
+    message?: string;
+  };
+}
+
 export interface MembershipPlan {
   id: number;
   name: string;
@@ -12,6 +28,8 @@ export interface MembershipPlan {
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
+  upgradeCost?: number;
+  isUpgrade?: boolean;
 }
 
 export interface PaymentDetail {

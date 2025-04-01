@@ -23,6 +23,7 @@ import {
   SubscriptionSchema,
   SubscriptionType,
 } from "../../validations/suscription.zod";
+import { toast } from "sonner";
 
 export default function MembershipPlanDetailPage() {
   const params = useParams<{ id: string }>();
@@ -102,14 +103,29 @@ export default function MembershipPlanDetailPage() {
   };
 
   // Submit handler
+  // Modify the onSubmit function in src/app/(dashboard)/planes/detalle/[id]/page.tsx
   const onSubmit = (data: SubscriptionType) => {
-    // Ensure total amount is set correctly
     const planPrice = plan ? parseFloat(plan.price) : 0;
 
-    // Convert form data to FormData for file upload
+    // Validate total amount matches plan price
+    const totalPaidAmount = payments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+    if (totalPaidAmount !== planPrice) {
+      toast.error(`El monto total debe ser ${planPrice}`);
+      return;
+    }
+
+    // Create FormData
     const formData = new FormData();
 
-    // Prepare payments with file references
+    // Append basic details
+    formData.append("planId", data.planId.toString());
+    formData.append("totalAmount", planPrice.toFixed(2));
+    if (data.notes) formData.append("notes", data.notes);
+
+    // Prepare payments with correct structure
     const paymentsData = payments.map((payment, index) => ({
       bankName: payment.bankName || "",
       transactionReference: payment.transactionReference,
@@ -118,17 +134,12 @@ export default function MembershipPlanDetailPage() {
       fileIndex: index,
     }));
 
-    // Append basic details
-    formData.append("planId", data.planId.toString());
-    formData.append("totalAmount", planPrice.toString());
-    if (data.notes) formData.append("notes", data.notes);
-
-    // Append payments as a JSON string
+    // Append payments as JSON string
     formData.append("payments", JSON.stringify(paymentsData));
 
-    // Append payment images
+    // Append payment images in order
     payments.forEach((payment) => {
-      formData.append(`paymentImages`, payment.file);
+      formData.append("paymentImages", payment.file);
     });
 
     // Call subscription handler
