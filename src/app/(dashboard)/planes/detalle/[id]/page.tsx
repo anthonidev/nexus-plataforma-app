@@ -1,4 +1,3 @@
-// src/app/(dashboard)/planes/detalle/[id]/page.tsx
 "use client";
 
 import { notFound, useParams } from "next/navigation";
@@ -17,12 +16,10 @@ export default function MembershipPlanDetailPage() {
   const params = useParams<{ id: string }>();
   const planId = Number(params.id);
 
-  // Validate plan ID
   if (isNaN(planId)) {
     notFound();
   }
 
-  // Use custom hook for plan details and subscription
   const {
     plan,
     userMembership,
@@ -30,7 +27,6 @@ export default function MembershipPlanDetailPage() {
     error,
     isSubmitting,
 
-    // Payment data
     payments,
     isPaymentModalOpen,
     totalPaidAmount,
@@ -38,32 +34,26 @@ export default function MembershipPlanDetailPage() {
     planPrice,
     isPaymentComplete,
 
-    // Payment actions
     addPayment,
     deletePayment,
     editPayment,
     handlePaymentModalOpen,
     handlePaymentModalClose,
 
-    // Form submission
     handleSubscription,
   } = useMembershipDetail(planId);
 
-  // Estado para edición de pagos
   const [editingPayment, setEditingPayment] = useState<{
     index: number;
     payment: any;
   } | null>(null);
 
-  // Determinar si es una actualización o una nueva suscripción
   const isUpgrade = plan?.isUpgrade || false;
 
-  // Handler para editar un pago
   const handleEditPayment = (index: number, payment: any) => {
     setEditingPayment({ index, payment });
   };
 
-  // Handler para completar edición
   const handleEditComplete = (payment: any) => {
     if (editingPayment) {
       editPayment(editingPayment.index, payment);
@@ -71,12 +61,10 @@ export default function MembershipPlanDetailPage() {
     }
   };
 
-  // Loading state
   if (isLoading) {
     return <LoadingState />;
   }
 
-  // Error state
   if (error || !plan) {
     return <ErrorState error={error || "Plan no encontrado"} />;
   }

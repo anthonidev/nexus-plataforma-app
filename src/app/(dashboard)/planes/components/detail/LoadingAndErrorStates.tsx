@@ -1,7 +1,6 @@
-// src/app/(dashboard)/planes/detalle/components/LoadingAndErrorStates.tsx
-import { AlertCircle } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
 
 interface ErrorStateProps {
   error: string;
@@ -21,13 +20,11 @@ export function ErrorState({ error }: ErrorStateProps) {
 export function LoadingState() {
   return (
     <div className="container mx-auto p-6 grid md:grid-cols-2 gap-8">
-      {/* Plan Details Skeleton */}
       <Card className="h-fit">
         <CardHeader>
           <Skeleton className="h-8 w-2/3" />
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Pricing skeleton */}
           <div className="flex items-center gap-3">
             <Skeleton className="h-5 w-5 rounded-full" />
             <div className="space-y-2">
@@ -36,7 +33,6 @@ export function LoadingState() {
             </div>
           </div>
 
-          {/* Products skeleton */}
           <div className="space-y-2">
             <Skeleton className="h-6 w-40" />
             <div className="space-y-2">
@@ -52,7 +48,6 @@ export function LoadingState() {
             </div>
           </div>
 
-          {/* Benefits skeleton */}
           <div className="space-y-2">
             <Skeleton className="h-6 w-40" />
             <div className="space-y-2">
@@ -70,7 +65,6 @@ export function LoadingState() {
         </CardContent>
       </Card>
 
-      {/* Subscription Form Skeleton */}
       <Card>
         <CardHeader>
           <Skeleton className="h-8 w-2/3" />

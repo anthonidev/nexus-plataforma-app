@@ -3,7 +3,6 @@
 import { httpClient } from "@/lib/api/http-client";
 import {
   MembershipDetail,
-  MembershipPlan,
   MembershipPlanResponse,
 } from "@/types/plan/plan.types";
 import { revalidatePath } from "next/cache";

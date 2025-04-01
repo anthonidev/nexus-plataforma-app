@@ -1,13 +1,12 @@
-// src/app/(dashboard)/planes/detalle/components/PlanDetailsCard.tsx
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  FileText,
-  DollarSign,
-  Package,
-  Award,
-  ArrowUpRight,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MembershipPlan } from "@/types/plan/plan.types";
+import {
+  ArrowUpRight,
+  Award,
+  DollarSign,
+  FileText,
+  Package,
+} from "lucide-react";
 
 interface PlanDetailsCardProps {
   plan: MembershipPlan;
@@ -36,7 +35,6 @@ export function PlanDetailsCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Pricing */}
         <div className="flex items-center gap-3">
           <DollarSign className="h-5 w-5 text-primary" />
           <div>
@@ -71,7 +69,6 @@ export function PlanDetailsCard({
           </div>
         </div>
 
-        {/* Current Plan if upgrading */}
         {isUpgrade && userMembership?.plan && (
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
             <h3 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
@@ -84,7 +81,6 @@ export function PlanDetailsCard({
           </div>
         )}
 
-        {/* Products */}
         <div>
           <h3 className="flex items-center gap-2 mb-2 font-semibold">
             <Package className="h-5 w-5 text-primary" />
@@ -100,7 +96,6 @@ export function PlanDetailsCard({
           </ul>
         </div>
 
-        {/* Benefits */}
         <div>
           <h3 className="flex items-center gap-2 mb-2 font-semibold">
             <Award className="h-5 w-5 text-primary" />

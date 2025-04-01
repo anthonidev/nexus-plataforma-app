@@ -21,11 +21,9 @@ export function useMembershipDetail(planId: number) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Estados para el manejo de pagos
   const [payments, setPayments] = useState<PaymentImageModalType[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  // Calcular el precio del plan (normal o de actualización)
   const planPrice = plan
     ? plan.isUpgrade && plan.upgradeCost
       ? plan.upgradeCost
@@ -38,10 +36,8 @@ export function useMembershipDetail(planId: number) {
     0
   );
 
-  // Calcular monto pendiente
   const remainingAmount = Math.max(0, planPrice - totalPaidAmount);
 
-  // Verificar si el pago está completo
   const isPaymentComplete =
     totalPaidAmount === planPrice && payments.length > 0;
 
@@ -129,14 +125,11 @@ export function useMembershipDetail(planId: number) {
     try {
       setIsSubmitting(true);
 
-      // Crear FormData
       const formData = new FormData();
 
-      // Append basic details
       formData.append("planId", String(planId));
       formData.append("totalAmount", planPrice.toFixed(2));
 
-      // Prepare payments with correct structure
       const paymentsData = payments.map((payment, index) => ({
         bankName: payment.bankName || "",
         transactionReference: payment.transactionReference,
@@ -145,15 +138,12 @@ export function useMembershipDetail(planId: number) {
         fileIndex: index,
       }));
 
-      // Append payments as JSON string
       formData.append("payments", JSON.stringify(paymentsData));
 
-      // Append payment images in order
       payments.forEach((payment) => {
         formData.append("paymentImages", payment.file);
       });
 
-      // Call the appropriate API
       let result;
 
       if (plan?.isUpgrade) {
@@ -191,14 +181,12 @@ export function useMembershipDetail(planId: number) {
   }, [fetchPlanDetails]);
 
   return {
-    // Plan data
     plan,
     userMembership,
     isLoading,
     error,
     isSubmitting,
 
-    // Payment data
     payments,
     isPaymentModalOpen,
     totalPaidAmount,
@@ -206,17 +194,14 @@ export function useMembershipDetail(planId: number) {
     planPrice,
     isPaymentComplete,
 
-    // Payment actions
     addPayment,
     deletePayment,
     editPayment,
     handlePaymentModalOpen,
     handlePaymentModalClose,
 
-    // Form submission
     handleSubscription,
 
-    // Utils
     refetchPlan: fetchPlanDetails,
   };
 }

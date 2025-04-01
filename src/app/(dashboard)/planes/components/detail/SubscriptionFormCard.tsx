@@ -1,7 +1,7 @@
 // src/app/(dashboard)/planes/detalle/components/SubscriptionFormCard.tsx
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, RefreshCw } from "lucide-react";
 import { PaymentSummary } from "../../components/PaymentSummary";
 import { PaymentImageModalType } from "../../validations/suscription.zod";
 
@@ -41,14 +41,12 @@ export function SubscriptionFormCard({
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Payment Summary */}
           <PaymentSummary
             payments={payments}
             onDeletePayment={onDeletePayment}
             onEditPayment={onEditPayment}
           />
 
-          {/* Total Paid Amount */}
           <div className="flex justify-between items-center border-t pt-4">
             <span className="font-medium">Total Pagado:</span>
             <span
@@ -65,7 +63,6 @@ export function SubscriptionFormCard({
             </span>
           </div>
 
-          {/* Remaining Amount */}
           <div className="flex justify-between items-center">
             <span className="font-medium">Monto Pendiente:</span>
             <span
@@ -80,7 +77,6 @@ export function SubscriptionFormCard({
             </span>
           </div>
 
-          {/* Add Payment Button */}
           <div>
             <Button
               type="button"
@@ -93,7 +89,6 @@ export function SubscriptionFormCard({
             </Button>
           </div>
 
-          {/* Submit Button */}
           <Button
             type="button"
             className={`w-full ${
