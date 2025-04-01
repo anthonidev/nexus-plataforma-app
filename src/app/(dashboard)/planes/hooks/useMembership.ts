@@ -11,12 +11,10 @@ interface UseMembershipPlansOptions {
 }
 
 interface UseMembershipPlansReturn {
-  // Planes de membresía
   plans: MembershipPlan[];
   isLoading: boolean;
   error: string | null;
 
-  // Información de la membresía del usuario
   userMembership: {
     hasMembership: boolean;
     status?: "PENDING" | "ACTIVE" | "EXPIRED" | "INACTIVE";
@@ -38,12 +36,10 @@ export function useMembershipPlans(
 ): UseMembershipPlansReturn {
   const { isActive, autoFetch = true } = options;
 
-  // Estado para los planes
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(autoFetch);
   const [error, setError] = useState<string | null>(null);
 
-  // Estado para la membresía del usuario
   const [userMembership, setUserMembership] = useState<
     UseMembershipPlansReturn["userMembership"]
   >({
@@ -62,9 +58,6 @@ export function useMembershipPlans(
             : isActive;
 
         const response = await getMembershipPlans(activeFilter);
-
-        // Asegurarse de que la respuesta tenga la estructura esperada
-        // Tomamos el primer elemento (si es un array)
 
         if (response.plans) {
           setPlans(response.plans);
