@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Edit, User } from "lucide-react";
+import {
+  Edit,
+  User,
+  Mail,
+  Calendar,
+  UserRound,
+  CreditCard,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 interface PersonalInfoCardProps {
@@ -29,69 +36,114 @@ export default function PersonalInfoCard({
       animate={{ opacity: 1 }}
       className="flex flex-col h-full min-h-[6rem] dark:bg-dot-white/[0.2] bg-dot-black/[0.2] relative"
     >
-      <div className="flex flex-row justify-between items-start w-full mb-4">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <User size={24} />
+      <div className="flex flex-row justify-between items-start w-full mb-6">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <User size={32} />
           </div>
           <div className="space-y-1">
-            <h3 className="font-medium text-lg">{fullName}</h3>
-            <p className="text-sm text-muted-foreground">{email}</p>
+            <h3 className="font-semibold text-xl">{fullName}</h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="h-4 w-4" />
+              <span>{email}</span>
+            </div>
           </div>
         </div>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
           onClick={onEdit}
-          className="h-8 w-8"
+          className="flex gap-2 items-center"
         >
           <Edit className="h-4 w-4" />
+          <span>Editar</span>
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 mt-2">
-        {personalInfo?.documentNumber && (
-          <div className="flex items-start gap-2">
-            <span className="text-xs text-muted-foreground w-24">
-              Documento:
-            </span>
-            <span className="text-xs font-medium">
-              {personalInfo.documentNumber}
-            </span>
-          </div>
-        )}
+      <div className="grid grid-cols-1  gap-6 mt-4">
+        <div className="space-y-4">
+          <div className="bg-secondary/30 dark:bg-secondary/20 rounded-lg p-4">
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <UserRound className="h-4 w-4 text-primary" />
+              Información personal
+            </h4>
 
-        {personalInfo?.gender && (
-          <div className="flex items-start gap-2">
-            <span className="text-xs text-muted-foreground w-24">Género:</span>
-            <span className="text-xs font-medium">
-              {personalInfo.gender === "M"
-                ? "Masculino"
-                : personalInfo.gender === "F"
-                ? "Femenino"
-                : personalInfo.gender}
-            </span>
-          </div>
-        )}
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Nombre completo</p>
+                <p className="font-medium">
+                  {fullName !== "No especificado" ? fullName : "—"}
+                </p>
+              </div>
 
-        {personalInfo?.birthDate && (
-          <div className="flex items-start gap-2">
-            <span className="text-xs text-muted-foreground w-24">
-              Fecha de nac.:
-            </span>
-            <span className="text-xs font-medium">
-              {new Date(personalInfo.birthDate).toLocaleDateString("es-ES")}
-            </span>
+              <div>
+                <p className="text-xs text-muted-foreground">Género</p>
+                <p className="font-medium">
+                  {personalInfo?.gender
+                    ? personalInfo.gender === "M"
+                      ? "Masculino"
+                      : personalInfo.gender === "F"
+                      ? "Femenino"
+                      : personalInfo.gender
+                    : "—"}
+                </p>
+              </div>
+            </div>
           </div>
-        )}
 
-        {!personalInfo?.documentNumber &&
-          !personalInfo?.gender &&
-          !personalInfo?.birthDate && (
-            <p className="text-xs text-muted-foreground italic">
-              No hay información personal adicional
+          <div className="bg-secondary/30 dark:bg-secondary/20 rounded-lg p-4">
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              Fecha de nacimiento
+            </h4>
+            <p className="font-medium">
+              {personalInfo?.birthDate
+                ? new Date(personalInfo.birthDate).toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "No especificada"}
             </p>
-          )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-secondary/30 dark:bg-secondary/20 rounded-lg p-4">
+            <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-primary" />
+              Documento de Identidad
+            </h4>
+
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Número de documento
+                </p>
+                <p className="font-medium">
+                  {personalInfo?.documentNumber || "—"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Tipo de documento
+                </p>
+                <p className="font-medium">DNI</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-primary/10 rounded-lg p-4">
+            <h4 className="text-sm font-medium mb-2 text-primary">
+              Estado de cuenta
+            </h4>
+            <div className="flex items-center justify-between">
+              <p>Activo desde</p>
+              <p className="font-medium">Enero 2023</p>
+            </div>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Copy, Share, Gift } from "lucide-react";
+import {
+  Copy,
+  Share,
+  Link,
+  ArrowLeft,
+  ArrowRight,
+  Gift,
+  ExternalLink,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ReferralInfoCardProps {
   referralCode: string;
@@ -11,43 +20,59 @@ interface ReferralInfoCardProps {
 export default function ReferralInfoCard({
   referralCode,
 }: ReferralInfoCardProps) {
+  const [activeTab, setActiveTab] = useState<string>("izquierda");
   const [copying, setCopying] = useState(false);
 
-  const copyToClipboard = () => {
+  const getShareUrl = (side: string) => {
+    return `${window.location.origin}/register/${referralCode}?lado=${side}`;
+  };
+
+  const copyToClipboard = (side: string) => {
     setCopying(true);
+    const url = getShareUrl(side);
+
     navigator.clipboard
-      .writeText(referralCode)
+      .writeText(url)
       .then(() => {
-        toast.success("Código copiado al portapapeles", {
+        toast.success(`Link copiado al portapapeles`, {
           duration: 1500,
         });
 
         setTimeout(() => setCopying(false), 1500);
       })
       .catch((err) => {
-        toast.error("Error al copiar el código", {
-          description: "No se pudo copiar el código al portapapeles",
+        toast.error("Error al copiar el link", {
+          description: "No se pudo copiar el link al portapapeles",
         });
         setCopying(false);
       });
   };
 
-  const shareReferral = () => {
+  const shareReferral = (side: string) => {
+    const url = getShareUrl(side);
+    const title = `Únete a mi equipo (${side})`;
+    const text = `Únete a mi organización usando mi código de referido: ${referralCode} (lado ${side})`;
+
     if (navigator.share) {
       navigator
         .share({
-          title: "Mi código de referido",
-          text: `Únete usando mi código de referido: ${referralCode}`,
-          url: window.location.origin,
+          title,
+          text,
+          url,
         })
         .catch((error) => {
-          toast.error("Error al compartir el código", {
-            description: "No se pudo compartir el código",
+          toast.error("Error al compartir el link", {
+            description: "No se pudo compartir el link",
           });
         });
     } else {
-      copyToClipboard();
+      copyToClipboard(side);
     }
+  };
+
+  const openReferralLink = (side: string) => {
+    const url = getShareUrl(side);
+    window.open(url, "_blank");
   };
 
   return (
@@ -63,34 +88,120 @@ export default function ReferralInfoCard({
           </div>
           <div className="space-y-1">
             <h3 className="font-medium text-lg">Código de Referido</h3>
-            <p className="text-sm text-muted-foreground">Comparte tu código</p>
+            <p className="text-sm text-muted-foreground">
+              Comparte tu código en ambos lados
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 mt-2">
-        <div className="bg-secondary/30 dark:bg-secondary/20 flex items-center justify-between rounded-md p-3">
-          <span className="font-mono font-medium text-primary">
-            {referralCode}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={copyToClipboard}
-            disabled={copying}
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-        </div>
+      <div className="bg-secondary/30 dark:bg-secondary/20 rounded-lg p-4 mt-2">
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">
+            Selecciona el lado para referir nuevos miembros:
+          </p>
 
-        <Button
-          variant="outline"
-          className="w-full flex items-center gap-2"
-          onClick={shareReferral}
-        >
-          <Share className="h-4 w-4" />
-          <span>Compartir mi código</span>
-        </Button>
+          <Tabs
+            defaultValue="izquierda"
+            className="w-full"
+            onValueChange={setActiveTab}
+          >
+            <TabsList className="grid grid-cols-2 w-full mb-4 dark:bg-gray-800 dark:border-gray-700 dark:border">
+              <TabsTrigger
+                value="izquierda"
+                className="flex items-center gap-1 data-[state=active]:dark:bg-gray-700 data-[state=active]:dark:text-white"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Izquierda</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="derecha"
+                className="flex items-center gap-1 data-[state=active]:dark:bg-gray-700 data-[state=active]:dark:text-white"
+              >
+                <span>Derecha</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="izquierda" className="space-y-3">
+              <div className="bg-primary/10 dark:bg-primary/5 rounded-md p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 truncate flex-1">
+                  <Link className="h-4 w-4 flex-shrink-0 text-primary" />
+                  <span className="text-xs truncate">
+                    {getShareUrl("izquierda")}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard("izquierda")}
+                  className="flex-shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 justify-center dark:border-gray-700"
+                  onClick={() => shareReferral("izquierda")}
+                >
+                  <Share className="h-4 w-4" />
+                  <span>Compartir</span>
+                </Button>
+
+                <Button
+                  variant="default"
+                  className="flex items-center gap-2 justify-center"
+                  onClick={() => openReferralLink("izquierda")}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>Abrir link</span>
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="derecha" className="space-y-3">
+              <div className="bg-primary/10 dark:bg-primary/5 rounded-md p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 truncate flex-1">
+                  <Link className="h-4 w-4 flex-shrink-0 text-primary" />
+                  <span className="text-xs truncate">
+                    {getShareUrl("derecha")}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyToClipboard("derecha")}
+                  className="flex-shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 justify-center dark:border-gray-700"
+                  onClick={() => shareReferral("derecha")}
+                >
+                  <Share className="h-4 w-4" />
+                  <span>Compartir</span>
+                </Button>
+
+                <Button
+                  variant="default"
+                  className="flex items-center gap-2 justify-center"
+                  onClick={() => openReferralLink("derecha")}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>Abrir link</span>
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </motion.div>
   );

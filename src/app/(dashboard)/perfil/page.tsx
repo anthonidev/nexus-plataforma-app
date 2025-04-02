@@ -35,10 +35,8 @@ export default function ProfilePage() {
     updateBank,
   } = useProfile();
 
-  // Estados para controlar qué modal está abierto
   const [openModal, setOpenModal] = useState<string | null>(null);
 
-  // Manejadores para abrir y cerrar modales
   const handleOpenModal = (modalName: string) => {
     setOpenModal(modalName);
   };
@@ -90,84 +88,97 @@ export default function ProfilePage() {
         </p>
       </div>
 
-      <BentoGrid>
-        {/* Información personal */}
-        <BentoGridItem
-          title="Información Personal"
-          description="Datos básicos de tu perfil"
-          header={
-            <PersonalInfoCard
-              personalInfo={profile.personalInfo}
-              email={profile.email}
-              onEdit={() => handleOpenModal("personal")}
-            />
-          }
-          icon={<User className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Columna izquierda grande - Información Personal */}
+        <div className="md:col-span-5 md:row-span-2">
+          <BentoGridItem
+            title="Información Personal"
+            description="Datos básicos de tu perfil"
+            header={
+              <PersonalInfoCard
+                personalInfo={profile.personalInfo}
+                email={profile.email}
+                onEdit={() => handleOpenModal("personal")}
+              />
+            }
+            icon={<User className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
 
-        {/* Información de contacto */}
-        <BentoGridItem
-          title="Información de Contacto"
-          description="Tus datos de contacto y ubicación"
-          header={
-            <ContactInfoCard
-              contactInfo={profile.contactInfo}
-              onEdit={() => handleOpenModal("contact")}
-            />
-          }
-          icon={<Phone className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
+        {/* Columna derecha superior - Información de Contacto */}
+        <div className="md:col-span-7">
+          <BentoGridItem
+            title="Información de Contacto"
+            description="Tus datos de contacto y ubicación"
+            header={
+              <ContactInfoCard
+                contactInfo={profile.contactInfo}
+                onEdit={() => handleOpenModal("contact")}
+              />
+            }
+            icon={<Phone className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
 
-        {/* Información bancaria */}
-        <BentoGridItem
-          title="Información Bancaria"
-          description="Tus datos bancarios para recibir pagos"
-          header={
-            <BankInfoCard
-              bankInfo={profile.bankInfo}
-              onEdit={() => handleOpenModal("bank")}
-            />
-          }
-          icon={<CreditCard className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
+        {/* Columna derecha mitad - Información bancaria e información de facturación */}
+        <div className="md:col-span-3 md:col-start-6">
+          <BentoGridItem
+            title="Información Bancaria"
+            description="Tus datos bancarios para recibir pagos"
+            header={
+              <BankInfoCard
+                bankInfo={profile.bankInfo}
+                onEdit={() => handleOpenModal("bank")}
+              />
+            }
+            icon={<CreditCard className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
 
-        {/* Información de facturación */}
-        <BentoGridItem
-          title="Información de Facturación"
-          description="Tus datos para facturación"
-          header={
-            <BillingInfoCard
-              billingInfo={profile.billingInfo}
-              onEdit={() => handleOpenModal("billing")}
-            />
-          }
-          icon={<FileText className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
+        <div className="md:col-span-4 md:col-start-9">
+          <BentoGridItem
+            title="Información de Facturación"
+            description="Tus datos para facturación"
+            header={
+              <BillingInfoCard
+                billingInfo={profile.billingInfo}
+                onEdit={() => handleOpenModal("billing")}
+              />
+            }
+            icon={<FileText className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
 
-        {/* Código de referido */}
-        <BentoGridItem
-          title="Código de Referido"
-          description="Comparte tu código para invitar amigos"
-          header={<ReferralInfoCard referralCode={profile.referralCode} />}
-          icon={<Mail className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
+        {/* Fila inferior - Código de referido e Información de cuenta */}
+        <div className="md:col-span-8">
+          <BentoGridItem
+            title="Código de Referido"
+            description="Comparte tu código para invitar amigos"
+            header={<ReferralInfoCard referralCode={profile.referralCode} />}
+            icon={<Mail className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
 
-        {/* Información de la cuenta */}
-        <BentoGridItem
-          title="Información de la Cuenta"
-          description="Detalles de tu cuenta"
-          header={
-            <AccountInfoCard isActive={profile.isActive} role={profile.role} />
-          }
-          icon={<Building className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
-      </BentoGrid>
+        <div className="md:col-span-4">
+          <BentoGridItem
+            title="Información de la Cuenta"
+            description="Detalles de tu cuenta"
+            header={
+              <AccountInfoCard
+                isActive={profile.isActive}
+                role={profile.role}
+              />
+            }
+            icon={<Building className="h-4 w-4 text-primary" />}
+            className="h-full"
+          />
+        </div>
+      </div>
 
       {/* Modales para editar información */}
       <EditPersonalInfoModal
