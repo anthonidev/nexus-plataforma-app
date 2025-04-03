@@ -1,6 +1,9 @@
 "use client";
 
-import { getUserPayments } from "@/lib/actions/payments/payment.action";
+import {
+  getPayments,
+  getUserPayments,
+} from "@/lib/actions/payments/payment.action";
 import {
   PaymentConfigListItem,
   PaymentListItem,
@@ -20,6 +23,7 @@ export interface PaymentsFilters {
 }
 
 interface UsePaymentsReturn {
+  // Data y metadata
   payments: PaymentListItem[];
   paymentConfigs: PaymentConfigListItem[];
   isLoading: boolean;
@@ -29,12 +33,14 @@ interface UsePaymentsReturn {
   currentPage: number;
   itemsPerPage: number;
 
+  // Filtros directos
   status: "PENDING" | "APPROVED" | "REJECTED" | undefined;
   paymentConfigId: number | undefined;
   startDate: string | undefined;
   endDate: string | undefined;
   order: "ASC" | "DESC";
 
+  // Handlers específicos
   handlePageChange: (page: number) => void;
   handleItemsPerPageChange: (limit: number) => void;
   handleStatusChange: (
@@ -102,7 +108,7 @@ export function usePayments({
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
 
-      const response = await getUserPayments(params);
+      const response = await getPayments(params);
 
       setPayments(response.items);
       setPaymentConfigs(response.meta.paymentConfigs);

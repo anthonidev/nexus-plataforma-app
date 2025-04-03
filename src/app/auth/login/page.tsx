@@ -49,8 +49,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState<FormData>({
-    email: "master@example.com",
-    password: "Master123",
+    email: "cesar.huertas@inmobiliariahuertas.com",
+    password: "NexusPass%2025",
   });
   const [mounted, setMounted] = useState(false);
   const [particlesVisible, setParticlesVisible] = useState(false);

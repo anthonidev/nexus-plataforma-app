@@ -154,7 +154,7 @@ export function useMembershipDetail(planId: number) {
 
       if (result.success) {
         toast.success(result.message);
-        router.push("/planes");
+        router.push("/planes-de-membresia");
       } else {
         toast.error(result.message || "Error al procesar la solicitud");
       }

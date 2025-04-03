@@ -1,35 +1,42 @@
-export interface PaymentConfig {
+export interface PaymentListItem {
   id: number;
-  code: string;
-  name: string;
-  description: string;
-}
-
-export interface Payment {
-  id: number;
-  amount: string;
+  amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
-  reviewedAt: string | null;
-  relatedEntityType: string;
-  relatedEntityId: number;
+  reviewedAt?: string;
+  relatedEntityType?: string;
+  relatedEntityId?: number;
+
   paymentConfig: {
     id: number;
-    code: string;
     name: string;
+    code: string;
   };
-  reviewedBy: any | null;
+
+  reviewer?: {
+    id: string;
+    email: string;
+  };
 }
 
-export interface PaymentsResponse {
-  items: Payment[];
-  meta: {
-    totalItems: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-    paymentConfigs: PaymentConfig[];
-  };
+export interface PaymentConfigListItem {
+  id: number;
+  name: string;
+  code: string;
+  description?: string;
+}
+
+export interface PaginationMeta {
+  totalItems: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
+  paymentConfigs: PaymentConfigListItem[];
+}
+
+export interface PaymentsListResponse {
+  items: PaymentListItem[];
+  meta: PaginationMeta;
 }
 
 export interface PaymentsFilters {

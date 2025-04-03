@@ -1,4 +1,3 @@
-// src/app/(dashboard)/planes/page.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import EmptyPlansMessage from "./components/EmptyPlansMessage";
@@ -17,7 +16,7 @@ export default function MembershipPlansPage() {
     });
 
   const handleSelectPlan = (planId: number) => {
-    router.push(`/planes/detalle/${planId}`);
+    router.push(`planes-de-membresia/detalle/${planId}`);
   };
 
   const shouldShowPlans = () => {
