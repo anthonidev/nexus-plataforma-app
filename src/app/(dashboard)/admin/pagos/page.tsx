@@ -1,12 +1,12 @@
 "use client";
 
-import { usePayments } from "./hooks/usePayments";
 import { PaymentsTable } from "./components/PaymentsTable";
 import { PaymentsFilters } from "./components/PaymentsFilters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
+import { useFinancePayments } from "./hooks/useFinancePayments";
 
 export default function PaymentsPageAdmin() {
   const [openFilters, setOpenFilters] = useState(false);
@@ -33,7 +33,7 @@ export default function PaymentsPageAdmin() {
     handleOrderChange,
     resetFilters,
     refresh,
-  } = usePayments();
+  } = useFinancePayments();
 
   return (
     <div className="container py-8">

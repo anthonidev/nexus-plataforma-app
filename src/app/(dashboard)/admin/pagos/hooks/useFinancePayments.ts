@@ -63,7 +63,7 @@ interface UsePaymentsProps {
   initialOrder?: "ASC" | "DESC";
 }
 
-export function usePayments({
+export function useFinancePayments({
   initialPage = 1,
   initialLimit = 10,
   initialStatus = undefined,

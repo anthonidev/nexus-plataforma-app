@@ -108,7 +108,7 @@ export function PaymentsTable({
               variant="ghost"
               size="icon"
               onClick={() =>
-                router.push(`/mis-pagos/detalle/${row.original.id}`)
+                router.push(`/admin/pagos/detalle/${row.original.id}`)
               }
               title="Ver detalles"
             >
