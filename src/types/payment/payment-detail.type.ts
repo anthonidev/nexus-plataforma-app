@@ -54,3 +54,18 @@ export interface PaymentResponse {
   reviewedBy?: PaymentReviewerResponse;
   images: PaymentImageResponse[];
 }
+
+export interface ResponseApprovePayment {
+  success: boolean;
+  message: string;
+  paymentId: number;
+  reviewedBy: {
+    id: string;
+    email: string;
+  };
+  timestamp: Date;
+}
+
+export interface ResponseRejectPayment extends ResponseApprovePayment {
+  rejectionReason: string;
+}

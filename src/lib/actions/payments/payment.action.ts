@@ -1,6 +1,10 @@
 "use server";
 import { httpClient } from "@/lib/api/http-client";
-import { PaymentResponse } from "@/types/payment/payment-detail.type";
+import {
+  PaymentResponse,
+  ResponseApprovePayment,
+  ResponseRejectPayment,
+} from "@/types/payment/payment-detail.type";
 import { PaymentsListResponse } from "@/types/payment/payment.type";
 
 export async function getUserPayments(
@@ -49,6 +53,40 @@ export async function getPaymentById(
     );
   } catch (error) {
     console.error(`Error al obtener el pago con ID ${paymentId}:`, error);
+    throw error;
+  }
+}
+
+export async function approvePayment(
+  paymentId: number
+): Promise<ResponseApprovePayment> {
+  try {
+    return await httpClient<ResponseApprovePayment>(
+      `/finance/payments/approval/${paymentId}/approve`,
+      {
+        method: "POST",
+      }
+    );
+  } catch (error) {
+    console.error(`Error al aprobar el pago con ID ${paymentId}:`, error);
+    throw error;
+  }
+}
+
+export async function rejectPayment(
+  paymentId: number,
+  rejectionReason: string
+): Promise<ResponseRejectPayment> {
+  try {
+    return await httpClient<ResponseRejectPayment>(
+      `/finance/payments/approval/${paymentId}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ rejectionReason }),
+      }
+    );
+  } catch (error) {
+    console.error(`Error al rechazar el pago con ID ${paymentId}:`, error);
     throw error;
   }
 }
