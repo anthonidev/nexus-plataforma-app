@@ -39,7 +39,7 @@ export async function getHistoryPlans(
 ): Promise<MembershipHistoryResponse> {
   try {
     return await httpClient<MembershipHistoryResponse>(
-      "/api/user-memberships/history-plans",
+      "/api/user-memberships/history",
       {
         params: params,
       }

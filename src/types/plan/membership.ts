@@ -52,6 +52,7 @@ export interface ReconsumptionsResponse {
     currentPage: number;
   };
   canReconsume: boolean;
+  autoRenewal: boolean;
 }
 export interface MembershipHistoryResponse {
   items: {
