@@ -16,6 +16,8 @@ import {
   FileText,
   Image as ImageIcon,
   Info,
+  ThumbsDown,
+  ThumbsUp,
   User,
   XCircle,
 } from "lucide-react";
@@ -24,6 +26,9 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useState } from "react";
 import { useFinancePaymentDetail } from "../../hooks/useFinancePaymentDetail";
+import { ApprovePaymentModal } from "../../components/modals/ApprovePaymentModal";
+import { RejectPaymentModal } from "../../components/modals/RejectPaymentModal";
+import { PaymentResponseModal } from "../../components/modals/PaymentResponseModal";
 
 export default function PaymentDetailPage() {
   const params = useParams<{ id: string }>();
@@ -35,7 +40,26 @@ export default function PaymentDetailPage() {
     notFound();
   }
 
-  const { payment, isLoading, error } = useFinancePaymentDetail(paymentId);
+  const {
+    payment,
+    isLoading,
+    error,
+    isApproveModalOpen,
+    isRejectModalOpen,
+    rejectionReason,
+    setRejectionReason,
+    isSubmitting,
+    openApproveModal,
+    openRejectModal,
+    closeModals,
+    handleApprovePayment,
+    handleRejectPayment,
+    approveResponse,
+    rejectResponse,
+    isResponseModalOpen,
+    closeResponseModal,
+    navigateToPaymentsList,
+  } = useFinancePaymentDetail(paymentId);
 
   const handleImageClick = (url: string) => {
     setSelectedImageUrl(url);
@@ -80,12 +104,15 @@ export default function PaymentDetailPage() {
     icon: <Info className="h-4 w-4" />,
   };
 
+  // Determinar si podemos aprobar/rechazar (solo si está pendiente)
+  const canApproveOrReject = payment.status === "PENDING";
+
   return (
     <div className="container py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <div className="flex items-center mb-2">
-            <Link href="/mis-pagos" passHref>
+            <Link href="/admin/pagos" passHref>
               <Button variant="ghost" size="sm" className="mr-2 -ml-3">
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Volver
@@ -100,12 +127,37 @@ export default function PaymentDetailPage() {
           </p>
         </div>
 
-        <Badge
-          className={`px-2 py-1 text-sm flex items-center gap-1 ${statusInfo.color}`}
-        >
-          {statusInfo.icon}
-          {statusInfo.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge
+            className={`px-2 py-1 text-sm flex items-center gap-1 ${statusInfo.color}`}
+          >
+            {statusInfo.icon}
+            {statusInfo.label}
+          </Badge>
+
+          {canApproveOrReject && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openRejectModal}
+                className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
+              >
+                <ThumbsDown className="h-4 w-4" />
+                <span>Rechazar</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={openApproveModal}
+                className="flex items-center gap-1 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
+              >
+                <ThumbsUp className="h-4 w-4" />
+                <span>Aprobar</span>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -320,6 +372,34 @@ export default function PaymentDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modales para aprobar/rechazar pagos */}
+      <ApprovePaymentModal
+        isOpen={isApproveModalOpen}
+        onClose={closeModals}
+        onApprove={handleApprovePayment}
+        payment={payment}
+        isSubmitting={isSubmitting}
+      />
+
+      <RejectPaymentModal
+        isOpen={isRejectModalOpen}
+        onClose={closeModals}
+        onReject={handleRejectPayment}
+        payment={payment}
+        rejectionReason={rejectionReason}
+        setRejectionReason={setRejectionReason}
+        isSubmitting={isSubmitting}
+      />
+
+      {/* Modal de respuesta */}
+      <PaymentResponseModal
+        isOpen={isResponseModalOpen}
+        onClose={closeResponseModal}
+        approveResponse={approveResponse}
+        rejectResponse={rejectResponse}
+        onViewAllPayments={navigateToPaymentsList}
+      />
 
       {selectedImageUrl && (
         <PaymentImageViewer

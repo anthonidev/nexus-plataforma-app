@@ -62,7 +62,7 @@ export async function approvePayment(
 ): Promise<ResponseApprovePayment> {
   try {
     return await httpClient<ResponseApprovePayment>(
-      `/finance/payments/approval/${paymentId}/approve`,
+      `/api/finance/payments/approval/${paymentId}/approve`,
       {
         method: "POST",
       }
@@ -79,7 +79,7 @@ export async function rejectPayment(
 ): Promise<ResponseRejectPayment> {
   try {
     return await httpClient<ResponseRejectPayment>(
-      `/finance/payments/approval/${paymentId}/reject`,
+      `/api/finance/payments/approval/${paymentId}/reject`,
       {
         method: "POST",
         body: JSON.stringify({ rejectionReason }),
