@@ -73,7 +73,7 @@ export function useRegister() {
       setProvinces(selectedProvinces?.children || []);
       setDistricts([]);
     },
-    [ubigeos]
+    [departments]
   );
 
   // Actualizar distritos cuando se selecciona una provincia
@@ -87,12 +87,12 @@ export function useRegister() {
       console.log("Selected Districts:", selectedDistricts?.children);
       setDistricts(selectedDistricts?.children || []);
     },
-    [ubigeos, provinces]
+    [provinces]
   );
 
   // Manejar envío del formulario
   const handleSubmit = useCallback(
-    async (formData: RegisterFormData) => {
+    async (formData: RegisterFormData): Promise<boolean> => {
       try {
         setIsSubmitting(true);
         setError(null);
@@ -100,7 +100,7 @@ export function useRegister() {
         // Validar que se haya seleccionado un distrito
         if (!formData.districtId) {
           toast.error("Debes seleccionar un distrito");
-          return;
+          return false;
         }
 
         // Preparar datos para enviar al backend
@@ -129,24 +129,23 @@ export function useRegister() {
 
         if (response.success) {
           toast.success(response.message || "Registro exitoso");
-          // Redirigir al login después del registro exitoso
-          setTimeout(() => {
-            router.push("/auth/login");
-          }, 1500);
+          return true;
         } else {
           toast.error(response.message || "Error al registrar");
           setError(response.message || "Error al registrar usuario");
+          return false;
         }
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Error al procesar el registro";
         setError(errorMessage);
         toast.error(errorMessage);
+        return false;
       } finally {
         setIsSubmitting(false);
       }
     },
-    [referrerCode, position, router]
+    [referrerCode, position]
   );
 
   return {

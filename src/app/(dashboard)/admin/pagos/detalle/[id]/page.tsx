@@ -266,9 +266,24 @@ export default function PaymentDetailPage() {
                       {payment.user.email}
                     </p>
                     <p className="text-sm text-muted-foreground mt-3 mb-1">
-                      ID de usuario:
+                      Nombre completo:
                     </p>
-                    <p className="text-sm font-mono">{payment.user.id}</p>
+                    <p className="text-sm ">
+                      {payment.user.personalInfo.firstName +
+                        " " +
+                        payment.user.personalInfo.lastName}{" "}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-3 mb-1">
+                      Teléfono:
+                    </p>
+                    <p className="text-sm ">{payment.user.contactInfo.phone}</p>
+                    <p className="text-sm text-muted-foreground mt-3 mb-1">
+                      Número de documento:
+                    </p>
+                    <p className="text-sm ">
+                      {payment.user.personalInfo.documentNumber ??
+                        "Sin documento"}
+                    </p>
                   </div>
                 </div>
 

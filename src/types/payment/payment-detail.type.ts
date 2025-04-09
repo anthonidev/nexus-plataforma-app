@@ -16,6 +16,14 @@ export interface PaymentUserResponse {
   email: string;
   referralCode: string;
   isActive: boolean;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    documentNumber: string;
+  };
+  contactInfo: {
+    phone: string;
+  };
 }
 
 export interface PaymentReviewerResponse {

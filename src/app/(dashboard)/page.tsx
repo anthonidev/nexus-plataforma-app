@@ -49,7 +49,7 @@ export default function Home() {
               </AlertDescription>
 
               <div className="mt-4">
-                <Link href="/planes" passHref>
+                <Link href="/planes-de-membresia" passHref>
                   <Button
                     className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0"
                     size="sm"

@@ -58,13 +58,20 @@ export async function getPaymentById(
 }
 
 export async function approvePayment(
-  paymentId: number
+  paymentId: number,
+  approvalData: {
+    codeOperation: string;
+    banckName: string;
+    dateOperation: string;
+    numberTicket: string;
+  }
 ): Promise<ResponseApprovePayment> {
   try {
     return await httpClient<ResponseApprovePayment>(
       `/api/finance/payments/approval/${paymentId}/approve`,
       {
         method: "POST",
+        body: approvalData,
       }
     );
   } catch (error) {

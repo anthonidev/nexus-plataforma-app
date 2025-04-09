@@ -66,29 +66,37 @@ export function useFinancePaymentDetail(paymentId: number) {
     setRejectionReason("");
   }, []);
 
-  const handleApprovePayment = useCallback(async () => {
-    try {
-      setIsSubmitting(true);
+  const handleApprovePayment = useCallback(
+    async (approvalData: {
+      codeOperation: string;
+      banckName: string;
+      dateOperation: string;
+      numberTicket: string;
+    }) => {
+      try {
+        setIsSubmitting(true);
 
-      const response = await approvePayment(paymentId);
+        const response = await approvePayment(paymentId, approvalData);
 
-      setApproveResponse(response);
-      closeModals();
-      setIsResponseModalOpen(true);
+        setApproveResponse(response);
+        closeModals();
+        setIsResponseModalOpen(true);
 
-      fetchPaymentDetail();
+        fetchPaymentDetail();
 
-      return response;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al aprobar el pago";
+        return response;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Error al aprobar el pago";
 
-      toast.error(errorMessage);
-      return null;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [paymentId, closeModals, fetchPaymentDetail]);
+        toast.error(errorMessage);
+        return null;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [paymentId, closeModals, fetchPaymentDetail]
+  );
 
   const handleRejectPayment = useCallback(async () => {
     try {
