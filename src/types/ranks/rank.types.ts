@@ -31,3 +31,31 @@ export interface MembershipPlan {
   id: number;
   name: string;
 }
+
+export interface MonthlyVolumenResponse {
+  items: Item[];
+  meta: Meta;
+}
+
+export interface Item {
+  id: number;
+  totalVolume: number;
+  leftVolume: number;
+  rightVolume: number;
+  leftDirects: number;
+  rightDirects: number;
+  monthStartDate: Date;
+  monthEndDate: Date;
+  status: string;
+  metadata: null;
+  createdAt: Date;
+  updatedAt: Date;
+  assignedRank: Rank | null;
+}
+
+export interface Meta {
+  totalItems: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
+}
