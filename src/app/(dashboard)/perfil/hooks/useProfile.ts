@@ -30,9 +30,11 @@ export function useProfile() {
   const [ubigeoError, setUbigeoError] = useState<string | null>(null);
 
   // Obtener datos de perfil
-  const fetchProfileData = useCallback(async () => {
+  const fetchProfileData = useCallback(async (applyLoading: boolean = true) => {
     try {
-      setIsLoading(true);
+      if (applyLoading) {
+        setIsLoading(true);
+      }
       setError(null);
       const data = await profileInfo();
       setProfile(data);
@@ -42,7 +44,9 @@ export function useProfile() {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      setIsLoading(false);
+      if (applyLoading) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -74,7 +78,7 @@ export function useProfile() {
           toast.success(
             response.message || "Información de contacto actualizada"
           );
-          await fetchProfileData();
+          await fetchProfileData(false);
         } else {
           toast.error(
             response.message || "Error al actualizar la información de contacto"
@@ -107,7 +111,7 @@ export function useProfile() {
           toast.success(
             response.message || "Información de facturación actualizada"
           );
-          await fetchProfileData();
+          await fetchProfileData(false);
         } else {
           toast.error(
             response.message ||
@@ -139,7 +143,7 @@ export function useProfile() {
 
         if (response.success) {
           toast.success(response.message || "Información bancaria actualizada");
-          await fetchProfileData();
+          await fetchProfileData(false);
         } else {
           toast.error(
             response.message || "Error al actualizar la información bancaria"
@@ -170,7 +174,7 @@ export function useProfile() {
 
         if (response.success) {
           toast.success(response.message || "Información personal actualizada");
-          await fetchProfileData();
+          await fetchProfileData(false);
         } else {
           toast.error(
             response.message || "Error al actualizar la información personal"

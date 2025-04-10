@@ -1,4 +1,5 @@
 "use client";
+
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import {
   Building,
@@ -29,10 +30,13 @@ export default function ProfilePage() {
     isLoading,
     error,
     isSaving,
+    ubigeos,
+    ubigeoLoading,
     updatePersonal,
     updateContact,
     updateBilling,
     updateBank,
+    fetchUbigeos,
   } = useProfile();
 
   const [openModal, setOpenModal] = useState<string | null>(null);
@@ -183,6 +187,9 @@ export default function ProfilePage() {
         onSubmit={updateContact}
         initialData={profile.contactInfo}
         isSaving={isSaving}
+        ubigeos={ubigeos}
+        ubigeoLoading={ubigeoLoading}
+        fetchUbigeos={fetchUbigeos}
       />
 
       <EditBillingInfoModal
@@ -191,6 +198,9 @@ export default function ProfilePage() {
         onSubmit={updateBilling}
         initialData={profile.billingInfo}
         isSaving={isSaving}
+        ubigeos={ubigeos}
+        ubigeoLoading={ubigeoLoading}
+        fetchUbigeos={fetchUbigeos}
       />
 
       <EditBankInfoModal

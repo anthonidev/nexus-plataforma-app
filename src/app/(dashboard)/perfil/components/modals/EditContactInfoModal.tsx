@@ -20,7 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,9 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { useProfile } from "../../hooks/useProfile";
+import { UbigeoItem } from "@/types/profile/ubigeo.type";
 
 // Schema de validación
 const contactInfoSchema = z.object({
@@ -47,10 +47,9 @@ const contactInfoSchema = z.object({
     .string()
     .max(10, "El código postal es demasiado largo")
     .optional(),
-  ubigeoId: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : undefined)),
+  departmentId: z.number().optional(),
+  provinceId: z.number().optional(),
+  districtId: z.number().optional(),
 });
 
 interface EditContactInfoModalProps {
@@ -64,9 +63,14 @@ interface EditContactInfoModalProps {
     ubigeo?: {
       id: number;
       name: string;
+      code: string;
+      parentId?: number;
     } | null;
   } | null;
   isSaving: boolean;
+  ubigeos: UbigeoItem[];
+  ubigeoLoading: boolean;
+  fetchUbigeos: () => void;
 }
 
 export default function EditContactInfoModal({
@@ -75,9 +79,14 @@ export default function EditContactInfoModal({
   onSubmit,
   initialData,
   isSaving,
+  ubigeos,
+  ubigeoLoading,
+  fetchUbigeos,
 }: EditContactInfoModalProps) {
   const [success, setSuccess] = useState(false);
-  const { ubigeos, ubigeoLoading, fetchUbigeos } = useProfile();
+  const [departments, setDepartments] = useState<UbigeoItem[]>([]);
+  const [provinces, setProvinces] = useState<UbigeoItem[]>([]);
+  const [districts, setDistricts] = useState<UbigeoItem[]>([]);
 
   // Asegurarse de que los ubigeos están cargados
   useEffect(() => {
@@ -86,6 +95,86 @@ export default function EditContactInfoModal({
     }
   }, [isOpen, ubigeos.length, ubigeoLoading, fetchUbigeos]);
 
+  // Cargar departamentos, provincias y distritos
+  useEffect(() => {
+    if (ubigeos.length > 0) {
+      // Filtrar departamentos (elementos sin parentId)
+      const deps = ubigeos.filter((item) => !item.parentId);
+      setDepartments(deps);
+
+      // Intentar cargar provincia y distrito si hay un ubigeo inicial
+      if (initialData?.ubigeo?.id) {
+        loadUbigeoData(initialData.ubigeo.id);
+      }
+    }
+  }, [ubigeos, initialData]);
+
+  // Función para cargar la jerarquía de ubigeos basado en el ID del distrito
+  const loadUbigeoData = (districtId: number) => {
+    // Buscar el distrito
+    const district = findUbigeoById(districtId);
+    if (!district || !district.parentId) return;
+
+    // Buscar la provincia
+    const province = findUbigeoById(district.parentId);
+    if (!province || !province.parentId) return;
+
+    // Buscar el departamento
+    const department = findUbigeoById(province.parentId);
+    if (!department) return;
+
+    // Establecer provincias basadas en el departamento
+    const provincesOfDepartment = department.children || [];
+    setProvinces(provincesOfDepartment);
+
+    // Establecer distritos basados en la provincia
+    const districtsOfProvince = province.children || [];
+    setDistricts(districtsOfProvince);
+
+    // Actualizar los valores del formulario
+    form.setValue("departmentId", department.id);
+    form.setValue("provinceId", province.id);
+    form.setValue("districtId", district.id);
+  };
+
+  // Función recursiva para encontrar un ubigeo por ID
+  const findUbigeoById = (id: number): UbigeoItem | undefined => {
+    const search = (items: UbigeoItem[]): UbigeoItem | undefined => {
+      for (const item of items) {
+        if (item.id === id) {
+          return item;
+        }
+        if (item.children && item.children.length > 0) {
+          const found = search(item.children);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    };
+
+    return search(ubigeos);
+  };
+
+  // Manejar el cambio de departamento
+  const handleDepartmentChange = (departmentId: number) => {
+    const department = departments.find((d) => d.id === departmentId);
+    if (department) {
+      setProvinces(department.children || []);
+      setDistricts([]);
+      form.setValue("provinceId", undefined);
+      form.setValue("districtId", undefined);
+    }
+  };
+
+  // Manejar el cambio de provincia
+  const handleProvinceChange = (provinceId: number) => {
+    const province = provinces.find((p) => p.id === provinceId);
+    if (province) {
+      setDistricts(province.children || []);
+      form.setValue("districtId", undefined);
+    }
+  };
+
   // Configurar formulario con react-hook-form
   const form = useForm<z.infer<typeof contactInfoSchema>>({
     resolver: zodResolver(contactInfoSchema),
@@ -93,13 +182,21 @@ export default function EditContactInfoModal({
       phone: initialData?.phone || "",
       address: initialData?.address || "",
       postalCode: initialData?.postalCode || "",
-      ubigeoId: initialData?.ubigeo?.id ? initialData.ubigeo.id : undefined,
+      districtId: initialData?.ubigeo?.id,
     },
   });
 
   // Manejar envío del formulario
   const handleSubmit = async (data: z.infer<typeof contactInfoSchema>) => {
-    const result = await onSubmit(data);
+    // Preparar el DTO para enviar
+    const contactData: UpdateContactInfoDto = {
+      phone: data.phone,
+      address: data.address,
+      postalCode: data.postalCode,
+      ubigeoId: data.districtId,
+    };
+
+    const result = await onSubmit(contactData);
     if (result) {
       setSuccess(true);
       setTimeout(() => {
@@ -111,7 +208,7 @@ export default function EditContactInfoModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Editar información de contacto</DialogTitle>
           <DialogDescription>
@@ -160,41 +257,39 @@ export default function EditContactInfoModal({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="postalCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Código postal</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ingresa tu código postal"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="postalCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Código postal</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ingresa tu código postal" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="ubigeoId"
+                name="departmentId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Ubicación</FormLabel>
+                    <FormLabel>Departamento</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={
-                        field.value !== undefined
-                          ? String(field.value)
-                          : undefined
-                      }
+                      onValueChange={(value) => {
+                        const numValue = parseInt(value);
+                        field.onChange(numValue);
+                        handleDepartmentChange(numValue);
+                      }}
+                      value={field.value?.toString()}
+                      disabled={ubigeoLoading || departments.length === 0}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona ubicación" />
+                          <SelectValue placeholder="Selecciona departamento" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -204,14 +299,94 @@ export default function EditContactInfoModal({
                             <span>Cargando...</span>
                           </div>
                         ) : (
-                          ubigeos.map((ubigeo) => (
+                          departments.map((department) => (
                             <SelectItem
-                              key={ubigeo.id}
-                              value={String(ubigeo.id)}
+                              key={department.id}
+                              value={department.id.toString()}
                             >
-                              {ubigeo.name}
+                              {department.name}
                             </SelectItem>
                           ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="provinceId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Provincia</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const numValue = parseInt(value);
+                        field.onChange(numValue);
+                        handleProvinceChange(numValue);
+                      }}
+                      value={field.value?.toString()}
+                      disabled={provinces.length === 0}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona provincia" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {provinces.length > 0 ? (
+                          provinces.map((province) => (
+                            <SelectItem
+                              key={province.id}
+                              value={province.id.toString()}
+                            >
+                              {province.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <div className="p-2 text-sm text-muted-foreground">
+                            Selecciona un departamento primero
+                          </div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="districtId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Distrito</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                      value={field.value?.toString()}
+                      disabled={districts.length === 0}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona distrito" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {districts.length > 0 ? (
+                          districts.map((district) => (
+                            <SelectItem
+                              key={district.id}
+                              value={district.id.toString()}
+                            >
+                              {district.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <div className="p-2 text-sm text-muted-foreground">
+                            Selecciona una provincia primero
+                          </div>
                         )}
                       </SelectContent>
                     </Select>

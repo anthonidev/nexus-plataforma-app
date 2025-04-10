@@ -13,40 +13,84 @@ import { cn } from "@/lib/utils";
 import { View } from "@/types/user.types";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Award,
+  Banknote,
+  BarChart,
+  BarChart2,
   ChevronDown,
-  FileText,
+  ClipboardCheck,
+  CreditCard,
+  Crown,
+  DollarSign,
+  History,
   Home,
-  Map,
-  Podcast,
-  SquareUserRound,
-  TableProperties,
+  Layers,
+  Medal,
+  PlaneTakeoff,
+  Settings,
+  Trophy,
   User,
-  UserPlus,
-  UserRoundCheck,
+  UserCog,
   Users,
+  UsersRound,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
 const ICON_MAPPING = {
+  // Elementos principales
+  dashboard: Home,
   profile: User,
-  project: FileText,
-  lote: Map,
-  user: Users,
-  lead: Home,
-  "g-lead": SquareUserRound,
-  "lead-source": Podcast,
-  "new-lead": UserPlus,
-  leads: TableProperties,
-  liner: UserRoundCheck,
+  money: Wallet,
+  wallet: CreditCard,
+
+  // Membresía
+  membership: Crown,
+  "membership-plan": PlaneTakeoff,
+  "my-plan": ClipboardCheck,
+
+  // Puntos
+  points: Award,
+  history: History,
+  chart: BarChart,
+
+  // Rangos
+  ranks: Medal,
+  "all-ranks": Layers,
+  "my-ranks": Trophy,
+
+  // Equipo
+  team: Users,
+
+  // Admin
+  users: UserCog,
+  "membership-admin": Settings,
+  "payments-admin": DollarSign,
+  "withdrawals-admin": Banknote,
+  "points-admin": Award,
+  "ranks-admin": BarChart2,
+  "team-admin": UsersRound,
 };
+
 type Props = {
   item: View;
   isCollapsed: boolean;
   isNested?: boolean;
 };
+
 const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
   const Icon = ICON_MAPPING[item.icon as keyof typeof ICON_MAPPING] || Home;
+
+  const isActive = item.url && pathname === item.url;
+
+  const isChildActive = item.children?.some(
+    (child) => child.url && pathname === child.url
+  );
+
   const LinkContent = () => (
     <motion.div
       className={cn(
@@ -57,7 +101,13 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
       animate={{ x: 0 }}
       transition={{ duration: 0.2 }}
     >
-      <Icon size={20} />
+      <Icon
+        size={20}
+        className={cn(
+          "transition-colors duration-200",
+          isActive || isChildActive ? "text-white" : "text-gray-300"
+        )}
+      />
       <AnimatePresence>
         {!isCollapsed && (
           <motion.span
@@ -65,7 +115,10 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
             animate={{ opacity: 1, width: "auto" }}
             exit={{ opacity: 0, width: 0 }}
             transition={{ duration: 0.2 }}
-            className="font-medium whitespace-nowrap overflow-hidden"
+            className={cn(
+              "font-medium whitespace-nowrap overflow-hidden transition-colors duration-200",
+              isActive || isChildActive ? "text-white" : "text-gray-300"
+            )}
           >
             {item.name}
           </motion.span>
@@ -73,6 +126,7 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
       </AnimatePresence>
     </motion.div>
   );
+
   if (item.children?.length > 0) {
     const TriggerContent = () => (
       <div
@@ -87,20 +141,39 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
+            className={cn(
+              "text-gray-400 transition-colors",
+              (isActive || isChildActive || isOpen) && "text-white"
+            )}
           >
             <ChevronDown size={16} />
           </motion.div>
         )}
       </div>
     );
+
+    const activeStyles =
+      isActive || isChildActive
+        ? "before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-emerald-400 before:rounded-r-md bg-emerald-900/40 text-white"
+        : "";
+
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+      <Collapsible
+        open={isOpen || isChildActive}
+        onOpenChange={setIsOpen}
+        className="w-full"
+      >
         {isCollapsed ? (
           <TooltipProvider>
             <Tooltip>
               <div className="w-full">
                 <CollapsibleTrigger asChild>
-                  <div className="w-full p-2 rounded-lg hover:bg-nav-item-hover transition-colors">
+                  <div
+                    className={cn(
+                      "w-full p-2 rounded-r-md relative transition-all hover:bg-emerald-800/30",
+                      activeStyles
+                    )}
+                  >
                     <TooltipTrigger asChild>
                       <div className="w-full">
                         <TriggerContent />
@@ -110,11 +183,11 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
                 </CollapsibleTrigger>
                 <TooltipContent
                   side="right"
-                  className="flex flex-col gap-1 bg-popover text-popover-foreground"
+                  className="flex flex-col gap-1 bg-gray-900 border-gray-800"
                 >
                   <p className="font-medium">{item.name}</p>
-                  <div className="h-px bg-border w-full" />
-                  <div className="text-xs text-muted-foreground">
+                  <div className="h-px bg-gray-800 w-full" />
+                  <div className="text-xs text-gray-400">
                     Submenú disponible
                   </div>
                 </TooltipContent>
@@ -122,13 +195,18 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <CollapsibleTrigger className="flex w-full p-2 rounded-lg hover:bg-nav-item-hover transition-colors">
+          <CollapsibleTrigger
+            className={cn(
+              "flex w-full p-2 rounded-r-md relative hover:bg-emerald-800/30 transition-all",
+              activeStyles
+            )}
+          >
             <TriggerContent />
           </CollapsibleTrigger>
         )}
         <CollapsibleContent>
           <AnimatePresence>
-            {isOpen && (
+            {(isOpen || isChildActive) && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -136,8 +214,8 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
                 transition={{ duration: 0.2 }}
                 className={cn(
                   "w-full",
-                  !isCollapsed && "pl-4",
-                  isCollapsed && "border-l-2 border-border"
+                  !isCollapsed && "pl-2",
+                  isCollapsed && "border-l border-gray-700"
                 )}
               >
                 {item.children.map((child) => (
@@ -155,23 +233,31 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
       </Collapsible>
     );
   }
+
+  const activeStyles = isActive
+    ? "before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-emerald-400 before:rounded-r-md bg-emerald-900/40 text-white"
+    : "";
+
   const linkClassName = cn(
-    "flex w-full p-2 rounded-lg hover:bg-nav-item-hover transition-colors",
+    "flex w-full p-2 rounded-r-md relative hover:bg-emerald-800/30 transition-all",
     isCollapsed ? "justify-center" : "items-center gap-3",
     isNested && {
-      "ml-4": !isCollapsed,
+      "ml-2": !isCollapsed,
       "": isCollapsed,
-    }
+    },
+    activeStyles
   );
+
   const LinkWrapper = ({ children }: { children: React.ReactNode }) => (
     <motion.div
-      whileHover={{ x: isCollapsed ? 0 : 4 }}
+      whileHover={{ x: isCollapsed ? 0 : 2 }}
       transition={{ duration: 0.2 }}
-      className="w-full"
+      className="w-full overflow-hidden relative"
     >
       {children}
     </motion.div>
   );
+
   const MainContent = () => (
     <LinkWrapper>
       {item.url ? (
@@ -185,6 +271,7 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
       )}
     </LinkWrapper>
   );
+
   return isCollapsed ? (
     <TooltipProvider>
       <Tooltip>
@@ -195,13 +282,11 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
         </TooltipTrigger>
         <TooltipContent
           side="right"
-          className="bg-popover text-popover-foreground"
+          className="bg-gray-900 border-gray-800 text-gray-200"
         >
           <p>{item.name}</p>
           {isNested && (
-            <p className="text-xs text-muted-foreground">
-              Elemento del submenú
-            </p>
+            <p className="text-xs text-gray-400">Elemento del submenú</p>
           )}
         </TooltipContent>
       </Tooltip>
@@ -210,4 +295,5 @@ const SidebarLink = ({ item, isCollapsed, isNested = false }: Props) => {
     <MainContent />
   );
 };
+
 export default SidebarLink;
