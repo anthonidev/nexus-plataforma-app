@@ -27,6 +27,7 @@ export default function MisReconsumosPage() {
     isPaymentModalOpen,
     totalPaidAmount,
     remainingAmount,
+    listReconsumptions,
     reconsumptionAmount,
     isPaymentComplete,
     isSubmitting,
@@ -51,6 +52,10 @@ export default function MisReconsumosPage() {
     payment: any;
   } | null>(null);
 
+  if (isLoading) {
+    return <div className="container py-8">Cargando...</div>;
+  }
+
   const handleEditPayment = (index: number, payment: any) => {
     setEditingPayment({ index, payment });
   };
@@ -70,12 +75,12 @@ export default function MisReconsumosPage() {
         {/* Sección principal de reconsumos */}
         <div className="lg:col-span-2">
           {/* Formulario de reconsumo si el usuario puede hacer reconsumo */}
-          {canReconsume && (
+          {canReconsume && listReconsumptions && (
             <ReconsumptionForm
               payments={payments}
               totalPaidAmount={totalPaidAmount}
               remainingAmount={remainingAmount}
-              reconsumptionAmount={reconsumptionAmount}
+              reconsumptionAmount={listReconsumptions.reconsumptionAmount}
               isPaymentComplete={isPaymentComplete}
               isSubmitting={isSubmitting}
               onOpenPaymentModal={handlePaymentModalOpen}
@@ -108,6 +113,20 @@ export default function MisReconsumosPage() {
         </div>
       </div>
 
+      {!isLoading && listReconsumptions && (
+        <PaymentImageModal
+          isOpen={isPaymentModalOpen}
+          onClose={handlePaymentModalClose}
+          onSubmit={addPayment}
+          initialData={{
+            bankName: "",
+            transactionReference: "",
+            transactionDate: new Date().toISOString().split("T")[0],
+            amount: listReconsumptions.reconsumptionAmount,
+            file: undefined,
+          }}
+        />
+      )}
       {/* Modal para agregar/editar comprobantes de pago */}
       <PaymentImageModal
         isOpen={isPaymentModalOpen}
@@ -117,7 +136,7 @@ export default function MisReconsumosPage() {
           bankName: "",
           transactionReference: "",
           transactionDate: new Date().toISOString().split("T")[0],
-          amount: remainingAmount > 0 ? remainingAmount : reconsumptionAmount,
+          amount: reconsumptionAmount,
           file: undefined,
         }}
       />

@@ -28,7 +28,7 @@ interface UseReconsumptionsReturn {
   // Paginación
   currentPage: number;
   itemsPerPage: number;
-
+  listReconsumptions: ReconsumptionsResponse | undefined;
   // Estado del formulario de reconsumo
   payments: PaymentImageModalType[];
   isPaymentModalOpen: boolean;
@@ -81,6 +81,8 @@ export function useReconsumptions(
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [reconsumptionAmount, setReconsumptionAmount] = useState<number>(0);
+  const [listReconsumptions, setListReconsumptions] =
+    useState<ReconsumptionsResponse>();
 
   // Calcular montos
   const totalPaidAmount = payments.reduce(
@@ -105,12 +107,13 @@ export function useReconsumptions(
         };
 
         const response = await getListReconsumptions(params);
-
+        setListReconsumptions(response);
         setReconsumptions(response.items);
         setMeta(response.meta);
+        console.log("Reconsumptions response:", response);
         setCanReconsume(response.canReconsume);
         setAutoRenewal(response.autoRenewal);
-        setReconsumptionAmount(response.items[0]?.amount || 0);
+        setReconsumptionAmount(response.reconsumptionAmount);
 
         // Actualizar la página actual y elementos por página según la respuesta
         setCurrentPage(response.meta.currentPage);
@@ -277,6 +280,7 @@ export function useReconsumptions(
     // Paginación
     currentPage,
     itemsPerPage,
+    listReconsumptions,
 
     // Estado del formulario de reconsumo
     payments,
