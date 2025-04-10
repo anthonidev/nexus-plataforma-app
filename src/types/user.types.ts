@@ -6,6 +6,8 @@ export interface Profile {
 export interface UserClient {
   id: string;
   email: string;
+  photo?: string;
+  nickname?: string;
   role: Role;
   views: View[];
   membership: Membership;

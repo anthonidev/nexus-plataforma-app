@@ -6,8 +6,11 @@ import {
   Calendar,
   UserRound,
   CreditCard,
+  Upload,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState, useRef } from "react";
 
 interface PersonalInfoCardProps {
   personalInfo: {
@@ -18,17 +21,37 @@ interface PersonalInfoCardProps {
     birthDate?: Date;
   } | null;
   email: string;
+  onUpdatePhoto: (file: File) => void;
   onEdit: () => void;
+  photo?: string;
+  nickname?: string;
 }
 
 export default function PersonalInfoCard({
   personalInfo,
   email,
   onEdit,
+  onUpdatePhoto,
+  photo,
+  nickname,
 }: PersonalInfoCardProps) {
   const fullName = personalInfo
     ? `${personalInfo.firstName || ""} ${personalInfo.lastName || ""}`.trim()
     : "No especificado";
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onUpdatePhoto(file);
+    }
+  };
 
   return (
     <motion.div
@@ -38,11 +61,59 @@ export default function PersonalInfoCard({
     >
       <div className="flex flex-row justify-between items-start w-full mb-6">
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <User size={32} />
+          <div
+            className="relative"
+            onMouseEnter={() => setIsHoveringAvatar(true)}
+            onMouseLeave={() => setIsHoveringAvatar(false)}
+          >
+            <div
+              className="h-16 w-16 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary cursor-pointer"
+              onClick={handlePhotoClick}
+            >
+              {photo ? (
+                <Image
+                  src={photo}
+                  alt="Foto de perfil"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User size={32} />
+              )}
+            </div>
+
+            {/* Botón de editar foto que aparece al hacer hover */}
+            {isHoveringAvatar && (
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full cursor-pointer"
+                onClick={handlePhotoClick}
+              >
+                <Upload className="h-5 w-5 text-white" />
+              </div>
+            )}
+
+            {/* Botón pequeño de editar */}
+            <div
+              className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer shadow-md"
+              onClick={handlePhotoClick}
+            >
+              <Edit className="h-3 w-3" />
+            </div>
+
+            {/* Input oculto para seleccionar archivo */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*"
+            />
           </div>
+
           <div className="space-y-1">
             <h3 className="font-semibold text-xl">{fullName}</h3>
+            {nickname && <p className="text-sm text-primary">@{nickname}</p>}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="h-4 w-4" />
               <span>{email}</span>

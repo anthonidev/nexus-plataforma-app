@@ -6,6 +6,7 @@ import {
   updateBillingInfo,
   updateBankInfo,
   updatePersonalInfo,
+  updateProfilePhoto,
 } from "@/lib/actions/profile/profile.action";
 import { getUbigeos } from "@/lib/actions/profile/ubigeo.action";
 import {
@@ -196,6 +197,35 @@ export function useProfile() {
     [fetchProfileData]
   );
 
+  const updatePhoto = useCallback(
+    async (file: File) => {
+      try {
+        setIsSaving(true);
+        const formData = new FormData();
+        formData.append("photo", file);
+
+        const response = await updateProfilePhoto(formData);
+
+        if (response.success) {
+          toast.success(response.message || "Foto actualizada");
+          await fetchProfileData(false);
+        } else {
+          toast.error(response.message || "Error al actualizar la foto");
+        }
+
+        return response.success;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Error al actualizar la foto";
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [fetchProfileData]
+  );
+
   // Encontrar ubigeo por ID
   const findUbigeoById = useCallback(
     (id: number | undefined): UbigeoItem | undefined => {
@@ -272,6 +302,7 @@ export function useProfile() {
     updateBilling,
     updateBank,
     updatePersonal,
+    updatePhoto,
 
     // Utilidades
     findUbigeoById,

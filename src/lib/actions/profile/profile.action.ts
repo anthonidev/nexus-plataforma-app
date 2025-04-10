@@ -76,3 +76,17 @@ export async function updatePersonalInfo(
     throw error;
   }
 }
+
+export async function updateProfilePhoto(
+  formData: FormData
+): Promise<ApiResponse> {
+  try {
+    return await httpClient<ApiResponse>("/api/profile/photo", {
+      method: "PUT",
+      body: formData,
+    });
+  } catch (error) {
+    console.error("Error al actualizar foto de perfil:", error);
+    throw error;
+  }
+}

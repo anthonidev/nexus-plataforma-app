@@ -23,6 +23,7 @@ export interface UpdateBankInfoDto {
 
 export interface UpdatePersonalInfoDto {
   documentNumber?: string;
+  nickname?: string;
 }
 
 export interface ProfileResponse {
@@ -30,6 +31,8 @@ export interface ProfileResponse {
   email: string;
   referralCode: string;
   isActive: boolean;
+  nickname?: string;
+  photo?: string;
   role: {
     id: number;
     code: string;

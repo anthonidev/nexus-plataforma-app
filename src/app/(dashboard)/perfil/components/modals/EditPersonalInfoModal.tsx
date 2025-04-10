@@ -30,6 +30,12 @@ const personalInfoSchema = z.object({
     .min(5, "El número de documento debe tener al menos 5 caracteres")
     .max(20, "El número de documento es demasiado largo")
     .optional(),
+
+  nickname: z
+    .string()
+    .min(3, "El apodo debe tener al menos 3 caracteres")
+    .max(20, "El apodo es demasiado largo")
+    .optional(),
 });
 
 interface EditPersonalInfoModalProps {
@@ -38,6 +44,7 @@ interface EditPersonalInfoModalProps {
   onSubmit: (data: UpdatePersonalInfoDto) => Promise<boolean>;
   initialData: {
     documentNumber?: string;
+    nickname?: string;
     firstName?: string;
     lastName?: string;
   } | null;
@@ -58,6 +65,7 @@ export default function EditPersonalInfoModal({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       documentNumber: initialData?.documentNumber || "",
+      nickname: initialData?.nickname || "",
     },
   });
 
@@ -120,6 +128,19 @@ export default function EditPersonalInfoModal({
                         placeholder="Ingresa tu número de documento"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="nickname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apodo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ingresa tu apodo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -37,6 +37,7 @@ export default function ProfilePage() {
     updateBilling,
     updateBank,
     fetchUbigeos,
+    updatePhoto,
   } = useProfile();
 
   const [openModal, setOpenModal] = useState<string | null>(null);
@@ -102,6 +103,9 @@ export default function ProfilePage() {
               personalInfo={profile.personalInfo}
               email={profile.email}
               onEdit={() => handleOpenModal("personal")}
+              onUpdatePhoto={updatePhoto}
+              photo={profile.photo}
+              nickname={profile.nickname}
             />
           }
           icon={<User className="h-4 w-4 text-primary" />}
@@ -177,7 +181,10 @@ export default function ProfilePage() {
         isOpen={openModal === "personal"}
         onClose={handleCloseModal}
         onSubmit={updatePersonal}
-        initialData={profile.personalInfo}
+        initialData={{
+          ...profile.personalInfo,
+          nickname: profile.nickname,
+        }}
         isSaving={isSaving}
       />
 

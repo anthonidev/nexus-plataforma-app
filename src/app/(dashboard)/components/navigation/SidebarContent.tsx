@@ -86,7 +86,17 @@ const SidebarContent = ({
                     whileHover={{ scale: 1.05 }}
                     className="aspect-square w-10 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700"
                   >
-                    <User size={20} className="text-white" />
+                    {user.photo ? (
+                      <Image
+                        src={user.photo}
+                        alt="Foto de perfil"
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <User size={20} />
+                    )}
                   </motion.div>
                 </TooltipTrigger>
                 <TooltipContent
@@ -102,7 +112,17 @@ const SidebarContent = ({
               whileHover={{ scale: 1.05 }}
               className="aspect-square w-10 rounded-full flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700"
             >
-              <User size={20} className="text-white" />
+              {user.photo ? (
+                <Image
+                  src={user.photo}
+                  alt="Foto de perfil"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              ) : (
+                <User size={20} />
+              )}
             </motion.div>
           )}
 
@@ -121,6 +141,9 @@ const SidebarContent = ({
             <span className="text-sm text-gray-400 truncate">
               {user.role.name}
             </span>
+            {user.nickname && (
+              <p className="text-sm text-primary">@{user.nickname}</p>
+            )}
           </motion.div>
         </div>
       </div>
