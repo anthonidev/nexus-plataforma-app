@@ -1,0 +1,257 @@
+src
+ ┣ app
+ ┃ ┣ (dashboard)
+ ┃ ┃ ┣ admin
+ ┃ ┃ ┃ ┗ pagos
+ ┃ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┃ ┣ modals
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ ApprovePaymentModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┃ ┣ PaymentResponseModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ RejectPaymentModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ PaymentsFilters.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ PaymentsTable.tsx
+ ┃ ┃ ┃ ┃ ┣ detalle
+ ┃ ┃ ┃ ┃ ┃ ┗ [id]
+ ┃ ┃ ┃ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┃ ┣ useFinancePaymentDetail.ts
+ ┃ ┃ ┃ ┃ ┃ ┗ useFinancePayments.ts
+ ┃ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┗ navigation
+ ┃ ┃ ┃ ┃ ┣ Navbar.tsx
+ ┃ ┃ ┃ ┃ ┣ SIdebar.tsx
+ ┃ ┃ ┃ ┃ ┣ SidebarContent.tsx
+ ┃ ┃ ┃ ┃ ┗ SidebarLink.tsx
+ ┃ ┃ ┣ historial-puntos
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ PointsSummaryCard.tsx
+ ┃ ┃ ┃ ┃ ┗ PointsTransactionsTable.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ usePoints.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ mi-equipo
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ controls
+ ┃ ┃ ┃ ┃ ┃ ┣ BreadcrumbPath.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ index.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ NavigationControls.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ ZoomControls.tsx
+ ┃ ┃ ┃ ┃ ┣ detail
+ ┃ ┃ ┃ ┃ ┃ ┣ NodeActions.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ NodeDetailPopup.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ NodeDetailSheet.tsx
+ ┃ ┃ ┃ ┃ ┣ treenode
+ ┃ ┃ ┃ ┃ ┃ ┣ NodeCard.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ NodeConnectors.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ TreeNodeHierarchy.tsx
+ ┃ ┃ ┃ ┃ ┣ TreeLoading.tsx
+ ┃ ┃ ┃ ┃ ┣ TreeView.tsx
+ ┃ ┃ ┃ ┃ ┗ ViewBox.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useUserTree.ts
+ ┃ ┃ ┃ ┣ utils
+ ┃ ┃ ┃ ┃ ┗ tree-utils.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ mi-plan
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ MembershipDetail.tsx
+ ┃ ┃ ┃ ┃ ┗ MembershipHistoryTable.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useMyMembership.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ mis-pagos
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ PaymentsFilters.tsx
+ ┃ ┃ ┃ ┃ ┗ PaymentsTable.tsx
+ ┃ ┃ ┃ ┣ detalle
+ ┃ ┃ ┃ ┃ ┗ [id]
+ ┃ ┃ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┣ usePaymentDetail.ts
+ ┃ ┃ ┃ ┃ ┗ usePayments.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ mis-reconsumos
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ AutoRenewalCard.tsx
+ ┃ ┃ ┃ ┃ ┣ ReconsumptionForm.tsx
+ ┃ ┃ ┃ ┃ ┣ ReconsumptionsHeader.tsx
+ ┃ ┃ ┃ ┃ ┗ ReconsumptionsTable.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useReconsumptions.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ perfil
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ modals
+ ┃ ┃ ┃ ┃ ┃ ┣ EditBankInfoModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ EditBillingInfoModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ EditContactInfoModal.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ EditPersonalInfoModal.tsx
+ ┃ ┃ ┃ ┃ ┣ AccountInfoCard.tsx
+ ┃ ┃ ┃ ┃ ┣ BankInfoCard.tsx
+ ┃ ┃ ┃ ┃ ┣ BillingInfoCard.tsx
+ ┃ ┃ ┃ ┃ ┣ ContactInfoCard.tsx
+ ┃ ┃ ┃ ┃ ┣ PersonalInfoCard.tsx
+ ┃ ┃ ┃ ┃ ┗ ReferralInfoCard.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useProfile.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ planes-de-membresia
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ detail
+ ┃ ┃ ┃ ┃ ┃ ┣ LoadingAndErrorStates.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ PlanDetailsCard.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ SubscriptionFormCard.tsx
+ ┃ ┃ ┃ ┃ ┣ EmptyPlansMessage.tsx
+ ┃ ┃ ┃ ┃ ┣ ErrorMessage.tsx
+ ┃ ┃ ┃ ┃ ┣ MembershipPlansList.tsx
+ ┃ ┃ ┃ ┃ ┣ MembershipStatusCard.tsx
+ ┃ ┃ ┃ ┃ ┣ PageHeader.tsx
+ ┃ ┃ ┃ ┃ ┣ PaymentImageModal.tsx
+ ┃ ┃ ┃ ┃ ┗ PaymentSummary.tsx
+ ┃ ┃ ┃ ┣ detalle
+ ┃ ┃ ┃ ┃ ┗ [id]
+ ┃ ┃ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┣ useMembership.ts
+ ┃ ┃ ┃ ┃ ┗ useMembershipDetail.ts
+ ┃ ┃ ┃ ┣ validations
+ ┃ ┃ ┃ ┃ ┗ suscription.zod.ts
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ rangos
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ volumen
+ ┃ ┃ ┃ ┃ ┃ ┣ MonthlyVolumesHeader.tsx
+ ┃ ┃ ┃ ┃ ┃ ┣ MonthlyVolumesSummary.tsx
+ ┃ ┃ ┃ ┃ ┃ ┗ MonthlyVolumesTable.tsx
+ ┃ ┃ ┃ ┃ ┣ CurrentRankCard.tsx
+ ┃ ┃ ┃ ┃ ┣ RankProgressCard.tsx
+ ┃ ┃ ┃ ┃ ┣ RanksHeader.tsx
+ ┃ ┃ ┃ ┃ ┗ RanksTable.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┣ useMonthlyVolumes.ts
+ ┃ ┃ ┃ ┃ ┗ useRanks.ts
+ ┃ ┃ ┃ ┣ volumen-mensual
+ ┃ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ volumenes-semanales
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┣ WeeklyVolumesHeader.tsx
+ ┃ ┃ ┃ ┃ ┣ WeeklyVolumesPage.tsx
+ ┃ ┃ ┃ ┃ ┣ WeeklyVolumesSummary.tsx
+ ┃ ┃ ┃ ┃ ┗ WeeklyVolumesTable.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useWeeklyVolumes.tsx
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┃ ┣ layout.tsx
+ ┃ ┃ ┗ page.tsx
+ ┃ ┣ api
+ ┃ ┃ ┗ auth
+ ┃ ┃ ┃ ┗ [...nextauth]
+ ┃ ┃ ┃ ┃ ┗ route.ts
+ ┃ ┣ auth
+ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┣ NexusGlobeComponent.tsx
+ ┃ ┃ ┃ ┣ NexusGrowthVisual.tsx
+ ┃ ┃ ┃ ┗ NexusParticlesBackground.tsx
+ ┃ ┃ ┗ login
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┣ register
+ ┃ ┃ ┗ [referrerCode]
+ ┃ ┃ ┃ ┣ components
+ ┃ ┃ ┃ ┃ ┗ RegisterForm.tsx
+ ┃ ┃ ┃ ┣ hooks
+ ┃ ┃ ┃ ┃ ┗ useRegister.tsx
+ ┃ ┃ ┃ ┗ page.tsx
+ ┃ ┣ favicon.ico
+ ┃ ┗ layout.tsx
+ ┣ components
+ ┃ ┣ common
+ ┃ ┃ ┣ payments
+ ┃ ┃ ┃ ┣ PaymentDetailError.tsx
+ ┃ ┃ ┃ ┣ PaymentDetailSkeleton.tsx
+ ┃ ┃ ┃ ┗ PaymentImageViewer.tsx
+ ┃ ┃ ┗ ThemeSwich.tsx
+ ┃ ┣ providers
+ ┃ ┃ ┣ AuthProvider.tsx
+ ┃ ┃ ┗ ThemeProvider.tsx
+ ┃ ┗ ui
+ ┃ ┃ ┣ alert.tsx
+ ┃ ┃ ┣ badge.tsx
+ ┃ ┃ ┣ bento-grid.tsx
+ ┃ ┃ ┣ button.tsx
+ ┃ ┃ ┣ calendar.tsx
+ ┃ ┃ ┣ card.tsx
+ ┃ ┃ ┣ collapsible.tsx
+ ┃ ┃ ┣ dialog.tsx
+ ┃ ┃ ┣ dropdown-menu.tsx
+ ┃ ┃ ┣ form.tsx
+ ┃ ┃ ┣ globe.tsx
+ ┃ ┃ ┣ input.tsx
+ ┃ ┃ ┣ label.tsx
+ ┃ ┃ ┣ popover.tsx
+ ┃ ┃ ┣ progress.tsx
+ ┃ ┃ ┣ select.tsx
+ ┃ ┃ ┣ separator.tsx
+ ┃ ┃ ┣ sheet.tsx
+ ┃ ┃ ┣ skeleton.tsx
+ ┃ ┃ ┣ sonner.tsx
+ ┃ ┃ ┣ switch.tsx
+ ┃ ┃ ┣ table.tsx
+ ┃ ┃ ┣ tabs.tsx
+ ┃ ┃ ┣ textarea.tsx
+ ┃ ┃ ┗ tooltip.tsx
+ ┣ config
+ ┃ ┗ environment.ts
+ ┣ data
+ ┃ ┗ globe.json
+ ┣ lib
+ ┃ ┣ actions
+ ┃ ┃ ┣ auth
+ ┃ ┃ ┃ ┗ register.action.ts
+ ┃ ┃ ┣ membership
+ ┃ ┃ ┃ ┣ membership.action.ts
+ ┃ ┃ ┃ ┗ reconsumtion.action.ts
+ ┃ ┃ ┣ payments
+ ┃ ┃ ┃ ┗ payment.action.ts
+ ┃ ┃ ┣ points
+ ┃ ┃ ┃ ┣ point.action.ts
+ ┃ ┃ ┃ ┗ volumen.action.ts
+ ┃ ┃ ┣ profile
+ ┃ ┃ ┃ ┣ profile.action.ts
+ ┃ ┃ ┃ ┗ ubigeo.action.ts
+ ┃ ┃ ┣ ranks
+ ┃ ┃ ┃ ┗ ranks.action.ts
+ ┃ ┃ ┗ users
+ ┃ ┃ ┃ ┣ plans.action.ts
+ ┃ ┃ ┃ ┗ tree.action.ts
+ ┃ ┣ api
+ ┃ ┃ ┣ http-client.ts
+ ┃ ┃ ┗ index.ts
+ ┃ ┣ auth.ts
+ ┃ ┗ utils.ts
+ ┣ styles
+ ┃ ┗ global.css
+ ┣ types
+ ┃ ┣ payment
+ ┃ ┃ ┣ payment-detail.type.ts
+ ┃ ┃ ┗ payment.type.ts
+ ┃ ┣ plan
+ ┃ ┃ ┣ membership.ts
+ ┃ ┃ ┣ plan.types.ts
+ ┃ ┃ ┗ reconsumtion.ts
+ ┃ ┣ points
+ ┃ ┃ ┣ point.ts
+ ┃ ┃ ┗ volumen.ts
+ ┃ ┣ profile
+ ┃ ┃ ┣ profile.type.ts
+ ┃ ┃ ┗ ubigeo.type.ts
+ ┃ ┣ ranks
+ ┃ ┃ ┗ rank.types.ts
+ ┃ ┣ tree
+ ┃ ┃ ┗ tree.types.ts
+ ┃ ┣ next-auth.d.ts
+ ┃ ┗ user.types.ts
+ ┣ utils
+ ┃ ┗ format-currency.utils.ts
+ ┗ middleware.ts
