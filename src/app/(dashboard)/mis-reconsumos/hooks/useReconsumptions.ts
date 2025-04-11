@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import {
   createReconsumption,
   updateAutoRenewal,
@@ -12,29 +11,20 @@ import { ReconsumptionsResponse } from "@/types/plan/membership";
 import { PaymentImageModalType } from "@/app/(dashboard)/planes-de-membresia/validations/suscription.zod";
 
 interface UseReconsumptionsReturn {
-  // Datos de reconsumos
-  reconsumptions: ReconsumptionsResponse["items"];
+  // Datos principales en un solo objeto
+  listReconsumptions: ReconsumptionsResponse | undefined;
   isLoading: boolean;
   error: string | null;
-  meta: {
-    totalItems: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-  } | null;
-  canReconsume: boolean;
-  autoRenewal: boolean;
 
   // Paginación
   currentPage: number;
   itemsPerPage: number;
-  listReconsumptions: ReconsumptionsResponse | undefined;
+
   // Estado del formulario de reconsumo
   payments: PaymentImageModalType[];
   isPaymentModalOpen: boolean;
   totalPaidAmount: number;
   remainingAmount: number;
-  reconsumptionAmount: number;
   isPaymentComplete: boolean;
   isSubmitting: boolean;
 
@@ -60,17 +50,11 @@ export function useReconsumptions(
   initialPage: number = 1,
   initialLimit: number = 10
 ): UseReconsumptionsReturn {
-  const router = useRouter();
-
-  // Estados para la lista de reconsumos
-  const [reconsumptions, setReconsumptions] = useState<
-    ReconsumptionsResponse["items"]
-  >([]);
+  // Estados principales
+  const [listReconsumptions, setListReconsumptions] =
+    useState<ReconsumptionsResponse>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [meta, setMeta] = useState<UseReconsumptionsReturn["meta"]>(null);
-  const [canReconsume, setCanReconsume] = useState<boolean>(false);
-  const [autoRenewal, setAutoRenewal] = useState<boolean>(false);
 
   // Estados para la paginación
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
@@ -80,16 +64,13 @@ export function useReconsumptions(
   const [payments, setPayments] = useState<PaymentImageModalType[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [reconsumptionAmount, setReconsumptionAmount] = useState<number>(0);
-  const [listReconsumptions, setListReconsumptions] =
-    useState<ReconsumptionsResponse>();
 
-  // Calcular montos
+  // Calcular montos basados en los datos disponibles
+  const reconsumptionAmount = listReconsumptions?.reconsumptionAmount || 0;
   const totalPaidAmount = payments.reduce(
     (sum, payment) => sum + payment.amount,
     0
   );
-
   const remainingAmount = Math.max(0, reconsumptionAmount - totalPaidAmount);
   const isPaymentComplete =
     totalPaidAmount === reconsumptionAmount && payments.length > 0;
@@ -108,12 +89,6 @@ export function useReconsumptions(
 
         const response = await getListReconsumptions(params);
         setListReconsumptions(response);
-        setReconsumptions(response.items);
-        setMeta(response.meta);
-        console.log("Reconsumptions response:", response);
-        setCanReconsume(response.canReconsume);
-        setAutoRenewal(response.autoRenewal);
-        setReconsumptionAmount(response.reconsumptionAmount);
 
         // Actualizar la página actual y elementos por página según la respuesta
         setCurrentPage(response.meta.currentPage);
@@ -121,7 +96,6 @@ export function useReconsumptions(
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Error al cargar los reconsumos";
-
         setError(errorMessage);
         toast.error(errorMessage);
       } finally {
@@ -179,10 +153,14 @@ export function useReconsumptions(
   // Función para cambiar de página
   const handlePageChange = useCallback(
     (page: number) => {
-      if (meta && (page < 1 || page > meta.totalPages)) return;
+      if (
+        listReconsumptions?.meta &&
+        (page < 1 || page > listReconsumptions.meta.totalPages)
+      )
+        return;
       setCurrentPage(page);
     },
-    [meta]
+    [listReconsumptions?.meta]
   );
 
   // Función para cambiar el número de elementos por página
@@ -193,7 +171,7 @@ export function useReconsumptions(
 
   // Función para crear un reconsumo
   const handleCreateReconsumption = useCallback(async () => {
-    if (!isPaymentComplete) {
+    if (!isPaymentComplete || !listReconsumptions) {
       toast.error(`El monto total debe ser ${reconsumptionAmount}`);
       return;
     }
@@ -238,30 +216,47 @@ export function useReconsumptions(
     } finally {
       setIsSubmitting(false);
     }
-  }, [reconsumptionAmount, isPaymentComplete, payments, fetchReconsumptions]);
+  }, [
+    reconsumptionAmount,
+    isPaymentComplete,
+    payments,
+    fetchReconsumptions,
+    listReconsumptions,
+  ]);
 
   // Función para actualizar la renovación automática
-  const handleToggleAutoRenewal = useCallback(async (value: boolean) => {
-    try {
-      const response = await updateAutoRenewal(value);
+  const handleToggleAutoRenewal = useCallback(
+    async (value: boolean) => {
+      try {
+        const response = await updateAutoRenewal(value);
 
-      if (response.success) {
-        setAutoRenewal(value);
-        toast.success(
-          response.message || "Configuración actualizada correctamente"
-        );
-      } else {
-        toast.error(response.message || "Error al actualizar la configuración");
+        if (response.success) {
+          // Actualizar los datos locales con el nuevo estado
+          if (listReconsumptions) {
+            setListReconsumptions({
+              ...listReconsumptions,
+              autoRenewal: value,
+            });
+          }
+          toast.success(
+            response.message || "Configuración actualizada correctamente"
+          );
+        } else {
+          toast.error(
+            response.message || "Error al actualizar la configuración"
+          );
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Error al actualizar la renovación automática";
+
+        toast.error(errorMessage);
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Error al actualizar la renovación automática";
-
-      toast.error(errorMessage);
-    }
-  }, []);
+    },
+    [listReconsumptions]
+  );
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -269,25 +264,20 @@ export function useReconsumptions(
   }, [fetchReconsumptions, currentPage, itemsPerPage]);
 
   return {
-    // Datos de reconsumos
-    reconsumptions,
+    // Datos principales
+    listReconsumptions,
     isLoading,
     error,
-    meta,
-    canReconsume,
-    autoRenewal,
 
     // Paginación
     currentPage,
     itemsPerPage,
-    listReconsumptions,
 
     // Estado del formulario de reconsumo
     payments,
     isPaymentModalOpen,
     totalPaidAmount,
     remainingAmount,
-    reconsumptionAmount,
     isPaymentComplete,
     isSubmitting,
 

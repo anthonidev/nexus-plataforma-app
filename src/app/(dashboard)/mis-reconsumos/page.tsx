@@ -7,16 +7,15 @@ import ReconsumptionsHeader from "./components/ReconsumptionsHeader";
 import ReconsumptionForm from "./components/ReconsumptionForm";
 import ReconsumptionsTable from "./components/ReconsumptionsTable";
 import AutoRenewalCard from "./components/AutoRenewalCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function MisReconsumosPage() {
   const {
-    // Datos de reconsumos
-    reconsumptions,
+    // Datos principales
+    listReconsumptions,
     isLoading,
     error,
-    meta,
-    canReconsume,
-    autoRenewal,
 
     // Paginación
     currentPage,
@@ -27,8 +26,6 @@ export default function MisReconsumosPage() {
     isPaymentModalOpen,
     totalPaidAmount,
     remainingAmount,
-    listReconsumptions,
-    reconsumptionAmount,
     isPaymentComplete,
     isSubmitting,
 
@@ -52,10 +49,6 @@ export default function MisReconsumosPage() {
     payment: any;
   } | null>(null);
 
-  if (isLoading) {
-    return <div className="container py-8">Cargando...</div>;
-  }
-
   const handleEditPayment = (index: number, payment: any) => {
     setEditingPayment({ index, payment });
   };
@@ -67,15 +60,55 @@ export default function MisReconsumosPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <Skeleton className="h-10 w-64 mb-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-8 w-48 mb-4" />
+                <Skeleton className="h-40 w-full" />
+              </CardContent>
+            </Card>
+            <Card className="mt-6">
+              <CardContent className="p-6">
+                <Skeleton className="h-8 w-56 mb-4" />
+                <div className="space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div>
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-8 w-40 mb-4" />
+                <Skeleton className="h-20 w-full mb-3" />
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-8">
-      <ReconsumptionsHeader />
+      <ReconsumptionsHeader
+        onRefresh={refreshReconsumptions}
+        isLoading={isLoading}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Sección principal de reconsumos */}
         <div className="lg:col-span-2">
           {/* Formulario de reconsumo si el usuario puede hacer reconsumo */}
-          {canReconsume && listReconsumptions && (
+          {listReconsumptions?.canReconsume && (
             <ReconsumptionForm
               payments={payments}
               totalPaidAmount={totalPaidAmount}
@@ -92,10 +125,10 @@ export default function MisReconsumosPage() {
 
           {/* Tabla de reconsumos */}
           <ReconsumptionsTable
-            reconsumptions={reconsumptions}
+            reconsumptions={listReconsumptions?.items || []}
             isLoading={isLoading}
             error={error}
-            meta={meta}
+            meta={listReconsumptions?.meta || null}
             currentPage={currentPage}
             itemsPerPage={itemsPerPage}
             onPageChange={handlePageChange}
@@ -107,13 +140,14 @@ export default function MisReconsumosPage() {
         {/* Sección lateral con configuración */}
         <div>
           <AutoRenewalCard
-            autoRenewal={autoRenewal}
+            autoRenewal={listReconsumptions?.autoRenewal || false}
             onToggleAutoRenewal={handleToggleAutoRenewal}
           />
         </div>
       </div>
 
-      {!isLoading && listReconsumptions && (
+      {/* Modal para agregar comprobantes de pago */}
+      {listReconsumptions && (
         <PaymentImageModal
           isOpen={isPaymentModalOpen}
           onClose={handlePaymentModalClose}
@@ -127,19 +161,6 @@ export default function MisReconsumosPage() {
           }}
         />
       )}
-      {/* Modal para agregar/editar comprobantes de pago */}
-      <PaymentImageModal
-        isOpen={isPaymentModalOpen}
-        onClose={handlePaymentModalClose}
-        onSubmit={addPayment}
-        initialData={{
-          bankName: "",
-          transactionReference: "",
-          transactionDate: new Date().toISOString().split("T")[0],
-          amount: reconsumptionAmount,
-          file: undefined,
-        }}
-      />
 
       {/* Modal para editar pago */}
       {editingPayment && (
