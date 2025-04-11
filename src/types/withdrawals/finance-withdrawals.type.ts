@@ -6,7 +6,7 @@ export interface FinanceWithdrawals {
 export interface Item {
   id: number;
   amount: number;
-  status: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: Date;
   reviewedAt?: Date;
   bankName: string;
