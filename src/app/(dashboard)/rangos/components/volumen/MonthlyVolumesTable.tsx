@@ -20,18 +20,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Item } from "@/types/ranks/rank.types";
-import { format } from "date-fns";
+import { format } from "@/utils/date.utils";
 import {
   AlertCircle,
   BarChart3,
   ChevronLeft,
   ChevronRight,
-  Users,
   RefreshCw,
   Award,
 } from "lucide-react";
 
-// Configuración de estados para badges
 const statusConfig = {
   PENDING: {
     label: "Pendiente",
@@ -138,15 +136,11 @@ export default function MonthlyVolumesTable({
                     <TableCell>
                       <div>
                         <p className="font-medium">
-                          {format(new Date(volume.monthStartDate), "MMM yyyy")}
+                          {format(volume.monthStartDate, "MMM yyyy")}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {format(
-                            new Date(volume.monthStartDate),
-                            "dd/MM/yyyy"
-                          )}{" "}
-                          -{" "}
-                          {format(new Date(volume.monthEndDate), "dd/MM/yyyy")}
+                          {format(volume.monthStartDate, "dd/MM/yyyy")} -{" "}
+                          {format(volume.monthEndDate, "dd/MM/yyyy")}
                         </p>
                       </div>
                     </TableCell>

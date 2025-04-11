@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { BarChart2, Users, Award, TrendingUp, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Item } from "@/types/ranks/rank.types";
-import { format } from "date-fns";
+import { format } from "@/utils/date.utils";
 
 interface MonthlyVolumesSummaryProps {
   latestVolume: Item | null;
@@ -50,8 +50,7 @@ export default function MonthlyVolumesSummary({
         <CardHeader className="pb-3 bg-primary/5">
           <CardTitle className="flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-primary" />
-            Volumen Actual (
-            {format(new Date(latestVolume.monthStartDate), "MMMM yyyy")})
+            Volumen Actual ({format(latestVolume.monthStartDate, "MMMM yyyy")})
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -68,11 +67,8 @@ export default function MonthlyVolumesSummary({
               <p className="text-sm text-muted-foreground mt-1">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  {format(
-                    new Date(latestVolume.monthStartDate),
-                    "dd/MM/yyyy"
-                  )}{" "}
-                  - {format(new Date(latestVolume.monthEndDate), "dd/MM/yyyy")}
+                  {format(latestVolume.monthStartDate, "dd/MM/yyyy")} -{" "}
+                  {format(latestVolume.monthEndDate, "dd/MM/yyyy")}
                 </span>
               </p>
             </div>

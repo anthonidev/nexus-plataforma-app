@@ -20,8 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { WeeklyVolumeItem } from "@/types/points/volumen";
+import { format } from "@/utils/date.utils";
 import { formatCurrency } from "@/utils/format-currency.utils";
-import { format } from "date-fns";
 import {
   AlertCircle,
   ArrowRight,
@@ -126,11 +126,11 @@ export default function WeeklyVolumesTable({
                     <TableCell>
                       <div>
                         <p className="font-medium">
-                          {format(new Date(volume.weekStartDate), "dd/MM/yyyy")}
+                          {format(volume.weekStartDate, "dd/MM/yyyy")}
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <ArrowRight className="h-3 w-3" />
-                          {format(new Date(volume.weekEndDate), "dd/MM/yyyy")}
+                          {format(volume.weekEndDate, "dd/MM/yyyy")}
                         </p>
                       </div>
                     </TableCell>

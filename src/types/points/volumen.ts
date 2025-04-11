@@ -12,8 +12,8 @@ export interface WeeklyVolumeItem {
   id: number;
   leftVolume: number;
   rightVolume: number;
-  weekStartDate: Date;
-  weekEndDate: Date;
+  weekStartDate: string;
+  weekEndDate: string;
   status: "PENDING" | "PROCESSED" | "CANCELLED";
   paidAmount?: number;
   selectedSide?: "LEFT" | "RIGHT";

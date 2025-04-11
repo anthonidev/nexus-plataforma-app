@@ -5,10 +5,21 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { data: session } = useSession();
+  const router = useRouter();
   const hasMembership = session?.user?.membership?.hasMembership;
+  const userRole = session?.user?.role?.code;
+
+  useEffect(() => {
+    if (userRole === "CLI") {
+      router.push("/dashboard");
+    }
+    // Aquí se pueden agregar más redirecciones para otros roles en el futuro
+  }, [userRole, router]);
 
   return (
     <div className="flex flex-col gap-6 h-full w-full mx-auto max-w-7xl p-6">

@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MembershipDetailResponse } from "@/types/plan/membership";
+import { format } from "@/utils/date.utils";
 import { formatCurrency } from "@/utils/format-currency.utils";
-import { format } from "date-fns";
 import {
   AlertTriangle,
   Banknote,
@@ -88,10 +88,6 @@ export default function MembershipDetail({
   const statusInfo =
     statusConfig[status as keyof typeof statusConfig] || statusConfig.INACTIVE;
 
-  const formatDate = (date: Date) => {
-    return format(new Date(date), "dd/MM/yyyy");
-  };
-
   return (
     <Card className="mb-6">
       <CardHeader className="pb-2">
@@ -131,11 +127,11 @@ export default function MembershipDetail({
                   </div>
                   <p className="text-sm">
                     <span className="font-medium">Inicio:</span>{" "}
-                    {formatDate(membership.membership.startDate)}
+                    {format(membership.membership.startDate, "dd/MM/yyyy")}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Fin:</span>{" "}
-                    {formatDate(membership.membership.endDate)}
+                    {format(membership.membership.endDate, "dd/MM/yyyy")}
                   </p>
                 </div>
 
@@ -147,7 +143,10 @@ export default function MembershipDetail({
                     </span>
                   </div>
                   <p className="text-sm font-medium">
-                    {formatDate(membership.membership.nextReconsumptionDate)}
+                    {format(
+                      membership.membership.nextReconsumptionDate,
+                      "dd/MM/yyyy"
+                    )}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {membership.pendingReconsumption

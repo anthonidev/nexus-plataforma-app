@@ -2,8 +2,8 @@ export interface MembershipDetailResponse {
   membership: {
     id: number;
     status: "PENDING" | "ACTIVE" | "INACTIVE" | "EXPIRED";
-    startDate: Date;
-    endDate: Date;
+    startDate: string;
+    endDate: string;
     autoRenewal: boolean;
     paidAmount: number;
     plan: {
@@ -14,7 +14,7 @@ export interface MembershipDetailResponse {
       checkAmount: number;
       commissionPercentage: number;
     };
-    nextReconsumptionDate: Date;
+    nextReconsumptionDate: string;
   };
   lastReconsumption: {
     id: number;
