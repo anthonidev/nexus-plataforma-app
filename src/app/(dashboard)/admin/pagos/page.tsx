@@ -15,7 +15,7 @@ export default function PaymentsPageAdmin() {
     payments,
     paymentConfigs,
     isLoading,
-    totalItems,
+    // totalItems,
     currentPage,
     itemsPerPage,
     totalPages,

@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  getPayments,
-  getUserPayments,
-} from "@/lib/actions/payments/payment.action";
+import { getPayments } from "@/lib/actions/payments/payment.action";
 import {
   PaymentConfigListItem,
   PaymentListItem,

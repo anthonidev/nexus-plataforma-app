@@ -35,7 +35,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   CircleDollarSign,
-  User,
+  // User,
 } from "lucide-react";
 
 // Configuración de estados para badges

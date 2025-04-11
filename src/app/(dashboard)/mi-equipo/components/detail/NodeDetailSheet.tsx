@@ -1,15 +1,7 @@
-// src/app/(dashboard)/tree/components/detail/NodeDetailSheet.tsx
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TreeNode } from "@/types/tree/tree.types";
-import { 
-  ChevronRight, 
-  Mail, 
-  User, 
-  Hash, 
-  GitBranchPlus, 
-  Activity,
-  ShieldCheck
-} from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -17,9 +9,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { TreeNode } from "@/types/tree/tree.types";
+import {
+  Activity,
+  GitBranchPlus,
+  Hash,
+  Mail,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 
 interface NodeDetailSheetProps {
   node?: TreeNode;
@@ -50,10 +48,13 @@ export default function NodeDetailSheet({
             </div>
             <div>
               <SheetTitle className="text-lg sm:text-xl">
-                {node.fullName || node.email.split('@')[0]}
+                {node.fullName || node.email.split("@")[0]}
               </SheetTitle>
               <SheetDescription className="flex items-center gap-1">
-                <Badge variant={node.isActive ? "default" : "destructive"} className="text-xs">
+                <Badge
+                  variant={node.isActive ? "default" : "destructive"}
+                  className="text-xs"
+                >
                   {node.isActive ? "Activo" : "Inactivo"}
                 </Badge>
                 <span>•</span>
@@ -73,8 +74,12 @@ export default function NodeDetailSheet({
                 <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-xs sm:text-sm text-muted-foreground">Correo Electrónico</Label>
-                <p className="font-medium text-sm sm:text-base break-all">{node.email}</p>
+                <Label className="text-xs sm:text-sm text-muted-foreground">
+                  Correo Electrónico
+                </Label>
+                <p className="font-medium text-sm sm:text-base break-all">
+                  {node.email}
+                </p>
               </div>
             </div>
 
@@ -83,12 +88,16 @@ export default function NodeDetailSheet({
                 <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-xs sm:text-sm text-muted-foreground">Código de Referencia</Label>
+                <Label className="text-xs sm:text-sm text-muted-foreground">
+                  Código de Referencia
+                </Label>
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <p className="font-medium text-sm sm:text-base">{node.referralCode}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <p className="font-medium text-sm sm:text-base">
+                    {node.referralCode}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="h-7 sm:h-8 rounded-full"
                     onClick={() => {
                       navigator.clipboard.writeText(node.referralCode);
@@ -105,8 +114,12 @@ export default function NodeDetailSheet({
                 <GitBranchPlus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-xs sm:text-sm text-muted-foreground">Posición</Label>
-                <p className="font-medium text-sm sm:text-base">{node.position}</p>
+                <Label className="text-xs sm:text-sm text-muted-foreground">
+                  Posición
+                </Label>
+                <p className="font-medium text-sm sm:text-base">
+                  {node.position}
+                </p>
               </div>
             </div>
 
@@ -115,9 +128,15 @@ export default function NodeDetailSheet({
                 <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-xs sm:text-sm text-muted-foreground">Estado</Label>
+                <Label className="text-xs sm:text-sm text-muted-foreground">
+                  Estado
+                </Label>
                 <div className="font-medium text-sm sm:text-base flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${node.isActive ? "bg-green-500" : "bg-red-500"}`}></div>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      node.isActive ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  ></div>
                   {node.isActive ? "Usuario activo" : "Usuario inactivo"}
                 </div>
               </div>
@@ -128,8 +147,12 @@ export default function NodeDetailSheet({
                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div className="space-y-1 flex-1">
-                <Label className="text-xs sm:text-sm text-muted-foreground">Posición en la Red</Label>
-                <p className="font-medium text-sm sm:text-base">Nivel {node.depth} de profundidad</p>
+                <Label className="text-xs sm:text-sm text-muted-foreground">
+                  Posición en la Red
+                </Label>
+                <p className="font-medium text-sm sm:text-base">
+                  Nivel {node.depth} de profundidad
+                </p>
               </div>
             </div>
           </div>
@@ -155,7 +178,9 @@ export default function NodeDetailSheet({
         {/* Navegación a hijos si existen */}
         {hasChildren && (
           <div className="mt-4 pt-3 border-t">
-            <p className="text-sm text-muted-foreground mb-3">Hijos directos:</p>
+            <p className="text-sm text-muted-foreground mb-3">
+              Hijos directos:
+            </p>
             <div className="flex flex-wrap gap-2">
               {hasLeftChild && (
                 <Button
@@ -169,7 +194,9 @@ export default function NodeDetailSheet({
                 >
                   <div className="w-2 h-2 rounded-full bg-blue-500 mr-1"></div>
                   <span className="truncate max-w-[100px]">
-                    {node.children?.left?.fullName || node.children?.left?.email.split('@')[0] || "Hijo Izq."}
+                    {node.children?.left?.fullName ||
+                      node.children?.left?.email.split("@")[0] ||
+                      "Hijo Izq."}
                   </span>
                 </Button>
               )}
@@ -186,7 +213,9 @@ export default function NodeDetailSheet({
                 >
                   <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
                   <span className="truncate max-w-[100px]">
-                    {node.children?.right?.fullName || node.children?.right?.email.split('@')[0] || "Hijo Der."}
+                    {node.children?.right?.fullName ||
+                      node.children?.right?.email.split("@")[0] ||
+                      "Hijo Der."}
                   </span>
                 </Button>
               )}

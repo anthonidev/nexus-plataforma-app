@@ -24,7 +24,7 @@ export default function HistorialPuntosPage() {
     // Funciones
     handlePageChange,
     handleItemsPerPageChange,
-    refreshPoints,
+    // refreshPoints,
     refreshTransactions,
   } = usePoints();
 

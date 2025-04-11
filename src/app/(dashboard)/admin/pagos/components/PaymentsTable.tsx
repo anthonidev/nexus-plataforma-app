@@ -76,7 +76,7 @@ export function PaymentsTable({
         header: "Estado",
         cell: ({ row }) => {
           const status = row.getValue("status") as keyof typeof statusMap;
-          const { label, variant } = statusMap[status] || {
+          const { label } = statusMap[status] || {
             label: status,
             variant: "default" as const,
           };

@@ -1,20 +1,18 @@
 "use client";
 
-import { MembershipDetailResponse } from "@/types/plan/membership";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
+import { MembershipDetailResponse } from "@/types/plan/membership";
 import { formatCurrency } from "@/utils/format-currency.utils";
+import { format } from "date-fns";
 import {
+  AlertTriangle,
+  Banknote,
   Calendar,
   CheckCircle2,
   Clock,
   Package,
-  AlertTriangle,
-  Banknote,
-  Award,
-  BarChart2,
   XCircle,
 } from "lucide-react";
 

@@ -3,7 +3,7 @@ import { TreeNode } from "@/types/tree/tree.types";
 import NodeCard from "./NodeCard";
 import NodeConnectors from "./NodeConnectors";
 import { BreadcrumbPath } from "../controls";
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from "react";
 
 interface TreeNodeHierarchyProps {
   node: TreeNode;
@@ -30,41 +30,43 @@ export default function TreeNodeHierarchy({
   ancestors,
   isRoot = false,
   depth = 0,
-  showNavigationButtons = true,
+  // showNavigationButtons = true,
   navigateToNode,
   zoomLevel = 2,
-  position = "center",
+  // position = "center",
   maxDepthToRender,
 }: TreeNodeHierarchyProps) {
   const [windowWidth, setWindowWidth] = useState<number>(
     typeof window !== "undefined" ? window.innerWidth : 1024
   );
-  
+
   // Determine if this node has children
   const hasLeftChild = !!node.children?.left;
   const hasRightChild = !!node.children?.right;
   const hasChildren = hasLeftChild || hasRightChild;
-  const hasOnlyOneChild = (hasLeftChild && !hasRightChild) || (!hasLeftChild && hasRightChild);
+  const hasOnlyOneChild =
+    (hasLeftChild && !hasRightChild) || (!hasLeftChild && hasRightChild);
 
   // Determine if node is current
   const isCurrent = currentNodeId === node.id;
-  
+
   // Determine if we should render children based on max depth
-  const shouldRenderChildren = maxDepthToRender === undefined || depth < maxDepthToRender;
+  const shouldRenderChildren =
+    maxDepthToRender === undefined || depth < maxDepthToRender;
 
   // Actualizar el ancho de la ventana en cambios de tamaño
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
-    
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
   // Determinar si estamos en un dispositivo móvil basado en el ancho de la ventana
   const isMobile = windowWidth < 768;
-  
+
   // Calcular el espacio entre nodos basado en el zoom y el dispositivo
   const getSpacing = useMemo(() => {
     // Base spacing by zoom level - valores reducidos para evitar extensión horizontal
@@ -73,11 +75,11 @@ export default function TreeNodeHierarchy({
       2: { desktop: 38, mobile: 27 },
       3: { desktop: 28, mobile: 20 },
       4: { desktop: 20, mobile: 14 },
-      5: { desktop: 14, mobile: 10 }
+      5: { desktop: 14, mobile: 10 },
     };
-    
-    return isMobile 
-      ? baseSpacing[zoomLevel as keyof typeof baseSpacing].mobile 
+
+    return isMobile
+      ? baseSpacing[zoomLevel as keyof typeof baseSpacing].mobile
       : baseSpacing[zoomLevel as keyof typeof baseSpacing].desktop;
   }, [zoomLevel, isMobile]);
 
@@ -105,7 +107,7 @@ export default function TreeNodeHierarchy({
           showNavigationButtons={false}
           zoomLevel={zoomLevel}
         />
-        
+
         {hasChildren && (
           <div className="flex flex-col items-center mt-1">
             <div className="bg-muted w-6 h-6 rounded-full flex items-center justify-center text-xs text-muted-foreground">
@@ -150,11 +152,10 @@ export default function TreeNodeHierarchy({
       {/* Tree branches and child nodes */}
       {hasChildren && shouldRenderChildren && (
         <div className="flex flex-col items-center w-full">
-          <NodeConnectors 
-            hasOnlyOneChild={hasOnlyOneChild} 
-            position={hasOnlyOneChild 
-              ? (hasLeftChild ? "left" : "right") 
-              : "center"
+          <NodeConnectors
+            hasOnlyOneChild={hasOnlyOneChild}
+            position={
+              hasOnlyOneChild ? (hasLeftChild ? "left" : "right") : "center"
             }
             zoomLevel={zoomLevel}
             isMobile={isMobile}
@@ -163,9 +164,9 @@ export default function TreeNodeHierarchy({
           {/* Children nodes */}
           <div
             className="flex justify-center items-start w-full transition-all"
-            style={{ 
-              flexDirection: hasOnlyOneChild ? 'column' : 'row',
-              gap: `${getSpacing}px`
+            style={{
+              flexDirection: hasOnlyOneChild ? "column" : "row",
+              gap: `${getSpacing}px`,
             }}
           >
             {/* Left child */}
@@ -204,7 +205,7 @@ export default function TreeNodeHierarchy({
           </div>
         </div>
       )}
-      
+
       {/* Indicador de hijos no renderizados */}
       {hasChildren && !shouldRenderChildren && (
         <div className="mt-1 p-1 bg-muted/50 rounded-md text-xs text-muted-foreground">
