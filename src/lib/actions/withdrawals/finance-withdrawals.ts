@@ -7,7 +7,7 @@ export async function getAllWithdrawals(
   params?: Record<string, unknown> | undefined
 ): Promise<FinanceWithdrawals> {
   try {
-    return await httpClient<FinanceWithdrawals>("/api/withdrawals", {
+    return await httpClient<FinanceWithdrawals>("/api/finance/withdrawals", {
       params: params,
     });
   } catch (error) {
@@ -45,10 +45,12 @@ export async function rejectWithdrawal(
 ): Promise<FinanceWithdrawals> {
   try {
     return await httpClient<FinanceWithdrawals>(
-      `/api/finance/withdrawals/approval${withdrawalId}/reject`,
+      `/api/finance/withdrawals/approval/${withdrawalId}/reject`,
       {
         method: "POST",
-        body: JSON.stringify({ rejectionReason }),
+        body: {
+          rejectionReason,
+        },
       }
     );
   } catch (error) {
