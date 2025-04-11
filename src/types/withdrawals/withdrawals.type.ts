@@ -27,6 +27,9 @@ export interface Meta {
 export interface WithdrawalsInfo {
   canWithdraw: boolean;
   reason: string;
+  backName?: string;
+  accountNumber?: string;
+  cci?: string;
   config: Config;
   availablePoints: number;
   missingInfo: MissingInfo[];

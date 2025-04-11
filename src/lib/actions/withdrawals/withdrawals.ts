@@ -33,7 +33,7 @@ export async function createWithdrawal(
   try {
     return await httpClient<WithdrawalsResponse>(`/api/withdrawals`, {
       method: "POST",
-      body: JSON.stringify({ amount }),
+      body: { amount },
     });
   } catch (error) {
     throw error;
