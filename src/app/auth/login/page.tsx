@@ -48,9 +48,13 @@ export default function LoginPage() {
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [formData, setFormData] = useState<FormData>({
-    email: "cesar.huertas@inmobiliariahuertas.com",
-    password: "NexusPass%2025",
+  // const [formData, setFormData] = useState<FormData>({
+  //   email: "cesar.huertas@inmobiliariahuertas.com",
+  //   password: "NexusPass%2025",
+  // });
+   const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
   });
   const [mounted, setMounted] = useState(false);
   const [particlesVisible, setParticlesVisible] = useState(false);
