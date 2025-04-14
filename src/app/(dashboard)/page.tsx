@@ -14,12 +14,12 @@ export default function Home() {
   const hasMembership = session?.user?.membership?.hasMembership;
   const userRole = session?.user?.role?.code;
 
-  useEffect(() => {
-    if (userRole === "CLI") {
-      router.push("/dashboard");
-    }
-    // Aquí se pueden agregar más redirecciones para otros roles en el futuro
-  }, [userRole, router]);
+  // useEffect(() => {
+  //   if (userRole === "CLI") {
+  //     router.push("/dashboard");
+  //   }
+  //   // Aquí se pueden agregar más redirecciones para otros roles en el futuro
+  // }, [userRole, router]);
 
   return (
     <div className="flex flex-col gap-6 h-full w-full mx-auto max-w-7xl p-6">

@@ -23,6 +23,7 @@ export default function TreeView({ userId, initialDepth = 2 }: TreeViewProps) {
     navigateToRoot,
     descendantDepth,
     changeTreeDepth,
+    
   } = useUserTree(userId, initialDepth);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
