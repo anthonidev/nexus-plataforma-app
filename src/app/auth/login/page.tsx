@@ -48,9 +48,13 @@ export default function LoginPage() {
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  // const [formData, setFormData] = useState<FormData>({
+  //   email: "cesar.huertas@inmobiliariahuertas.com",
+  //   password: "NexusPass%2025",
+  // });
   const [formData, setFormData] = useState<FormData>({
-    email: "cesar.huertas@inmobiliariahuertas.com",
-    password: "NexusPass%2025",
+    email: "",
+    password: "",
   });
   const [mounted, setMounted] = useState(false);
   const [particlesVisible, setParticlesVisible] = useState(false);
@@ -127,12 +131,10 @@ export default function LoginPage() {
     const radius = diameter / 2;
 
     circle.style.width = circle.style.height = `${diameter}px`;
-    circle.style.left = `${
-      event.clientX - button.getBoundingClientRect().left - radius
-    }px`;
-    circle.style.top = `${
-      event.clientY - button.getBoundingClientRect().top - radius
-    }px`;
+    circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius
+      }px`;
+    circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius
+      }px`;
     circle.classList.add("ripple-effect");
 
     // Limpiar efecto anterior si existe
