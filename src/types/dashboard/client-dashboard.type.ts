@@ -1,10 +1,10 @@
 export interface DashboardClient {
   user: User;
-  membership: Membership;
+  membership?: Membership;
   points: Points;
-  weeklyVolume: WeeklyVolume;
-  monthlyVolume: MonthlyVolume;
-  rank: Rank;
+  weeklyVolume?: WeeklyVolume;
+  monthlyVolume?: MonthlyVolume;
+  rank?: Rank;
   network: Network;
 }
 

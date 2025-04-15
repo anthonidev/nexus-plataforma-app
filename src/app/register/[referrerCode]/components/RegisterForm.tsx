@@ -411,15 +411,16 @@ export default function RegisterForm() {
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 disabled={(date) =>
-                                  date > new Date() ||
-                                  date < new Date("1900-01-01")
+                                  date > new Date() || date < new Date("1900-01-01")
                                 }
-                                //18 años atrás de la fecha actual
                                 defaultMonth={
-                                  field.value ??
-                                  new Date(Date.now() - 567648000000)
+                                  field.value ?? new Date(Date.now() - 567648000000) // 18 años atrás
                                 }
                                 initialFocus
+                                // Añade estas props:
+                                captionLayout="dropdown"
+                                fromYear={1900}
+                                toYear={new Date().getFullYear()}
                               />
                             </PopoverContent>
                           </Popover>

@@ -47,14 +47,20 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <UserSummaryCard user={dashboard.user} />
-        <MembershipCard membership={dashboard.membership} />
-        <PointsCard points={dashboard.points} />
-        <RankCard rank={dashboard.rank} />
+        {dashboard.membership && (<MembershipCard membership={dashboard.membership} />)}
+        {dashboard.points && (
+          <PointsCard points={dashboard.points} />
+        )}
+        {dashboard.rank && <RankCard rank={dashboard.rank} />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <WeeklyVolumeCard weeklyVolume={dashboard.weeklyVolume} />
-        <MonthlyVolumeCard monthlyVolume={dashboard.monthlyVolume} />
+        {dashboard.weeklyVolume && (
+          <WeeklyVolumeCard weeklyVolume={dashboard.weeklyVolume} />
+        )}
+        {dashboard.monthlyVolume && (
+          <MonthlyVolumeCard monthlyVolume={dashboard.monthlyVolume} />
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
