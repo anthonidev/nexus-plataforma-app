@@ -147,20 +147,6 @@ const SidebarContent = ({
           </motion.div>
         </div>
       </div>
-
-      {/* Navegación */}
-      <nav className="flex-1 overflow-y-auto py-4">
-        <motion.div
-          className="space-y-1 px-2"
-          transition={{ staggerChildren: 0.05 }}
-        >
-          {user.views.map((item) => (
-            <SidebarLink key={item.id} item={item} isCollapsed={isCollapsed} />
-          ))}
-        </motion.div>
-      </nav>
-
-      {/* Cerrar sesión */}
       <motion.div className="p-4 border-t border-gray-800">
         {isCollapsed ? (
           <TooltipProvider>
@@ -201,6 +187,20 @@ const SidebarContent = ({
           </motion.button>
         )}
       </motion.div>
+      {/* Navegación */}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <motion.div
+          className="space-y-1 px-2"
+          transition={{ staggerChildren: 0.05 }}
+        >
+          {user.views.map((item) => (
+            <SidebarLink key={item.id} item={item} isCollapsed={isCollapsed} />
+          ))}
+        </motion.div>
+      </nav>
+
+      {/* Cerrar sesión */}
+
     </motion.div>
   );
 };
