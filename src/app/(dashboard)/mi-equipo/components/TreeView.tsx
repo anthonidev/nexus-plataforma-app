@@ -76,7 +76,9 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           rank: tree.rank,
           onNodeClick: () => setSelectedNodeId(tree.id),
         },
-        onClick: () => setSelectedNodeId(tree.id)
+        onClick: () => setSelectedNodeId(tree.id),
+        // Establecer nodos como no draggable
+        draggable: false
       };
 
       newNodes.push(node);
@@ -98,9 +100,9 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
         });
       }
 
-      const horizontalSpacing = 200;
+      const horizontalSpacing = 150;
 
-      const verticalSpacing = 150;
+      const verticalSpacing = 200;
 
       // Procesar hijo izquierdo
       if (tree.children?.left) {
@@ -202,6 +204,7 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
   const nodeTypes = {
     custom: CustomNode,
   };
+
   return (
     <div className="flex flex-col h-full">
       <TreeControls
@@ -245,11 +248,14 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
             connectionLineStyle={{ stroke: "#999" }}
             proOptions={{ hideAttribution: true }}
+            // Desactivar que los nodos sean arrastrados
+            nodesDraggable={false}
           >
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Controls
               position="bottom-right"
               style={{ background: "none" }}
+              showInteractive={false}
             />
 
             <Panel position="top-left" className="bg-background/90 p-2 rounded-md shadow-md border m-2">

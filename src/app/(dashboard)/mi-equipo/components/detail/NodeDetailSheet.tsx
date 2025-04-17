@@ -152,7 +152,7 @@ export default function NodeDetailSheet({
                   Posición
                 </Label>
                 <p className="font-medium text-sm sm:text-base">
-                  {node.position}
+                  {node.position == "LEFT" ? "Izquierda" : node.position === "RIGHT" ? "Derecha" : "Desconocida"}
                 </p>
               </div>
             </div>
