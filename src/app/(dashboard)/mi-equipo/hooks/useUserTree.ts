@@ -6,32 +6,21 @@ import { NodeContext, TreeNode } from "@/types/tree/tree.types";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-/**
- * Hook personalizado para manejar la navegación y visualización del árbol de usuario
- * @param userId ID del usuario logueado o punto de inicio para visualizar el árbol (obligatorio)
- * @param initialDepth Profundidad inicial del árbol (por defecto: 2)
- */
 export function useUserTree(userId: string, initialDepth: number = 2) {
-  // Estados para el árbol completo
   const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [treeLoading, setTreeLoading] = useState<boolean>(true);
   const [treeError, setTreeError] = useState<string | null>(null);
   const [treeMetadata, setTreeMetadata] = useState<any>(null);
 
-  // Estados para el nodo actual y su contexto
   const [currentNodeId, setCurrentNodeId] = useState<string>(userId);
   const [nodeContext, setNodeContext] = useState<NodeContext | null>(null);
   const [nodeLoading, setNodeLoading] = useState<boolean>(true);
   const [nodeError, setNodeError] = useState<string | null>(null);
   const [nodeMetadata, setNodeMetadata] = useState<any>(null);
 
-  // Configuración de profundidad
   const [descendantDepth, setDescendantDepth] = useState<number>(initialDepth);
   const [ancestorDepth, setAncestorDepth] = useState<number>(3);
 
-  /**
-   * Función para cargar el árbol completo desde el usuario raíz
-   */
   const fetchUserTree = useCallback(
     async (depth: number = descendantDepth) => {
       try {
@@ -56,9 +45,6 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
     [userId, descendantDepth]
   );
 
-  /**
-   * Función para cargar un nodo específico con su contexto
-   */
   const fetchNodeContext = useCallback(
     async (
       nodeId: string = currentNodeId,
@@ -71,7 +57,6 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
         const response = await getNodeWithContext(nodeId, descDepth, ancDepth);
         setNodeContext(response);
         setNodeMetadata(response.metadata);
-        // Actualizar el ID del nodo actual
         setCurrentNodeId(nodeId);
       } catch (err) {
         console.error(`Error al cargar el contexto del nodo ${nodeId}:`, err);
@@ -88,29 +73,20 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
     [currentNodeId, userId, descendantDepth, ancestorDepth]
   );
 
-  // Cargar el árbol inicial cuando se monta el componente
   useEffect(() => {
     fetchUserTree();
   }, [fetchUserTree]);
 
-  // Cargar el contexto del nodo cuando cambia el nodo actual
   useEffect(() => {
     fetchNodeContext(currentNodeId);
   }, [currentNodeId, fetchNodeContext]);
 
-  /**
-   * Navegar a un nodo específico
-   */
   const navigateToNode = useCallback((nodeId: string) => {
     setCurrentNodeId(nodeId);
   }, []);
 
-  /**
-   * Navegar al padre del nodo actual
-   */
   const navigateToParent = useCallback(() => {
     if (nodeContext?.ancestors && nodeContext.ancestors.length > 0) {
-      // El primer ancestro es el padre inmediato
       const parentId = nodeContext.ancestors[0].id;
       setCurrentNodeId(parentId);
     } else {
@@ -118,9 +94,6 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
     }
   }, [nodeContext]);
 
-  /**
-   * Navegar a un hijo específico (izquierdo o derecho)
-   */
   const navigateToChild = useCallback(
     (position: "left" | "right") => {
       if (nodeContext?.node?.children?.[position]) {
@@ -139,9 +112,6 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
     [nodeContext]
   );
 
-  /**
-   * Navegar a un hermano (izquierdo o derecho)
-   */
   const navigateToSibling = useCallback(
     (position: "left" | "right") => {
       if (nodeContext?.siblings?.[position]) {
@@ -160,32 +130,21 @@ export function useUserTree(userId: string, initialDepth: number = 2) {
     [nodeContext]
   );
 
-  /**
-   * Navegar al nodo raíz del árbol
-   */
   const navigateToRoot = useCallback(() => {
     setCurrentNodeId(userId);
   }, [userId]);
 
-  /**
-   * Cambiar la profundidad de visualización del árbol
-   */
   const changeTreeDepth = useCallback(
     (newDepth: number) => {
       setDescendantDepth(newDepth);
-      // Si hay un nodo actual, actualizar su visualización con la nueva profundidad
       if (currentNodeId) {
         fetchNodeContext(currentNodeId, newDepth, ancestorDepth);
       }
-      // También actualizar el árbol completo
       fetchUserTree(newDepth);
     },
     [currentNodeId, userId, ancestorDepth, fetchNodeContext, fetchUserTree]
   );
 
-  /**
-   * Actualizar la visualización con los valores actuales
-   */
   const refreshTree = useCallback(() => {
     fetchUserTree();
     if (currentNodeId) {

@@ -1,4 +1,3 @@
-// src/app/(dashboard)/tree/components/treenode/NodeConnectors.tsx
 import { useEffect, useState } from "react";
 
 interface NodeConnectorsProps {
@@ -8,7 +7,7 @@ interface NodeConnectorsProps {
   isMobile?: boolean;
 }
 
-export default function NodeConnectors({ 
+export default function NodeConnectors({
   hasOnlyOneChild,
   position = "center",
   zoomLevel = 2,
@@ -23,7 +22,7 @@ export default function NodeConnectors({
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
-    
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -41,12 +40,12 @@ export default function NodeConnectors({
       4: 40,
       5: 32
     };
-    
+
     // Reducir altura para móviles
     if (effectiveMobile) {
       return baseHeight[zoomLevel as keyof typeof baseHeight] * 0.8;
     }
-    
+
     return baseHeight[zoomLevel as keyof typeof baseHeight];
   };
 
@@ -58,12 +57,12 @@ export default function NodeConnectors({
       4: 120,
       5: 100
     };
-    
+
     // Reducir anchura para móviles
     if (effectiveMobile) {
       return baseWidth[zoomLevel as keyof typeof baseWidth] * 0.7;
     }
-    
+
     return baseWidth[zoomLevel as keyof typeof baseWidth];
   };
 
@@ -72,64 +71,100 @@ export default function NodeConnectors({
     return "bg-gray-300 dark:bg-gray-600";
   };
 
-  // Para un solo hijo, mostrar una línea recta vertical
+  // Para un solo hijo, mostrar una línea en forma de L
   if (hasOnlyOneChild) {
+    const lineHeight = getLineHeight();
+    const lineWidth = getLineWidth() / 2; // Usar la mitad del ancho para un solo hijo
+
     return (
-      <div className="flex flex-col items-center relative">
-        <div 
-          className={`${getLineColorClass()} transition-all duration-300`} 
-          style={{ 
-            height: `${getLineHeight()}px`, 
-            width: '1px'
+      <div className="flex flex-col items-center w-full relative">
+        {/* Línea vertical desde el padre */}
+        <div
+          className={`${getLineColorClass()} absolute`}
+          style={{
+            height: `${lineHeight / 2}px`,
+            width: '1px',
+            top: '0',
+            left: '50%'
           }}
         ></div>
+
+        {/* Contenedor para la línea horizontal y la extensión vertical */}
+        <div className="relative w-full h-full" style={{ height: `${lineHeight}px` }}>
+          {/* Línea horizontal */}
+          <div
+            className={`${getLineColorClass()} absolute`}
+            style={{
+              width: position === "left" ? `${lineWidth}px` : position === "right" ? `${lineWidth}px` : '1px',
+              height: '1px',
+              top: `${lineHeight / 2}px`,
+              left: position === "left" ? `calc(50% - ${lineWidth}px)` : position === "right" ? '50%' : '50%',
+            }}
+          ></div>
+
+          {/* Línea vertical que baja hacia el hijo */}
+          <div
+            className={`${getLineColorClass()} absolute`}
+            style={{
+              width: '1px',
+              height: `${lineHeight / 2}px`,
+              top: `${lineHeight / 2}px`,
+              left: position === "left" ? `calc(50% - ${lineWidth}px)` : position === "right" ? `calc(50% + ${lineWidth}px)` : '50%',
+            }}
+          ></div>
+        </div>
       </div>
     );
   }
 
   // Para dos hijos, mostrar una línea en forma de T
   return (
-    <div className="flex flex-col items-center relative">
-      {/* Vertical line from parent to children */}
-      <div 
-        className={`${getLineColorClass()} transition-all duration-300`} 
-        style={{ 
-          height: `${getLineHeight() / 2}px`, 
-          width: '1px'
+    <div className="flex flex-col items-center relative w-full">
+      {/* Vertical line from parent to horizontal connector */}
+      <div
+        className={`${getLineColorClass()} absolute`}
+        style={{
+          height: `${getLineHeight() / 2}px`,
+          width: '1px',
+          top: '0',
+          left: '50%'
         }}
       ></div>
 
-      {/* Horizontal line connecting children */}
-      <div className="flex items-center justify-center w-full relative">
+      {/* Container for horizontal and vertical extensions */}
+      <div className="relative w-full" style={{ height: `${getLineHeight()}px` }}>
+        {/* Horizontal line connecting children */}
         <div
-          className={`${getLineColorClass()} transition-all duration-300`}
-          style={{ 
+          className={`${getLineColorClass()} absolute`}
+          style={{
             width: `${getLineWidth()}px`,
-            height: '1px'
+            height: '1px',
+            top: `${getLineHeight() / 2}px`,
+            left: `calc(50% - ${getLineWidth() / 2}px)`
           }}
-        >
-          {/* Left connector */}
-          <div 
-            className={`absolute ${getLineColorClass()} transition-all duration-300`} 
-            style={{ 
-              left: '0', 
-              top: '0', 
-              width: '1px', 
-              height: `${getLineHeight() / 2}px` 
-            }}
-          ></div>
-          
-          {/* Right connector */}
-          <div 
-            className={`absolute ${getLineColorClass()} transition-all duration-300`} 
-            style={{ 
-              right: '0', 
-              top: '0', 
-              width: '1px', 
-              height: `${getLineHeight() / 2}px` 
-            }}
-          ></div>
-        </div>
+        ></div>
+
+        {/* Left connector */}
+        <div
+          className={`${getLineColorClass()} absolute`}
+          style={{
+            width: '1px',
+            height: `${getLineHeight() / 2}px`,
+            top: `${getLineHeight() / 2}px`,
+            left: `calc(50% - ${getLineWidth() / 2}px)`
+          }}
+        ></div>
+
+        {/* Right connector */}
+        <div
+          className={`${getLineColorClass()} absolute`}
+          style={{
+            width: '1px',
+            height: `${getLineHeight() / 2}px`,
+            top: `${getLineHeight() / 2}px`,
+            left: `calc(50% + ${getLineWidth() / 2}px)`
+          }}
+        ></div>
       </div>
     </div>
   );

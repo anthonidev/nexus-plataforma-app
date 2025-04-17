@@ -6,6 +6,24 @@ export interface TreeNode {
   isActive: boolean;
   fullName?: string;
   depth: number;
+  membership?: {
+    plan?: {
+      name: string;
+    };
+    status: string;
+    startDate: string;
+    endDate: string;
+  };
+  rank?: {
+    currentRank?: {
+      name: string;
+      code: string;
+    };
+    highestRank: {
+      name: string;
+      code: string;
+    };
+  };
   children?: {
     left?: TreeNode;
     right?: TreeNode;

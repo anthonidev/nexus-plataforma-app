@@ -17,7 +17,11 @@ import {
   Mail,
   ShieldCheck,
   User,
+  Calendar,
+  Package,
+  Award,
 } from "lucide-react";
+import { format } from "date-fns";
 
 interface NodeDetailSheetProps {
   node?: TreeNode;
@@ -37,6 +41,36 @@ export default function NodeDetailSheet({
   const hasLeftChild = !!node.children?.left;
   const hasRightChild = !!node.children?.right;
   const hasChildren = hasLeftChild || hasRightChild;
+
+  // Información de membresía
+  const hasMembership = node.membership && node.membership.status;
+  const membershipStatus = node.membership?.status;
+  const membershipPlan = node.membership?.plan?.name;
+
+  // Información de rango
+  const hasRank = node.rank && node.rank.currentRank;
+  const currentRank = node.rank?.currentRank?.name;
+  const highestRank = node.rank?.highestRank?.name;
+
+  // Mapeo de estados para badges
+  const membershipStatusMap = {
+    ACTIVE: {
+      label: "Activa",
+      className: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+    },
+    PENDING: {
+      label: "Pendiente",
+      className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+    },
+    INACTIVE: {
+      label: "Inactiva",
+      className: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300"
+    },
+    EXPIRED: {
+      label: "Expirada",
+      className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+    }
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -133,9 +167,8 @@ export default function NodeDetailSheet({
                 </Label>
                 <div className="font-medium text-sm sm:text-base flex items-center gap-2">
                   <div
-                    className={`w-2 h-2 rounded-full ${
-                      node.isActive ? "bg-green-500" : "bg-red-500"
-                    }`}
+                    className={`w-2 h-2 rounded-full ${node.isActive ? "bg-green-500" : "bg-red-500"
+                      }`}
                   ></div>
                   {node.isActive ? "Usuario activo" : "Usuario inactivo"}
                 </div>
@@ -155,6 +188,72 @@ export default function NodeDetailSheet({
                 </p>
               </div>
             </div>
+
+            {/* Información de membresía si existe */}
+            {hasMembership && (
+              <div className="flex gap-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <Label className="text-xs sm:text-sm text-muted-foreground">
+                    Membresía
+                  </Label>
+                  <div className="space-y-2">
+                    <p className="font-medium text-sm sm:text-base">
+                      {membershipPlan || "Plan no especificado"}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        className={membershipStatusMap[membershipStatus as keyof typeof membershipStatusMap]?.className || "bg-gray-100"}
+                      >
+                        {membershipStatusMap[membershipStatus as keyof typeof membershipStatusMap]?.label || membershipStatus}
+                      </Badge>
+
+                      {node.membership?.startDate && node.membership?.endDate && (
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(node.membership.startDate), "dd/MM/yyyy")} -
+                          {format(new Date(node.membership.endDate), "dd/MM/yyyy")}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Información de rango si existe */}
+            {hasRank && (
+              <div className="flex gap-3">
+                <div className="bg-primary/10 p-2 rounded-full">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <Label className="text-xs sm:text-sm text-muted-foreground">
+                    Rango
+                  </Label>
+                  <div className="space-y-2">
+                    <p className="font-medium text-sm sm:text-base">
+                      {currentRank || "No especificado"}
+                      {node.rank?.currentRank?.code && (
+                        <span className="ml-2 text-xs text-muted-foreground font-mono">
+                          ({node.rank.currentRank.code})
+                        </span>
+                      )}
+                    </p>
+
+                    {highestRank && currentRank !== highestRank && (
+                      <div className="text-xs text-muted-foreground">
+                        Mayor rango alcanzado: <span className="font-medium">{highestRank}</span>
+                        {node.rank?.highestRank?.code && (
+                          <span className="ml-1 font-mono">({node.rank.highestRank.code})</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Acción principal */}

@@ -1,4 +1,3 @@
-// src/app/(dashboard)/tree/components/treenode/TreeNodeHierarchy.tsx
 import { TreeNode } from "@/types/tree/tree.types";
 import NodeCard from "./NodeCard";
 import NodeConnectors from "./NodeConnectors";
@@ -14,7 +13,6 @@ interface TreeNodeHierarchyProps {
   ancestors?: TreeNode[];
   isRoot?: boolean;
   depth?: number;
-  showNavigationButtons?: boolean;
   navigateToNode?: (id: string) => void;
   zoomLevel?: number;
   position?: "left" | "right" | "center";
@@ -30,10 +28,9 @@ export default function TreeNodeHierarchy({
   ancestors,
   isRoot = false,
   depth = 0,
-  // showNavigationButtons = true,
   navigateToNode,
   zoomLevel = 2,
-  // position = "center",
+  position = "center",
   maxDepthToRender,
 }: TreeNodeHierarchyProps) {
   const [windowWidth, setWindowWidth] = useState<number>(
@@ -44,8 +41,10 @@ export default function TreeNodeHierarchy({
   const hasLeftChild = !!node.children?.left;
   const hasRightChild = !!node.children?.right;
   const hasChildren = hasLeftChild || hasRightChild;
-  const hasOnlyOneChild =
-    (hasLeftChild && !hasRightChild) || (!hasLeftChild && hasRightChild);
+  const hasOnlyOneChild = (hasLeftChild && !hasRightChild) || (!hasLeftChild && hasRightChild);
+
+  // Determine which child exists (if there's only one)
+  const childPosition = hasLeftChild ? "left" : "right";
 
   // Determine if node is current
   const isCurrent = currentNodeId === node.id;
@@ -69,7 +68,7 @@ export default function TreeNodeHierarchy({
 
   // Calcular el espacio entre nodos basado en el zoom y el dispositivo
   const getSpacing = useMemo(() => {
-    // Base spacing by zoom level - valores reducidos para evitar extensión horizontal
+    // Base spacing by zoom level
     const baseSpacing = {
       1: { desktop: 48, mobile: 34 },
       2: { desktop: 38, mobile: 27 },
@@ -86,7 +85,7 @@ export default function TreeNodeHierarchy({
   // Obtener clases para contenedor de nodo basadas en nivel y posición
   const getNodeContainerClasses = () => {
     if (isRoot) return "flex flex-col items-center max-w-full relative z-10";
-    return "flex flex-col items-center max-w-full";
+    return "flex flex-col items-center max-w-full relative";
   };
 
   // Si la profundidad es demasiado grande y no es el nodo actual o ancestro,
@@ -152,55 +151,88 @@ export default function TreeNodeHierarchy({
       {/* Tree branches and child nodes */}
       {hasChildren && shouldRenderChildren && (
         <div className="flex flex-col items-center w-full">
-          <NodeConnectors
-            hasOnlyOneChild={hasOnlyOneChild}
-            position={
-              hasOnlyOneChild ? (hasLeftChild ? "left" : "right") : "center"
-            }
-            zoomLevel={zoomLevel}
-            isMobile={isMobile}
-          />
+          {/* Conector adaptado al tipo de estructura */}
+          <div className="w-full h-full">
+            <NodeConnectors
+              hasOnlyOneChild={hasOnlyOneChild}
+              position={hasOnlyOneChild ? childPosition : "center"}
+              zoomLevel={zoomLevel}
+              isMobile={isMobile}
+            />
+          </div>
 
-          {/* Children nodes */}
-          <div
-            className="flex justify-center items-start w-full transition-all"
-            style={{
-              flexDirection: hasOnlyOneChild ? "column" : "row",
-              gap: `${getSpacing}px`,
-            }}
-          >
-            {/* Left child */}
-            {hasLeftChild && (
-              <div className="flex flex-col items-center transition-all">
-                <TreeNodeHierarchy
-                  node={node.children!.left!}
-                  onNodeClick={onNodeClick}
-                  onNodeHover={onNodeHover}
-                  hoveredNodeId={hoveredNodeId}
-                  currentNodeId={currentNodeId}
-                  depth={depth + 1}
-                  zoomLevel={zoomLevel}
-                  position="left"
-                  maxDepthToRender={maxDepthToRender}
-                />
+          {/* Estructura para mostrar los nodos hijos */}
+          <div className="w-full flex justify-center items-start transition-all"
+            style={{ gap: hasOnlyOneChild ? '0' : `${getSpacing}px` }}>
+            {/* Caso de un solo hijo: posicionar a la izquierda o derecha según corresponda */}
+            {hasOnlyOneChild ? (
+              <div className={`w-full flex ${hasLeftChild ? 'justify-start' : 'justify-end'}`}>
+                <div className="flex flex-col items-center">
+                  {hasLeftChild && (
+                    <TreeNodeHierarchy
+                      node={node.children!.left!}
+                      onNodeClick={onNodeClick}
+                      onNodeHover={onNodeHover}
+                      hoveredNodeId={hoveredNodeId}
+                      currentNodeId={currentNodeId}
+                      depth={depth + 1}
+                      zoomLevel={zoomLevel}
+                      position="left"
+                      maxDepthToRender={maxDepthToRender}
+                    />
+                  )}
+                  {hasRightChild && (
+                    <TreeNodeHierarchy
+                      node={node.children!.right!}
+                      onNodeClick={onNodeClick}
+                      onNodeHover={onNodeHover}
+                      hoveredNodeId={hoveredNodeId}
+                      currentNodeId={currentNodeId}
+                      depth={depth + 1}
+                      zoomLevel={zoomLevel}
+                      position="right"
+                      maxDepthToRender={maxDepthToRender}
+                    />
+                  )}
+                </div>
               </div>
-            )}
+            ) : (
+              /* Caso de dos hijos: mostrarlos lado a lado */
+              <>
+                {/* Left child */}
+                {hasLeftChild && (
+                  <div className="flex-1 flex justify-end">
+                    <TreeNodeHierarchy
+                      node={node.children!.left!}
+                      onNodeClick={onNodeClick}
+                      onNodeHover={onNodeHover}
+                      hoveredNodeId={hoveredNodeId}
+                      currentNodeId={currentNodeId}
+                      depth={depth + 1}
+                      zoomLevel={zoomLevel}
+                      position="left"
+                      maxDepthToRender={maxDepthToRender}
+                    />
+                  </div>
+                )}
 
-            {/* Right child */}
-            {hasRightChild && (
-              <div className="flex flex-col items-center transition-all">
-                <TreeNodeHierarchy
-                  node={node.children!.right!}
-                  onNodeClick={onNodeClick}
-                  onNodeHover={onNodeHover}
-                  hoveredNodeId={hoveredNodeId}
-                  currentNodeId={currentNodeId}
-                  depth={depth + 1}
-                  zoomLevel={zoomLevel}
-                  position="right"
-                  maxDepthToRender={maxDepthToRender}
-                />
-              </div>
+                {/* Right child */}
+                {hasRightChild && (
+                  <div className="flex-1 flex justify-start">
+                    <TreeNodeHierarchy
+                      node={node.children!.right!}
+                      onNodeClick={onNodeClick}
+                      onNodeHover={onNodeHover}
+                      hoveredNodeId={hoveredNodeId}
+                      currentNodeId={currentNodeId}
+                      depth={depth + 1}
+                      zoomLevel={zoomLevel}
+                      position="right"
+                      maxDepthToRender={maxDepthToRender}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
