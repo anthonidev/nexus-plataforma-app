@@ -1,4 +1,3 @@
-// src/app/(dashboard)/tree/components/controls/NavigationControls.tsx
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -40,7 +39,7 @@ export default function NavigationControls({
         <Home className="h-4 w-4" />
         <span>Raíz</span>
       </Button>
-      
+
       <Button
         variant="outline"
         size={isMobile ? "sm" : "default"}
