@@ -83,13 +83,11 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           onNodeClick: () => setSelectedNodeId(tree.id),
         },
         onClick: () => setSelectedNodeId(tree.id),
-        // Establecer nodos como no draggable
         draggable: false
       };
 
       newNodes.push(node);
 
-      // Crear arista desde el padre
       if (parentId) {
         newEdges.push({
           id: `${parentId}-${tree.id}`,
@@ -104,16 +102,40 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           style: { strokeWidth: 2.5 },
           animated: node.data.isCurrent,
           label: tree.position === "LEFT" ? "IZQ" : "DER",
-
-
         });
       }
 
-      const horizontalSpacing = 250;
+      // Ajuste fino del espaciamiento horizontal
+      // Espaciamiento más conservador para todos los niveles
+      let depth = initialDepth - 1
+      let baseHorizontalSpacing = 150 * (depth > 0 ? depth : 1); // Espacio base para el primer nivel
+      if (isRoot) {
+        // Para el nodo raíz, usamos un espaciado base más amplio
+        baseHorizontalSpacing = 200 * (depth > 0 ? depth : 1); // Espacio base para el nodo raíz
+      }
 
-      const verticalSpacing = 200;
+      let horizontalSpacing;
+      if (level === 0) {
+        horizontalSpacing = baseHorizontalSpacing * 1.5; // Espacio base para el nodo raíz
+      } else if (level === 1) {
+        horizontalSpacing = baseHorizontalSpacing * 1; // Ligeramente menor para el primer nivel
+      } else if (level === 2) {
+        horizontalSpacing = baseHorizontalSpacing * 0.8; // Más reducido para el segundo nivel
+      } else if (level === 3) {
+        horizontalSpacing = baseHorizontalSpacing * 1.5; // Más reducido para el tercer nivel
+      } else if (level === 4) {
+        horizontalSpacing = baseHorizontalSpacing * 1; // Más reducido para el cuarto nivel
+      }
+      else if (level === 5) {
+        horizontalSpacing = baseHorizontalSpacing * 0.5; // Más reducido para el quinto nivel
+      }
+      else {
+        horizontalSpacing = baseHorizontalSpacing * 0.3; // Más reducido para niveles superiores
+      }
 
-      // Procesar hijo izquierdo
+      // Espacio vertical ajustado
+      const verticalSpacing = 220;
+
       if (tree.children?.left) {
         const leftChildPosition = {
           x: position.x - horizontalSpacing,
@@ -133,7 +155,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
         newEdges.push(...leftResult.edges);
       }
 
-      // Procesar hijo derecho
       if (tree.children?.right) {
         const rightChildPosition = {
           x: position.x + horizontalSpacing,
@@ -228,7 +249,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
         handleZoomOut={handleZoomOut}
       />
 
-
       <div
         style={{
           width: '100%',
@@ -285,7 +305,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           />
         )
       }
-
     </div>
   );
 }
