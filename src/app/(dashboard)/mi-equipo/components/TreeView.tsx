@@ -109,7 +109,7 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
         });
       }
 
-      const horizontalSpacing = 150;
+      const horizontalSpacing = 250;
 
       const verticalSpacing = 200;
 
