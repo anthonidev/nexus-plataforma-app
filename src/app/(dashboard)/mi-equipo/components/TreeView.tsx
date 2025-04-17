@@ -20,6 +20,7 @@ import { useUserTree } from "../hooks/useUserTree";
 import TreeControls from "./controls";
 import CustomNode from "./detail/CustomNode";
 import NodeDetailSheet from "./detail/NodeDetailSheet";
+import { calculateHorizontalSpacing } from "@/utils/size";
 
 interface Props {
   userId: string;
@@ -39,6 +40,7 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     navigateToRoot,
     descendantDepth,
     changeTreeDepth,
+    nodeMetadata,
   } = useUserTree(userId, initialDepth);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -105,35 +107,9 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
         });
       }
 
-      // Ajuste fino del espaciamiento horizontal
-      // Espaciamiento más conservador para todos los niveles
-      let depth = initialDepth - 1
-      let baseHorizontalSpacing = 150 * (depth > 0 ? depth : 1); // Espacio base para el primer nivel
-      if (isRoot) {
-        // Para el nodo raíz, usamos un espaciado base más amplio
-        baseHorizontalSpacing = 200 * (depth > 0 ? depth : 1); // Espacio base para el nodo raíz
-      }
 
-      let horizontalSpacing;
-      if (level === 0) {
-        horizontalSpacing = baseHorizontalSpacing * 1.5; // Espacio base para el nodo raíz
-      } else if (level === 1) {
-        horizontalSpacing = baseHorizontalSpacing * 1; // Ligeramente menor para el primer nivel
-      } else if (level === 2) {
-        horizontalSpacing = baseHorizontalSpacing * 0.8; // Más reducido para el segundo nivel
-      } else if (level === 3) {
-        horizontalSpacing = baseHorizontalSpacing * 1.5; // Más reducido para el tercer nivel
-      } else if (level === 4) {
-        horizontalSpacing = baseHorizontalSpacing * 1; // Más reducido para el cuarto nivel
-      }
-      else if (level === 5) {
-        horizontalSpacing = baseHorizontalSpacing * 0.5; // Más reducido para el quinto nivel
-      }
-      else {
-        horizontalSpacing = baseHorizontalSpacing * 0.3; // Más reducido para niveles superiores
-      }
+      const horizontalSpacing = calculateHorizontalSpacing(level, nodeMetadata?.descendantDepth || 2);
 
-      // Espacio vertical ajustado
       const verticalSpacing = 220;
 
       if (tree.children?.left) {
@@ -176,7 +152,7 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
 
       return { nodes: newNodes, edges: newEdges };
     },
-    []
+    [nodeMetadata]
   );
 
   useEffect(() => {

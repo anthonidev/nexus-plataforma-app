@@ -1,5 +1,34 @@
 import { Handle, Position } from "@xyflow/react";
 
+// Mapeo de colores para rangos
+const rankColorMap = {
+    BRONZE: { bg: "#CD7F32", text: "#FFF", gradient: "from-amber-600 to-amber-800" },
+    EXECUTIVE: { bg: "#1E293B", text: "#FFF", gradient: "from-slate-700 to-slate-900" },
+    SILVER: { bg: "#C0C0C0", text: "#FFF", gradient: "from-gray-300 to-gray-400" },
+    GOLD: { bg: "#FFD700", text: "#FFF", gradient: "from-yellow-400 to-yellow-600" },
+    PLATINUM: { bg: "#E5E4E2", text: "#FFF", gradient: "from-gray-200 to-gray-300" },
+    SAPPHIRE: { bg: "#0F52BA", text: "#FFF", gradient: "from-blue-600 to-blue-800" },
+    RUBY: { bg: "#E0115F", text: "#FFF", gradient: "from-red-600 to-red-800" },
+    DIAMOND: { bg: "#B9F2FF", text: "#FFF", gradient: "from-cyan-200 to-cyan-400" },
+    PRESIDENT_DIAMOND: { bg: "#185ADB", text: "#FFF", gradient: "from-blue-700 to-blue-900" },
+    CROWNED_DIAMOND: { bg: "#7D3C98", text: "#FFF", gradient: "from-purple-700 to-purple-900" },
+};
+
+// Mapeo de colores para membresías
+const membershipColorMap = {
+    Ejecutivo: { bg: "#1E293B", text: "#FFF", gradient: "from-slate-700 to-slate-900" },
+    VIP: { bg: "#7D3C98", text: "#FFF", gradient: "from-purple-700 to-purple-900" },
+    Premium: { bg: "#185ADB", text: "#FFF", gradient: "from-blue-700 to-blue-900" },
+};
+
+// Mapeo de status de membresía
+const membershipStatusMap = {
+    ACTIVE: { label: "Activa", class: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
+    PENDING: { label: "Pendiente", class: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
+    INACTIVE: { label: "Inactiva", class: "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300" },
+    EXPIRED: { label: "Expirada", class: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
+};
+
 type Props = {
     data: {
         label: string;
@@ -28,67 +57,91 @@ type Props = {
 }
 
 const CustomNode = ({ data }: Props) => {
+    // Determinar los colores basados en el rango o membresía
+    const rankCode = data.rank?.currentRank?.code || "";
+    const rankColors = rankColorMap[rankCode as keyof typeof rankColorMap] || { bg: "#64748B", text: "#FFF", gradient: "from-slate-500 to-slate-600" };
+
+    const membershipName = data.membership?.plan?.name || "";
+    const membershipColors = membershipColorMap[membershipName as keyof typeof membershipColorMap] || { bg: "#64748B", text: "#FFF", gradient: "from-slate-500 to-slate-600" };
+
+    const membershipStatus = data.membership?.status || "";
+    const statusStyle = membershipStatusMap[membershipStatus as keyof typeof membershipStatusMap]?.class || "bg-gray-100 text-gray-800";
+
+    const hasRank = !!data.rank?.currentRank;
+    const hasMembership = !!data.membership?.plan;
+
+    // Uso de colores de rango si está disponible, si no, usa colores de membresía
+    const colorStyle = hasRank ? rankColors : hasMembership ? membershipColors : { bg: "#64748B", text: "#FFF", gradient: "from-slate-500 to-slate-600" };
+
     return (
         <div
-            className={`p-3 rounded-lg border-2 text-center shadow-sm w-[180px] h-[150px] flex flex-col items-center justify-center ${data.isCurrent
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50 hover:bg-muted/50"
-                } ${!data.isActive ? "opacity-70" : ""}`}
-            style={{ backdropFilter: "blur(4px)" }}
+            className={`relative rounded-lg border shadow-md transition-all duration-300 
+        w-[200px] h-[160px] ${data.isCurrent ? "scale-105" : ""} 
+        ${data.isActive ? "opacity-100" : "opacity-70"}`}
+            style={{ backdropFilter: "blur(8px)" }}
         >
-            {/* Handle superior - para conexiones entrantes */}
-            <Handle type="target" position={Position.Top} />
+            {/* Barra superior con color según rango/membresía */}
+            <div className={`h-2 w-full rounded-t-lg bg-gradient-to-r ${colorStyle.gradient}`}></div>
 
-            <div className="flex flex-col items-center justify-between h-full w-full">
-                <div
-                    className={`rounded-full overflow-hidden flex items-center justify-center h-10 w-10 bg-gradient-to-br from-muted to-muted/50 ${data.isCurrent ? "ring-2 ring-primary ring-offset-1" : ""
-                        }`}
-                >
-                    <div className="text-xl font-medium">{data.initials}</div>
-                </div>
+            {/* Contenido principal */}
+            <div className="p-3 pb-3 bg-background dark:bg-card rounded-b-lg border-t-0 border-x border-b relative h-[158px]">
+                {/* Handle superior - para conexiones entrantes */}
+                <Handle type="target" position={Position.Top} className="w-3 h-3 -top-1.5" />
 
-                <div className="w-full">
-                    <p className="font-medium truncate text-sm">{data.label}</p>
-                    <div className="flex items-center justify-center gap-1 mt-1">
-                        <div
-                            className={`w-2 h-2 rounded-full ${data.isActive ? "bg-green-500" : "bg-red-500"
-                                }`}
-                        ></div>
-                        <span
-                            className={`text-xs ${data.isActive ? "text-green-600" : "text-red-600"
-                                }`}
-                        >
-                            {data.isActive ? "Activo" : "Inactivo"}
-                        </span>
+                {/* Badge de rango (esquina superior izquierda) */}
+                {hasRank && (
+                    <div
+                        className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 rounded-md flex items-center gap-1 w-fit"
+                        style={{ backgroundColor: rankColors.bg + "33", }}
+                    >
+                        <span className="truncate max-w-[90px]">{data?.rank?.currentRank?.name}</span>
+                    </div>
+                )}
+
+                <div className="flex flex-col items-center gap-2 mt-3">
+                    {/* Avatar con iniciales */}
+                    <div
+                        className={`rounded-full flex items-center justify-center h-12 w-12 text-lg font-semibold bg-gradient-to-br ${colorStyle.gradient} text-white 
+              ${data.isCurrent ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800" : ""}`}
+                    >
+                        {data.initials}
                     </div>
 
-                    <div className="flex flex-col items-center gap-1 mt-1">
-                        {data.membership && (
+                    {/* Nombre/email */}
+                    <div className="text-center">
+                        <p className="font-medium truncate text-sm">{data.label}</p>
+
+                        {/* Estado activo/inactivo */}
+                        <div className="flex items-center justify-center gap-1 mt-1">
+                            <div
+                                className={`w-2 h-2 rounded-full ${data.isActive ? "bg-green-500" : "bg-red-500"}`}
+                            ></div>
                             <span
-                                className={`text-[10px] px-2 py-0.5 rounded-full ${data.membership.status === "ACTIVE"
-                                    ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300"
-                                    : data.membership.status === "PENDING"
-                                        ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
-                                        : "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
-                                    }`}
+                                className={`text-xs ${data.isActive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                             >
-                                {data.membership.plan?.name || data.membership.status}
+                                {data.isActive ? "Activo" : "Inactivo"}
                             </span>
-                        )}
-
-                        {data.rank?.currentRank && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300">
-                                Rango: {data.rank.currentRank.name}
-                            </span>
-                        )}
+                        </div>
                     </div>
                 </div>
+
+                {/* Badge de membresía (parte inferior izquierda) */}
+                {hasMembership && (
+                    <div className={`absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded-md ${statusStyle} flex items-center gap-1 w-fit`}>
+                        <span className="truncate max-w-[90px]">{membershipName}</span>
+                    </div>
+                )}
             </div>
 
-            {/* Handle inferior - para conexiones salientes (a los hijos) */}
-            <Handle type="source" position={Position.Bottom} />
+            {/* Handle inferior - para conexiones salientes */}
+            <Handle type="source" position={Position.Bottom} className="w-3 h-3 -bottom-1.5" />
+
+            {/* Indicador de nodo seleccionado */}
+            {data.isCurrent && (
+                <div className="absolute -inset-1 rounded-lg bg-primary/10 -z-10 animate-pulse"></div>
+            )}
         </div>
-    )
+    );
 }
 
-export default CustomNode
+export default CustomNode;
