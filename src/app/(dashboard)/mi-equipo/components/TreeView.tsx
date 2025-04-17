@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { TreeNode } from "@/types/tree/tree.types";
 import {
   Background,
   BackgroundVariant,
@@ -14,78 +14,9 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect, useState } from "react";
 import { useUserTree } from "../hooks/useUserTree";
-import NodeDetailSheet from "./detail/NodeDetailSheet";
 import TreeControls from "./controls";
-import { TreeNode } from "@/types/tree/tree.types";
-
-// Componente personalizado para los nodos
-const CustomNode = ({ data }: {
-  data: {
-    label: string;
-    initials: string;
-    email: string;
-    referralCode: string;
-    position: string;
-    isActive: boolean;
-    isCurrent: boolean;
-    depth: number;
-    membership?: {
-      plan?: { name: string };
-      status?: string;
-    };
-    rank?: string;
-  };
-}) => {
-  return (
-    <div
-      className={`p-3 rounded-lg border-2 text-center shadow-sm max-w-[180px] w-full ${data.isCurrent
-        ? "border-primary bg-primary/5"
-        : "border-border hover:border-primary/50 hover:bg-muted/50"
-        } ${!data.isActive ? "opacity-70" : ""}`}
-      style={{ backdropFilter: "blur(4px)" }}
-    >
-      <div className="flex flex-col items-center gap-2">
-        <div
-          className={`rounded-full overflow-hidden flex items-center justify-center h-10 w-10 bg-gradient-to-br from-muted to-muted/50 ${data.isCurrent ? "ring-2 ring-primary ring-offset-1" : ""
-            }`}
-        >
-          <div className="text-xl font-medium">{data.initials}</div>
-        </div>
-
-        <div className="space-y-1">
-          <p className="font-medium truncate">{data.label}</p>
-          <div className="flex items-center justify-center gap-1">
-            <div
-              className={`w-2 h-2 rounded-full ${data.isActive ? "bg-green-500" : "bg-red-500"
-                }`}
-            ></div>
-            <span
-              className={`text-xs ${data.isActive ? "text-green-600" : "text-red-600"
-                }`}
-            >
-              {data.isActive ? "Activo" : "Inactivo"}
-            </span>
-          </div>
-
-          {data.membership && (
-            <div className="mt-1">
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded-full ${data.membership.status === "ACTIVE"
-                  ? "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300"
-                  : data.membership.status === "PENDING"
-                    ? "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
-                    : "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300"
-                  }`}
-              >
-                {data.membership.plan?.name || data.membership.status}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+import CustomNode from "./detail/CustomNode";
+import NodeDetailSheet from "./detail/NodeDetailSheet";
 
 interface Props {
   userId: string;
@@ -109,7 +40,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
 
-  // Función para transformar el árbol en nodos y aristas para React Flow
   const transformTreeToFlowNodes = useCallback(
     (
       tree: TreeNode | null,
@@ -121,16 +51,14 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     ): { nodes: Node[]; edges: Edge[] } => {
       if (!tree) return { nodes: [], edges: [] };
 
-      const newNodes = [];
-      const newEdges = [];
+      const newNodes: Node[] = [];
+      const newEdges: Edge[] = [];
 
-      // Calcular iniciales para avatar
       const initials = tree.fullName
         ? `${tree.fullName.split(" ")[0][0]}${tree.fullName.split(" ").length > 1 ? tree.fullName.split(" ")[1][0] : ""
         }`
         : tree.email.substring(0, 2).toUpperCase();
 
-      // Crear nodo
       const node = {
         id: tree.id,
         type: "custom",
@@ -148,7 +76,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           rank: tree.rank,
           onNodeClick: () => setSelectedNodeId(tree.id),
         },
-        // Añadir evento onClick directamente al nodo
         onClick: () => setSelectedNodeId(tree.id)
       };
 
@@ -166,15 +93,13 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
             width: 15,
             height: 15,
           },
-          style: { stroke: "#999" },
+          style: { stroke: "#333", strokeWidth: 2 },
           animated: node.data.isCurrent,
         });
       }
 
-      // Espaciado horizontal entre nodos - aumentar para mejorar visualización
       const horizontalSpacing = 200;
 
-      // Espaciado vertical entre niveles - aumentar para mejorar visualización
       const verticalSpacing = 150;
 
       // Procesar hijo izquierdo
@@ -222,7 +147,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     []
   );
 
-  // Actualizar nodos y aristas cuando cambia el contexto del nodo
   useEffect(() => {
     if (nodeContext?.node) {
       const { nodes: newNodes, edges: newEdges } = transformTreeToFlowNodes(
@@ -238,7 +162,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     }
   }, [nodeContext, transformTreeToFlowNodes, setNodes, setEdges]);
 
-  // Buscar el nodo seleccionado
   useEffect(() => {
     if (selectedNodeId && nodeContext?.node) {
       const findNodeRecursively = (node: TreeNode, id: string): TreeNode | null => {
@@ -264,7 +187,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     }
   }, [selectedNodeId, nodeContext]);
 
-  // Manejar zoom in/out
   const handleZoomIn = () => {
     if (descendantDepth < 5) {
       changeTreeDepth(descendantDepth + 1);
@@ -277,14 +199,11 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
     }
   };
 
-  // Configurar el nodo personalizado
   const nodeTypes = {
     custom: CustomNode,
   };
-
   return (
     <div className="flex flex-col h-full">
-      {/* Controles de navegación */}
       <TreeControls
         ancestors={nodeContext?.ancestors}
         currentNode={nodeContext?.node}
@@ -298,12 +217,10 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
       />
 
 
-      {/* Contenedor de ReactFlow */}
       <div
-        // className="border rounded-lg bg-muted/10 flex-1 relative"
         style={{
           width: '100%',
-          height: '70vh'
+          height: 'calc(100vh - 317px)',
         }}
       >
         {nodeLoading ? (
@@ -325,7 +242,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
             maxZoom={2}
             defaultViewport={{ x: 0, y: 0, zoom: 1 }}
             attributionPosition="bottom-left"
-
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
             connectionLineStyle={{ stroke: "#999" }}
             proOptions={{ hideAttribution: true }}
