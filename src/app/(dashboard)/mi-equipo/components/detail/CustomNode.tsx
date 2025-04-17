@@ -37,7 +37,7 @@ const CustomNode = ({ data }: Props) => {
             style={{ backdropFilter: "blur(4px)" }}
         >
             {/* Handle superior - para conexiones entrantes */}
-            <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
+            <Handle type="target" position={Position.Top} />
 
             <div className="flex flex-col items-center justify-between h-full w-full">
                 <div
@@ -86,7 +86,7 @@ const CustomNode = ({ data }: Props) => {
             </div>
 
             {/* Handle inferior - para conexiones salientes (a los hijos) */}
-            <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
+            <Handle type="source" position={Position.Bottom} />
         </div>
     )
 }

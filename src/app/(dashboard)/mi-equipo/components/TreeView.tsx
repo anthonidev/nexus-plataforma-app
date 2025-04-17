@@ -2,9 +2,11 @@ import { TreeNode } from "@/types/tree/tree.types";
 import {
   Background,
   BackgroundVariant,
+  ConnectionLineType,
   Controls,
   Edge,
   MarkerType,
+  MiniMap,
   Node,
   Panel,
   ReactFlow,
@@ -13,6 +15,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { useUserTree } from "../hooks/useUserTree";
 import TreeControls from "./controls";
 import CustomNode from "./detail/CustomNode";
@@ -24,6 +27,9 @@ interface Props {
 }
 
 export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
+  const { theme } = useTheme();
+  const isDarkMode = theme === "dark";
+
   const {
     nodeContext,
     nodeLoading,
@@ -89,14 +95,17 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
           id: `${parentId}-${tree.id}`,
           source: parentId,
           target: tree.id,
-          type: "smoothstep",
+          type: ConnectionLineType.SmoothStep,
           markerEnd: {
-            type: MarkerType.Arrow,
-            width: 15,
-            height: 15,
+            type: MarkerType.ArrowClosed,
+            width: 10,
+            height: 10,
           },
-          style: { stroke: "#333", strokeWidth: 2 },
+          style: { strokeWidth: 2.5 },
           animated: node.data.isCurrent,
+          label: tree.position === "LEFT" ? "IZQ" : "DER",
+
+
         });
       }
 
@@ -246,10 +255,9 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
             defaultViewport={{ x: 0, y: 0, zoom: 1 }}
             attributionPosition="bottom-left"
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
-            connectionLineStyle={{ stroke: "#999" }}
             proOptions={{ hideAttribution: true }}
-            // Desactivar que los nodos sean arrastrados
             nodesDraggable={false}
+            colorMode={isDarkMode ? "dark" : "light"}
           >
             <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Controls
@@ -257,7 +265,6 @@ export default function TreeViewFlow({ userId, initialDepth = 2 }: Props) {
               style={{ background: "none" }}
               showInteractive={false}
             />
-
             <Panel position="top-left" className="bg-background/90 p-2 rounded-md shadow-md border m-2">
               <p className="text-xs text-muted-foreground">Nivel de profundidad: {descendantDepth}</p>
             </Panel>
