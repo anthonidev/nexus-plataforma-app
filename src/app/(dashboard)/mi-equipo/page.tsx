@@ -1,4 +1,3 @@
-// src/app/(dashboard)/tree/page.tsx
 "use client";
 import { useSession } from "next-auth/react";
 import TreeLoading from "./components/TreeLoading";

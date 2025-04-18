@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
-// Schema de validación
 const personalInfoSchema = z.object({
   documentNumber: z
     .string()
@@ -33,8 +32,10 @@ const personalInfoSchema = z.object({
 
   nickname: z
     .string()
-    .min(3, "El apodo debe tener al menos 3 caracteres")
-    .max(20, "El apodo es demasiado largo")
+    .optional(),
+  email: z
+    .string()
+    .email("El correo electrónico no es válido")
     .optional(),
 });
 
@@ -47,6 +48,7 @@ interface EditPersonalInfoModalProps {
     nickname?: string;
     firstName?: string;
     lastName?: string;
+    email?: string;
   } | null;
   isSaving: boolean;
 }
@@ -66,6 +68,7 @@ export default function EditPersonalInfoModal({
     defaultValues: {
       documentNumber: initialData?.documentNumber || "",
       nickname: initialData?.nickname || "",
+      email: initialData?.email || "",
     },
   });
 
@@ -137,10 +140,28 @@ export default function EditPersonalInfoModal({
                 control={form.control}
                 name="nickname"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem
+                  >
                     <FormLabel>Apodo</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingresa tu apodo" {...field} />
+                      <Input placeholder="Ingresa tu apodo" {...field}
+
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Correo electrónico</FormLabel>
+                    <FormControl>
+                      <Input
+
+                        placeholder="Ingresa tu correo electrónico" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -16,6 +16,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
   ArrowRight,
+  Eye,
+  EyeOff,
   KeyRound,
   Leaf,
   Loader2,
@@ -29,9 +31,19 @@ import { signIn } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import GlobeLogin from "../components/NexusGlobeComponent";
+
+
+const GlobeLoginMemo = React.memo(function GlobeLoginComponent() {
+  return <GlobeLogin />;
+});
+
+const GlobeLogin = dynamic(
+  () => import("../components/NexusGlobeComponent"),
+  { ssr: false }
+);
 
 const NexusParticlesBackground = dynamic(
   () => import("../components/NexusParticlesBackground"),
@@ -48,10 +60,6 @@ export default function LoginPage() {
   const { theme, setTheme } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  // const [formData, setFormData] = useState<FormData>({
-  //   email: "cesar.huertas@inmobiliariahuertas.com",
-  //   password: "NexusPass%2025",
-  // });
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -60,25 +68,28 @@ export default function LoginPage() {
   const [particlesVisible, setParticlesVisible] = useState(false);
   const [isGlobeLoaded, setIsGlobeLoaded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const animationInitializedRef = useRef(false);
 
-  // Para asegurar que las animaciones no causen problemas durante SSR
   useEffect(() => {
-    setMounted(true);
+    if (!animationInitializedRef.current) {
+      setMounted(true);
 
-    // Mostrar partículas con delay para mejorar la experiencia
-    const timer = setTimeout(() => {
-      setParticlesVisible(true);
-    }, 500);
+      const timer = setTimeout(() => {
+        setParticlesVisible(true);
+      }, 500);
 
-    // Efecto de carga del globo con un pequeño retraso
-    const globeTimer = setTimeout(() => {
-      setIsGlobeLoaded(true);
-    }, 800);
+      const globeTimer = setTimeout(() => {
+        setIsGlobeLoaded(true);
+      }, 800);
 
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(globeTimer);
-    };
+      animationInitializedRef.current = true;
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(globeTimer);
+      };
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +98,7 @@ export default function LoginPage() {
       ...prev,
       [name]: value,
     }));
+
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -106,7 +118,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Añadimos una transición de salida antes de redirigir
       if (cardRef.current) {
         cardRef.current.style.transform = "scale(0.9)";
         cardRef.current.style.opacity = "0";
@@ -123,7 +134,6 @@ export default function LoginPage() {
     }
   };
 
-  // Función para crear un efecto de ondas cuando se hace clic en el botón
   const createRipple = (event: React.MouseEvent<HTMLButtonElement>) => {
     const button = event.currentTarget;
     const circle = document.createElement("span");
@@ -137,7 +147,6 @@ export default function LoginPage() {
       }px`;
     circle.classList.add("ripple-effect");
 
-    // Limpiar efecto anterior si existe
     const ripple = button.getElementsByClassName("ripple-effect")[0];
     if (ripple) {
       ripple.remove();
@@ -146,7 +155,6 @@ export default function LoginPage() {
     button.appendChild(circle);
   };
 
-  // Variantes para animaciones
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -171,7 +179,6 @@ export default function LoginPage() {
     },
   };
 
-  // Mapas de colores basados en temas
   const getThemeColors = () => {
     if (theme === "dark") {
       return {
@@ -202,25 +209,24 @@ export default function LoginPage() {
   const colors = getThemeColors();
 
   if (!mounted) {
-    return null; // No renderizar nada hasta que el componente esté montado en el cliente
+    return null;
   }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background perspective-1000 login-container">
-      {/* Fondo con partículas */}
       {particlesVisible && <NexusParticlesBackground />}
 
-      {/* Fondo animado adicional */}
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden z-0">
-        {/* Gradient background */}
         <div
           className={`absolute inset-0 bg-gradient-to-br ${colors.background} opacity-90`}
         />
 
-        {/* Patrón de puntos */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000000_30%,transparent_100%)]" />
 
-        {/* Efectos de luz para más profundidad */}
         <motion.div
           className={`absolute -top-20 -left-20 w-96 h-96 rounded-full ${colors.glow} blur-3xl`}
           animate={{
@@ -248,14 +254,12 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Contenedor del contenido */}
       <motion.div
         className="w-full max-w-6xl px-4 py-8 z-10 flex flex-col md:flex-row gap-8 items-center justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        {/* Lado izquierdo - Globo 3D con efectos */}
         <motion.div
           className="relative w-full max-w-xl order-2 md:order-1 hidden lg:block"
           initial={{ opacity: 0, y: 20 }}
@@ -265,13 +269,10 @@ export default function LoginPage() {
           }}
           transition={{ duration: 0.7, delay: 0.3 }}
         >
-          {/* Componente de globo 3D */}
           <div className="flex items-center justify-center">
-            {/* <NexusGrowthVisual size={320} /> */}
-            <GlobeLogin />
+            <GlobeLoginMemo />
           </div>
 
-          {/* Texto descriptivo */}
           <motion.div
             className="text-center mt-8"
             initial={{ opacity: 0 }}
@@ -287,7 +288,6 @@ export default function LoginPage() {
             </p>
           </motion.div>
 
-          {/* Features - iconos con texto */}
           <motion.div
             className="mt-8 grid grid-cols-3 gap-4"
             variants={containerVariants}
@@ -317,7 +317,6 @@ export default function LoginPage() {
           </motion.div>
         </motion.div>
 
-        {/* Lado derecho - Formulario de login con efectos */}
         <motion.div
           className="w-full max-w-md order-1 md:order-2"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -339,7 +338,6 @@ export default function LoginPage() {
               }}
             />
 
-            {/* Efecto de partículas alrededor del formulario */}
             {[...Array(8)].map((_, i) => (
               <motion.div
                 key={`form-particle-${i}`}
@@ -362,7 +360,6 @@ export default function LoginPage() {
               />
             ))}
 
-            {/* Main card */}
             <Card
               className={`relative ${colors.card} backdrop-blur-lg ${colors.border} shadow-xl rounded-2xl overflow-hidden z-10 glow-border`}
             >
@@ -389,7 +386,6 @@ export default function LoginPage() {
                       ease: "easeInOut",
                     }}
                   >
-                    {/* Logo con brillo */}
                     <div className="relative">
                       <Image
                         src={"/imgs/logo.png"}
@@ -447,7 +443,6 @@ export default function LoginPage() {
                   initial="hidden"
                   animate="visible"
                 >
-                  {/* Email field */}
                   <motion.div className="space-y-2" variants={itemVariants}>
                     <Label
                       htmlFor="email"
@@ -475,7 +470,6 @@ export default function LoginPage() {
                           className="border-0 bg-transparent pl-11 h-12 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
 
-                        {/* Efecto de brillo en hover */}
                         <motion.div
                           className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100"
                           animate={{}}
@@ -489,7 +483,6 @@ export default function LoginPage() {
                     </div>
                   </motion.div>
 
-                  {/* Password field */}
                   <motion.div className="space-y-2" variants={itemVariants}>
                     <Label
                       htmlFor="password"
@@ -509,14 +502,27 @@ export default function LoginPage() {
                         <Input
                           id="password"
                           name="password"
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           value={formData.password}
                           onChange={handleChange}
                           required
-                          className="border-0 bg-transparent pl-11 h-12 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          className="border-0 bg-transparent pl-11 pr-11 h-12 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
 
-                        {/* Efecto de brillo en hover */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </Button>
+
                         <motion.div
                           className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100"
                           animate={{}}
@@ -530,7 +536,6 @@ export default function LoginPage() {
                     </div>
                   </motion.div>
 
-                  {/* Error message */}
                   <AnimatePresence mode="wait">
                     {error && (
                       <motion.div
@@ -560,7 +565,6 @@ export default function LoginPage() {
                     )}
                   </AnimatePresence>
 
-                  {/* Submit button */}
                   <motion.div variants={itemVariants}>
                     <motion.div
                       whileHover={{
@@ -570,7 +574,6 @@ export default function LoginPage() {
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="relative overflow-hidden rounded-xl">
-                        {/* Efecto de brillo al botón */}
                         <motion.div
                           className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary to-primary/80"
                           animate={{
@@ -583,7 +586,6 @@ export default function LoginPage() {
                           }}
                         />
 
-                        {/* Efecto de partículas en el botón */}
                         {[...Array(5)].map((_, i) => (
                           <motion.div
                             key={`btn-particle-${i}`}
@@ -615,7 +617,6 @@ export default function LoginPage() {
                           }
                           onClick={createRipple}
                         >
-                          {/* Efecto de brillo en hover */}
                           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                           </div>
@@ -656,7 +657,6 @@ export default function LoginPage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.8 }}
                 >
-                  {/* Separador con efecto */}
                   <div className="relative w-full flex items-center justify-center my-2">
                     <div className="absolute w-full h-px bg-border" />
                     <span className="relative bg-card px-3 text-xs text-muted-foreground z-10">
@@ -664,21 +664,19 @@ export default function LoginPage() {
                     </span>
                   </div>
 
-                  <motion.p
+                  <motion.div
                     className="text-sm text-muted-foreground w-full opacity-70"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.7 }}
                     transition={{ delay: 0.8 }}
                   >
-                    ¿Olvidaste tu contraseña? Por favor, contacta con el
-                    administrador del sistema.
-                  </motion.p>
+                    ¿Olvidaste tu contraseña? <Link href="/auth/reset-password" className="text-primary hover:underline">Recuperar contraseña</Link>
+                  </motion.div>
                 </motion.div>
               </CardFooter>
             </Card>
           </div>
 
-          {/* Theme switch with animation */}
           <motion.div
             className="mt-6 flex justify-center"
             initial={{ opacity: 0 }}
@@ -689,7 +687,6 @@ export default function LoginPage() {
               className="relative"
               whileHover={{ y: -3, transition: { duration: 0.2 } }}
             >
-              {/* Efecto de resplandor */}
               <motion.div
                 className="absolute -inset-1 bg-primary/20 rounded-full blur-sm opacity-0 hover:opacity-70"
                 animate={{

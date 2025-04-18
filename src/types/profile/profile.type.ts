@@ -24,6 +24,7 @@ export interface UpdateBankInfoDto {
 export interface UpdatePersonalInfoDto {
   documentNumber?: string;
   nickname?: string;
+  email?: string;
 }
 
 export interface ProfileResponse {

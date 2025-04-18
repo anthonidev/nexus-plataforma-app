@@ -6,6 +6,7 @@ import {
   CreditCard,
   FileText,
   Loader2,
+  Lock,
   Mail,
   Phone,
   User,
@@ -23,6 +24,8 @@ import BillingInfoCard from "./components/BillingInfoCard";
 import ReferralInfoCard from "./components/ReferralInfoCard";
 import AccountInfoCard from "./components/AccountInfoCard";
 import { useProfile } from "./hooks/useProfile";
+import ChangePasswordModal from "./components/modals/ChangePasswordModal";
+import SecurityInfoCard from "./components/SecurityInfoCard";
 
 export default function ProfilePage() {
   const {
@@ -38,6 +41,7 @@ export default function ProfilePage() {
     updateBank,
     fetchUbigeos,
     updatePhoto,
+    updatePassword,
   } = useProfile();
 
   const [openModal, setOpenModal] = useState<string | null>(null);
@@ -48,6 +52,17 @@ export default function ProfilePage() {
 
   const handleCloseModal = () => {
     setOpenModal(null);
+  };
+  const [openPasswordModal, setOpenPasswordModal] = useState(false);
+
+  // Función para abrir el modal:
+  const handleOpenPasswordModal = () => {
+    setOpenPasswordModal(true);
+  };
+
+  // Función para cerrar el modal:
+  const handleClosePasswordModal = () => {
+    setOpenPasswordModal(false);
   };
 
   if (isLoading) {
@@ -125,6 +140,35 @@ export default function ProfilePage() {
           className="md:col-span-1"
         />
       </BentoGrid>
+      <BentoGrid className="md:auto-rows-[min(18rem,auto)] lg:grid-cols-3 grid-cols-1 md:grid-cols-2">
+        <BentoGridItem
+          title="Código de Referido"
+          description="Comparte tu código para invitar amigos"
+          header={<ReferralInfoCard referralCode={profile.referralCode} />}
+          icon={<Mail className="h-4 w-4 text-primary" />}
+          className="md:col-span-1"
+        />
+
+        <BentoGridItem
+          title="Información de la Cuenta"
+          description="Detalles de tu cuenta"
+          header={
+            <AccountInfoCard isActive={profile.isActive} role={profile.role} />
+          }
+          icon={<Building className="h-4 w-4 text-primary" />}
+          className="md:col-span-1"
+        />
+
+        <BentoGridItem
+          title="Seguridad"
+          description="Administra la seguridad de tu cuenta"
+          header={
+            <SecurityInfoCard onChangePassword={handleOpenPasswordModal} />
+          }
+          icon={<Lock className="h-4 w-4 text-primary" />}
+          className="md:col-span-1 lg:col-span-1"
+        />
+      </BentoGrid>
 
       {/* Segunda sección - Información financiera */}
       <BentoGrid className="mb-8 md:auto-rows-[min(20rem,auto)] lg:grid-cols-3 grid-cols-1 md:grid-cols-2">
@@ -156,25 +200,8 @@ export default function ProfilePage() {
       </BentoGrid>
 
       {/* Tercera sección - Cuenta y referidos */}
-      <BentoGrid className="md:auto-rows-[min(18rem,auto)] lg:grid-cols-3 grid-cols-1 md:grid-cols-2">
-        <BentoGridItem
-          title="Código de Referido"
-          description="Comparte tu código para invitar amigos"
-          header={<ReferralInfoCard referralCode={profile.referralCode} />}
-          icon={<Mail className="h-4 w-4 text-primary" />}
-          className="md:col-span-1 lg:col-span-2"
-        />
 
-        <BentoGridItem
-          title="Información de la Cuenta"
-          description="Detalles de tu cuenta"
-          header={
-            <AccountInfoCard isActive={profile.isActive} role={profile.role} />
-          }
-          icon={<Building className="h-4 w-4 text-primary" />}
-          className="md:col-span-1"
-        />
-      </BentoGrid>
+
 
       {/* Modales para editar información */}
       <EditPersonalInfoModal
@@ -184,6 +211,7 @@ export default function ProfilePage() {
         initialData={{
           ...profile.personalInfo,
           nickname: profile.nickname,
+          email: profile.email,
         }}
         isSaving={isSaving}
       />
@@ -215,6 +243,13 @@ export default function ProfilePage() {
         onClose={handleCloseModal}
         onSubmit={updateBank}
         initialData={profile.bankInfo}
+        isSaving={isSaving}
+      />
+
+      <ChangePasswordModal
+        isOpen={openPasswordModal}
+        onClose={handleClosePasswordModal}
+        onSubmit={updatePassword}
         isSaving={isSaving}
       />
     </div>

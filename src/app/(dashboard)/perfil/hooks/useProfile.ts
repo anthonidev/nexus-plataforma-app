@@ -17,20 +17,18 @@ import {
   UpdatePersonalInfoDto,
 } from "@/types/profile/profile.type";
 import { UbigeoItem } from "@/types/profile/ubigeo.type";
+import { changePassword } from "@/lib/actions/auth/password-reset.action";
 
 export function useProfile() {
-  // Estados para los datos del perfil
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Estado para los ubigeos
   const [ubigeos, setUbigeos] = useState<UbigeoItem[]>([]);
   const [ubigeoLoading, setUbigeoLoading] = useState<boolean>(false);
   const [ubigeoError, setUbigeoError] = useState<string | null>(null);
 
-  // Obtener datos de perfil
   const fetchProfileData = useCallback(async (applyLoading: boolean = true) => {
     try {
       if (applyLoading) {
@@ -165,13 +163,41 @@ export function useProfile() {
     },
     [fetchProfileData]
   );
+  const updatePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        setIsSaving(true);
+        const response = await changePassword(currentPassword, newPassword);
 
+        if (response.success) {
+          toast.success(
+            response.message || "Contraseña actualizada correctamente"
+          );
+          return true;
+        } else {
+          toast.error(response.message || "Error al actualizar la contraseña");
+          return false;
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Error al actualizar la contraseña";
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    []
+  );
   // Actualizar información personal
   const updatePersonal = useCallback(
     async (data: UpdatePersonalInfoDto) => {
       try {
         setIsSaving(true);
         const response = await updatePersonalInfo(data);
+        console.log("Response", response);
 
         if (response.success) {
           toast.success(response.message || "Información personal actualizada");
@@ -303,6 +329,7 @@ export function useProfile() {
     updateBank,
     updatePersonal,
     updatePhoto,
+    updatePassword,
 
     // Utilidades
     findUbigeoById,

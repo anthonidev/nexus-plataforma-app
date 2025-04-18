@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/global.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,21 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            {/* <Toaster /> */}
+            <Toaster
+              position="top-right"
+              richColors
+              duration={5000}
+              closeButton
+              toastOptions={{
+                className: "bg-popover text-popover-foreground",
+                style: {
+                  "--normal-bg": "var(--popover)",
+                  "--normal-text": "var(--popover-foreground)",
+                  "--normal-border": "var(--border)",
+                } as React.CSSProperties,
+              }}
+
+            />
           </ThemeProvider>
         </AuthProvider>
       </body>

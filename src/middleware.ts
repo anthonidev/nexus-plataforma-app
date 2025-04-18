@@ -9,7 +9,6 @@ export default withAuth(
     const isAuthPage = req.nextUrl.pathname === "/auth/login";
     const isRegisterPage = req.nextUrl.pathname.startsWith("/register");
 
-    // Permitir acceso a la página de registro independientemente del estado de autenticación
     if (isRegisterPage) {
       return NextResponse.next();
     }
@@ -33,6 +32,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|imgs/.*|register/).*)",
+    // Excluir archivos estáticos, API, imgs, páginas de registro y reset de contraseña
+    "/((?!api|_next/static|_next/image|favicon.ico|imgs/|register|auth/reset-password).*)",
   ],
 };
