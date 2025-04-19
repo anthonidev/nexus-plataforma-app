@@ -28,7 +28,7 @@ export default function RegisterPage() {
                 height={40}
                 className="w-auto h-10"
               />
-              <span className="font-bold text-lg">Nexus Global</span>
+              <span className="font-bold text-lg">Nexus H. Global</span>
             </div>
           </Link>
           <ThemeSwitch />
