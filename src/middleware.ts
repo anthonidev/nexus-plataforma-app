@@ -33,6 +33,6 @@ export default withAuth(
 export const config = {
   matcher: [
     // Excluir archivos estáticos, API, imgs, páginas de registro y reset de contraseña
-    "/((?!api|_next/static|_next/image|favicon.ico|imgs/|register|auth/reset-password).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|imgs/|register|auth/reset-password|data/terms.md|terms.md).*)",
   ],
 };

@@ -41,6 +41,7 @@ import {
     verifyResetToken,
 } from "@/lib/actions/auth/password-reset.action";
 import Image from "next/image";
+import ThemeSwitch from "@/components/common/ThemeSwich";
 
 const formSchema = z
     .object({
@@ -376,6 +377,8 @@ export default function ResetPasswordPage() {
                             <span className="font-bold text-lg">Nexus Global</span>
                         </div>
                     </Link>
+                    <ThemeSwitch />
+
                     <Link href="/auth/login">
                         <Button
                             variant="outline"

@@ -34,6 +34,7 @@ import { motion } from "framer-motion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { requestPasswordReset } from "@/lib/actions/auth/password-reset.action";
 import Image from "next/image";
+import ThemeSwitch from "@/components/common/ThemeSwich";
 
 const formSchema = z.object({
     email: z
@@ -97,6 +98,8 @@ export default function ResetPasswordPage() {
                             <span className="font-bold text-lg">Nexus Global</span>
                         </div>
                     </Link>
+                    <ThemeSwitch />
+
                     <Link href="/auth/login">
                         <Button
                             variant="outline"

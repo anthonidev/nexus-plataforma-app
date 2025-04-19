@@ -4,6 +4,7 @@ import { ClipboardCopy, User } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import ReferralInfoCard from "../../perfil/components/ReferralInfoCard";
 
 interface UserSummaryCardProps {
   user: {
@@ -60,26 +61,8 @@ export default function UserSummaryCard({ user }: UserSummaryCardProps) {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <div className="text-sm text-muted-foreground">
-              Código de referido:
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="bg-muted p-2 rounded font-mono text-sm flex-1">
-                {user.referralCode}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="shrink-0"
-                onClick={copyToClipboard}
-              >
-                <ClipboardCopy
-                  className={`h-4 w-4 ${copied ? "text-green-500" : ""}`}
-                />
-              </Button>
-            </div>
-          </div>
+          <ReferralInfoCard referralCode={user.referralCode} />
+
         </CardContent>
       </Card>
     </motion.div>

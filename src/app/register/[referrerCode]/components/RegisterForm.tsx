@@ -1,9 +1,26 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import TermsAndConditionsModal from "@/components/common/TermsAndConditionsModal";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -15,35 +32,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import confetti from "canvas-confetti";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { motion } from "framer-motion";
 import {
   CalendarIcon,
   CheckCircle2,
@@ -51,17 +57,20 @@ import {
   EyeOff,
   Info,
   Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  PartyPopper,
+  Phone,
+  User,
+  UserCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { RegisterFormData, useRegister } from "../hooks/useRegister";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { RegisterFormData, useRegister } from "../hooks/useRegister";
 
-// Esquema de validación con zod
 const registerSchema = z
   .object({
     email: z
@@ -100,6 +109,9 @@ const registerSchema = z
       required_error: "El distrito es requerido",
     }),
     roleCode: z.string().default("CLI"), // Rol fijo como "CLI"
+    termsAccepted: z.boolean().refine(val => val === true, {
+      message: "Debes aceptar los términos y condiciones"
+    }),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: "Las contraseñas no coinciden",
@@ -109,7 +121,6 @@ const registerSchema = z
 export default function RegisterForm() {
   const router = useRouter();
   const {
-    isLoading,
     isSubmitting,
     error,
     referrerCode,
@@ -123,14 +134,17 @@ export default function RegisterForm() {
     handleSubmit,
   } = useRegister();
 
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredUserData, setRegisteredUserData] = useState<
     Partial<z.infer<typeof registerSchema>>
   >({});
+  const [activeStep, setActiveStep] = useState(1);
 
-  // Inicializar formulario con react-hook-form y zod
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -141,44 +155,56 @@ export default function RegisterForm() {
       lastName: "",
       phone: "",
       gender: undefined,
-      roleCode: "CLI", // Siempre usamos el rol CLI
+      roleCode: "CLI",
+      termsAccepted: false,
     },
+    mode: "onChange",
   });
 
-  // Función para activar el confeti
+  const canProceedToStep2 = form.watch("email") && form.watch("password") &&
+    form.watch("passwordConfirm") && !form.formState.errors.email &&
+    !form.formState.errors.password && !form.formState.errors.passwordConfirm;
+
+  const canProceedToStep3 = form.watch("firstName") && form.watch("lastName") &&
+    form.watch("phone") && form.watch("birthDate") && form.watch("gender") &&
+    !form.formState.errors.firstName && !form.formState.errors.lastName &&
+    !form.formState.errors.phone && !form.formState.errors.birthDate &&
+    !form.formState.errors.gender;
+
+  const isFormValid = canProceedToStep2 && canProceedToStep3 &&
+    form.watch("departmentId") && form.watch("provinceId") &&
+    form.watch("districtId") && form.watch("termsAccepted") &&
+    !form.formState.errors.departmentId && !form.formState.errors.provinceId &&
+    !form.formState.errors.districtId && !form.formState.errors.termsAccepted;
+
   const triggerConfetti = () => {
     confetti({
-      particleCount: 100,
-      spread: 70,
+      particleCount: 150,
+      spread: 80,
       origin: { y: 0.6 },
+      colors: ['#4ade80', '#34d399', '#10b981', '#059669', '#047857'],
     });
   };
 
-  // Cargar ubigeos al montar el componente
   useEffect(() => {
     fetchUbigeos();
   }, [fetchUbigeos]);
 
-  // Manejar envío del formulario
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    // Convertir los valores del formulario al formato esperado por el hook
     const formData: RegisterFormData = {
       ...values,
       birthDate: values.birthDate.toISOString().split("T")[0],
     };
 
-    // Guardar los datos del usuario para mostrarlos en el modal
     setRegisteredUserData({
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
     });
 
-    // Enviar formulario
     handleSubmit(formData).then((success) => {
       if (success) {
         setRegistrationSuccess(true);
-        // Lanzar confeti para celebrar el registro exitoso
         setTimeout(() => {
           triggerConfetti();
         }, 300);
@@ -186,42 +212,109 @@ export default function RegisterForm() {
     });
   };
 
-  // Función para cerrar el modal y navegar al login
+  const handleStepChange = (step: number) => {
+    if (step > activeStep) {
+      switch (activeStep) {
+        case 1:
+          if (!canProceedToStep2) {
+            form.trigger(["email", "password", "passwordConfirm"]);
+            return;
+          }
+          break;
+        case 2:
+          if (!canProceedToStep3) {
+            form.trigger(["firstName", "lastName", "phone", "birthDate", "gender"]);
+            return;
+          }
+          break;
+      }
+    }
+    setActiveStep(step);
+  };
+
   const handleGoToLogin = () => {
+    form.reset();
+    setActiveStep(1);
+    setRegistrationSuccess(false);
     router.push("/auth/login");
   };
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
+    form.reset();
+    setActiveStep(1);
     setRegistrationSuccess(false);
   };
 
+
   return (
     <>
-      <Card className="w-full max-w-2xl mx-auto shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl">Registro de Usuario</CardTitle>
-          <CardDescription>
-            Completa el formulario para crear tu cuenta
-            {referrerCode && (
-              <div className="mt-2">
-                <Badge
-                  variant="outline"
-                  className="text-xs flex items-center gap-1"
-                >
-                  <Info className="h-3 w-3" />
-                  Código de referido: {referrerCode}
-                  {position && (
-                    <span className="ml-1">
-                      (Lado: {position === "LEFT" ? "Izquierdo" : "Derecho"})
-                    </span>
-                  )}
-                </Badge>
+      <Card className="w-full max-w-2xl mx-auto shadow-lg overflow-hidden border-primary/20">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 p-2">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <UserCircle className="h-6 w-6 text-primary" />
+              Registro de Usuario
+            </CardTitle>
+            <CardDescription>
+              Completa el formulario para crear tu cuenta
+              {referrerCode && (
+                <div className="mt-2">
+                  <Badge
+                    variant="outline"
+                    className="text-xs flex items-center gap-1 border-primary/30 bg-primary/5"
+                  >
+                    <Info className="h-3 w-3" />
+                    Código de referido: <span className="font-semibold">{referrerCode}</span>
+                    {position && (
+                      <span className="ml-1">
+                        (Lado: <span className="font-semibold">{position === "LEFT" ? "Izquierdo" : "Derecho"}</span>)
+                      </span>
+                    )}
+                  </Badge>
+                </div>
+              )}
+            </CardDescription>
+          </CardHeader>
+
+          <div className="flex justify-between px-8 py-2 relative">
+            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-muted-foreground/20 -translate-y-1/2 mx-12" />
+
+            <motion.div
+              onClick={() => handleStepChange(1)}
+              className={`z-10 flex flex-col items-center cursor-pointer`}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className={`rounded-full w-8 h-8 flex items-center justify-center ${activeStep >= 1 ? "bg-primary text-primary-foreground" : "bg-muted-foreground/20 text-muted-foreground"}`}>
+                1
               </div>
-            )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+              <span className={`text-xs mt-1 ${activeStep === 1 ? "font-medium text-primary" : "text-muted-foreground"}`}>Cuenta</span>
+            </motion.div>
+
+            <motion.div
+              onClick={() => canProceedToStep2 ? handleStepChange(2) : null}
+              className={`z-10 flex flex-col items-center ${canProceedToStep2 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              whileHover={canProceedToStep2 ? { scale: 1.05 } : {}}
+            >
+              <div className={`rounded-full w-8 h-8 flex items-center justify-center ${activeStep >= 2 ? "bg-primary text-primary-foreground" : "bg-muted-foreground/20 text-muted-foreground"}`}>
+                2
+              </div>
+              <span className={`text-xs mt-1 ${activeStep === 2 ? "font-medium text-primary" : "text-muted-foreground"}`}>Personal</span>
+            </motion.div>
+
+            <motion.div
+              onClick={() => canProceedToStep3 ? handleStepChange(3) : null}
+              className={`z-10 flex flex-col items-center ${canProceedToStep3 ? "cursor-pointer" : "cursor-not-allowed"}`}
+              whileHover={canProceedToStep3 ? { scale: 1.05 } : {}}
+            >
+              <div className={`rounded-full w-8 h-8 flex items-center justify-center ${activeStep >= 3 ? "bg-primary text-primary-foreground" : "bg-muted-foreground/20 text-muted-foreground"}`}>
+                3
+              </div>
+              <span className={`text-xs mt-1 ${activeStep === 3 ? "font-medium text-primary" : "text-muted-foreground"}`}>Ubicación</span>
+            </motion.div>
+          </div>
+        </div>
+
+        <CardContent className="p-6">
           {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertTitle>Error al registrar</AlertTitle>
@@ -231,19 +324,35 @@ export default function RegisterForm() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Datos de la cuenta */}
-                <div className="space-y-4 md:col-span-2">
-                  <h3 className="text-lg font-medium">Datos de la cuenta</h3>
+              {activeStep === 1 && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-4"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <Lock className="h-4 w-4" />
+                    </div>
+                    <h3 className="text-lg font-medium">Datos de la cuenta</h3>
+                  </div>
 
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Correo electrónico</FormLabel>
+                        <FormLabel className="flex items-center gap-1.5">
+                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                          Correo electrónico
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="correo@ejemplo.com" {...field} />
+                          <Input
+                            placeholder="correo@ejemplo.com"
+                            {...field}
+                            className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -256,19 +365,23 @@ export default function RegisterForm() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contraseña</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                            Contraseña
+                          </FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="********"
                                 {...field}
+                                className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 pr-10"
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-0 top-0 h-full px-3"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? (
@@ -293,19 +406,23 @@ export default function RegisterForm() {
                       name="passwordConfirm"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Confirmar contraseña</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                            Confirmar contraseña
+                          </FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
                                 type={showPasswordConfirm ? "text" : "password"}
                                 placeholder="********"
                                 {...field}
+                                className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 pr-10"
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-0 top-0 h-full px-3"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                                 onClick={() =>
                                   setShowPasswordConfirm(!showPasswordConfirm)
                                 }
@@ -326,11 +443,38 @@ export default function RegisterForm() {
                       )}
                     />
                   </div>
-                </div>
 
-                {/* Datos personales */}
-                <div className="space-y-4 md:col-span-2">
-                  <h3 className="text-lg font-medium">Datos personales</h3>
+                  <div className="pt-4 flex justify-end">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="button"
+                        onClick={() => handleStepChange(2)}
+                        disabled={!canProceedToStep2}
+                        className="w-full md:w-auto min-w-[10rem]"
+                      >
+                        Siguiente
+                      </Button>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeStep === 2 && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-4"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <h3 className="text-lg font-medium">Datos personales</h3>
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -338,9 +482,16 @@ export default function RegisterForm() {
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nombre</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-muted-foreground" />
+                            Nombre
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="Tu nombre" {...field} />
+                            <Input
+                              placeholder="Tu nombre"
+                              {...field}
+                              className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -352,9 +503,16 @@ export default function RegisterForm() {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Apellido</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-muted-foreground" />
+                            Apellido
+                          </FormLabel>
                           <FormControl>
-                            <Input placeholder="Tu apellido" {...field} />
+                            <Input
+                              placeholder="Tu apellido"
+                              {...field}
+                              className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -367,9 +525,16 @@ export default function RegisterForm() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Teléfono</FormLabel>
+                        <FormLabel className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                          Teléfono
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="999 888 777" {...field} />
+                          <Input
+                            placeholder="999 888 777"
+                            {...field}
+                            className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -382,14 +547,17 @@ export default function RegisterForm() {
                       name="birthDate"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
-                          <FormLabel>Fecha de nacimiento</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                            Fecha de nacimiento
+                          </FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
                                   variant={"outline"}
                                   className={cn(
-                                    "w-full pl-3 text-left font-normal",
+                                    "w-full pl-3 text-left font-normal h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50",
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
@@ -417,7 +585,6 @@ export default function RegisterForm() {
                                   field.value ?? new Date(Date.now() - 567648000000) // 18 años atrás
                                 }
                                 initialFocus
-                                // Añade estas props:
                                 captionLayout="dropdown"
                                 fromYear={1900}
                                 toYear={new Date().getFullYear()}
@@ -434,13 +601,16 @@ export default function RegisterForm() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Género</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <User className="h-3.5 w-3.5 text-muted-foreground" />
+                            Género
+                          </FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
                                 <SelectValue placeholder="Seleccionar género" />
                               </SelectTrigger>
                             </FormControl>
@@ -457,11 +627,51 @@ export default function RegisterForm() {
                       )}
                     />
                   </div>
-                </div>
 
-                {/* Ubicación */}
-                <div className="space-y-4 md:col-span-2">
-                  <h3 className="text-lg font-medium">Ubicación</h3>
+                  <div className="pt-4 flex justify-between">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleStepChange(1)}
+                        className="w-full md:w-auto min-w-[10rem]"
+                      >
+                        Atrás
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="button"
+                        onClick={() => handleStepChange(3)}
+                        disabled={!canProceedToStep3}
+                        className="w-full md:w-auto min-w-[10rem]"
+                      >
+                        Siguiente
+                      </Button>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeStep === 3 && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-4"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <h3 className="text-lg font-medium">Ubicación</h3>
+                  </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
@@ -469,7 +679,10 @@ export default function RegisterForm() {
                       name="departmentId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Departamento</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            Departamento
+                          </FormLabel>
                           <Select
                             onValueChange={(value) => {
                               const numValue = parseInt(value);
@@ -479,7 +692,7 @@ export default function RegisterForm() {
                             defaultValue={field.value?.toString()}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
                                 <SelectValue placeholder="Seleccionar departamento" />
                               </SelectTrigger>
                             </FormControl>
@@ -504,7 +717,10 @@ export default function RegisterForm() {
                       name="provinceId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Provincia</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            Provincia
+                          </FormLabel>
                           <Select
                             onValueChange={(value) => {
                               const numValue = parseInt(value);
@@ -515,7 +731,7 @@ export default function RegisterForm() {
                             disabled={provinces.length === 0}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
                                 <SelectValue placeholder="Seleccionar provincia" />
                               </SelectTrigger>
                             </FormControl>
@@ -546,7 +762,10 @@ export default function RegisterForm() {
                       name="districtId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Distrito</FormLabel>
+                          <FormLabel className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            Distrito
+                          </FormLabel>
                           <Select
                             onValueChange={(value) =>
                               field.onChange(parseInt(value))
@@ -555,7 +774,7 @@ export default function RegisterForm() {
                             disabled={districts.length === 0}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="h-10 transition-all duration-200 focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
                                 <SelectValue placeholder="Seleccionar distrito" />
                               </SelectTrigger>
                             </FormControl>
@@ -581,34 +800,99 @@ export default function RegisterForm() {
                       )}
                     />
                   </div>
-                </div>
-              </div>
 
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Procesando...
-                    </>
-                  ) : (
-                    "Registrarme"
-                  )}
-                </Button>
-              </motion.div>
+                  <div className="mt-6 mb-2">
+                    <Separator className="mb-6" />
+                    <FormField
+                      control={form.control}
+                      name="termsAccepted"
+                      render={({ field }) => (
+                        <FormItem
+
+                          className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                                setTermsAccepted(checked === true);
+                              }}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-sm cursor-pointer">
+                              Acepto los{" "}
+                              <Button
+                                variant="link"
+                                className="p-0 h-auto text-sm font-medium underline text-primary"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setTermsModalOpen(true);
+                                }}
+                              >
+                                Términos y Condiciones
+                              </Button>
+                            </FormLabel>
+                            <FormMessage />
+                          </div>
+                          <TermsAndConditionsModal
+                            open={termsModalOpen}
+                            onOpenChange={setTermsModalOpen}
+                            onAccept={(accepted) => {
+                              setTermsAccepted(accepted);
+                              field.onChange(accepted);
+                            }}
+                            isAccepted={termsAccepted}
+                          />
+                        </FormItem>
+                      )}
+
+                    />
+
+                  </div>
+
+                  <div className="pt-4 flex justify-between">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleStepChange(2)}
+                        className="w-full md:w-auto min-w-[10rem]"
+                      >
+                        Atrás
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting || !isFormValid}
+                        className="w-full md:w-auto min-w-[10rem]"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Procesando...
+                          </>
+                        ) : (
+                          "Registrarme"
+                        )}
+                      </Button>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
             </form>
           </Form>
         </CardContent>
       </Card>
 
-      {/* Modal de registro exitoso */}
       <Dialog open={registrationSuccess} onOpenChange={handleCloseModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -621,7 +905,7 @@ export default function RegisterForm() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="p-6 border rounded-lg bg-muted/30 mt-2">
+          <div className="p-6 border rounded-lg bg-primary/5 dark:bg-primary/10 mt-2">
             <div className="space-y-3">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Nombre:</p>
@@ -638,11 +922,17 @@ export default function RegisterForm() {
             </div>
           </div>
 
+          <div className="my-2 flex justify-center">
+            <PartyPopper className="h-16 w-16 text-primary animate-bounce" />
+          </div>
+
           <DialogFooter className="flex gap-2 sm:gap-0 mt-4">
             <Button variant="outline" onClick={handleCloseModal}>
               Cerrar
             </Button>
-            <Button onClick={handleGoToLogin}>Ir a Iniciar Sesión</Button>
+            <Button onClick={handleGoToLogin} className="bg-primary hover:bg-primary/90">
+              Ir a Iniciar Sesión
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

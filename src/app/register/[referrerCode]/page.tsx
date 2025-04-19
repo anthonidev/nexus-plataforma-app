@@ -1,12 +1,13 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
-import RegisterForm from "./components/RegisterForm";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import RegisterForm from "./components/RegisterForm";
+import ThemeSwitch from "@/components/common/ThemeSwich";
 
 export default function RegisterPage() {
   const params = useParams<{ referrerCode: string }>();
@@ -30,6 +31,7 @@ export default function RegisterPage() {
               <span className="font-bold text-lg">Nexus Global</span>
             </div>
           </Link>
+          <ThemeSwitch />
           <Link href="/auth/login">
             <Button
               variant="outline"
