@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PaymentListItem } from "@/types/payment/payment.type";
+import { PaymentListUserItem } from "@/types/payment/payment-user.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import {
   ColumnDef,
@@ -33,7 +33,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 interface PaymentsTableProps {
-  payments: PaymentListItem[];
+  payments: PaymentListUserItem[];
   isLoading: boolean;
   pageCount: number;
   pageIndex: number;
@@ -59,7 +59,7 @@ export function PaymentsTable({
     REJECTED: { label: "Rechazado", variant: "destructive" as const },
   };
 
-  const columns = useMemo<ColumnDef<PaymentListItem>[]>(
+  const columns = useMemo<ColumnDef<PaymentListUserItem>[]>(
     () => [
       {
         accessorKey: "id",
@@ -164,9 +164,9 @@ export function PaymentsTable({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>

@@ -2,9 +2,10 @@
 
 import { getUserPayments } from "@/lib/actions/payments/payment.action";
 import {
-  PaymentConfigListItem,
-  PaymentListItem,
-} from "@/types/payment/payment.type";
+  PaymentConfigListUserItem,
+  PaymentListUserItem,
+} from "@/types/payment/payment-user.type";
+
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,8 +21,8 @@ export interface PaymentsFilters {
 }
 
 interface UsePaymentsReturn {
-  payments: PaymentListItem[];
-  paymentConfigs: PaymentConfigListItem[];
+  payments: PaymentListUserItem[];
+  paymentConfigs: PaymentConfigListUserItem[];
   isLoading: boolean;
   error: string | null;
   totalItems: number;
@@ -63,10 +64,10 @@ export function usePayments({
   initialStatus = undefined,
   initialOrder = "DESC",
 }: UsePaymentsProps = {}): UsePaymentsReturn {
-  const [payments, setPayments] = useState<PaymentListItem[]>([]);
-  const [paymentConfigs, setPaymentConfigs] = useState<PaymentConfigListItem[]>(
-    []
-  );
+  const [payments, setPayments] = useState<PaymentListUserItem[]>([]);
+  const [paymentConfigs, setPaymentConfigs] = useState<
+    PaymentConfigListUserItem[]
+  >([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

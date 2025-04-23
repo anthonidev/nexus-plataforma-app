@@ -5,13 +5,14 @@ import {
   ResponseApprovePayment,
   ResponseRejectPayment,
 } from "@/types/payment/payment-detail.type";
+import { PaymentsListUserResponse } from "@/types/payment/payment-user.type";
 import { PaymentsListResponse } from "@/types/payment/payment.type";
 
 export async function getUserPayments(
   params?: Record<string, unknown> | undefined
-): Promise<PaymentsListResponse> {
+): Promise<PaymentsListUserResponse> {
   try {
-    return await httpClient<PaymentsListResponse>("/api/payments", {
+    return await httpClient<PaymentsListUserResponse>("/api/payments", {
       params: params,
     });
   } catch (error) {

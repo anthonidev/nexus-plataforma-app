@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { PaymentConfigListItem } from "@/types/payment/payment.type";
+import { PaymentConfigListUserItem } from "@/types/payment/payment-user.type";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
@@ -26,7 +26,7 @@ interface PaymentsFiltersProps {
   startDate: string | undefined;
   endDate: string | undefined;
   order: "ASC" | "DESC";
-  paymentConfigs: PaymentConfigListItem[];
+  paymentConfigs: PaymentConfigListUserItem[];
   onStatusChange: (
     status: "PENDING" | "APPROVED" | "REJECTED" | undefined
   ) => void;
