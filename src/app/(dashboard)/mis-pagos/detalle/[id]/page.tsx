@@ -1,30 +1,30 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/PageHeader";
+import { PaymentDetailError } from "@/components/common/payments/PaymentDetailError";
+import { PaymentDetailSkeleton } from "@/components/common/payments/PaymentDetailSkeleton";
+import { PaymentImageViewer } from "@/components/common/payments/PaymentImageViewer";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "@/utils/date.utils";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import {
-  ArrowLeft,
+  Building,
   Calendar,
   CheckCircle2,
   Clock,
+  CreditCard,
   FileText,
   Image as ImageIcon,
   Info,
+  Receipt,
   User,
-  XCircle,
+  XCircle
 } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
-import { usePaymentDetail } from "../../hooks/usePaymentDetail";
 import Image from "next/image";
-import { PaymentDetailSkeleton } from "@/components/common/payments/PaymentDetailSkeleton";
-import { PaymentDetailError } from "@/components/common/payments/PaymentDetailError";
-import { PaymentImageViewer } from "@/components/common/payments/PaymentImageViewer";
+import { notFound, useParams } from "next/navigation";
+import { useState } from "react";
+import { usePaymentDetail } from "../../hooks/usePaymentDetail";
 
 export default function PaymentDetailPage() {
   const params = useParams<{ id: string }>();
@@ -83,31 +83,21 @@ export default function PaymentDetailPage() {
 
   return (
     <div className="container py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <div className="flex items-center mb-2">
-            <Link href="/mis-pagos" passHref>
-              <Button variant="ghost" size="sm" className="mr-2 -ml-3">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Volver
-              </Button>
-            </Link>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Detalle de Pago #{payment.id}
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
-            Información detallada del pago
-          </p>
-        </div>
-
-        <Badge
-          className={`px-2 py-1 text-sm flex items-center gap-1 ${statusInfo.color}`}
-        >
-          {statusInfo.icon}
-          {statusInfo.label}
-        </Badge>
-      </div>
+      <PageHeader
+        title={`Detalle de Pago #${payment.id}`}
+        subtitle="Información detallada del pago"
+        variant="gradient"
+        icon={FileText}
+        backUrl="/mis-pagos"
+        actions={
+          <Badge
+            className={`px-2 py-1 text-sm flex items-center gap-1 ${statusInfo.color}`}
+          >
+            {statusInfo.icon}
+            {statusInfo.label}
+          </Badge>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Información general */}
@@ -121,75 +111,101 @@ export default function PaymentDetailPage() {
           <CardContent>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Información resumen del pago con monto destacado */}
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 flex flex-col justify-between border border-primary/10">
-                <h3 className="text-base font-medium mb-2 text-primary/90">
-                  Resumen del Pago
-                </h3>
+              <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-xl p-6 flex flex-col justify-between border border-primary/15 shadow-sm">
+                {/* Elementos decorativos de fondo */}
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-primary/5 rounded-full blur-xl"></div>
 
-                <div className="mt-1 mb-4">
+                {/* Encabezado con estilo */}
+                <div className="flex items-center justify-between mb-4 relative z-10">
+                  <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
+                    <Receipt className="h-4 w-4 text-primary" />
+                    <h3 className="text-base font-medium text-primary/90">
+                      Resumen del Pago
+                    </h3>
+                  </div>
+
+                  <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-primary/20">
+                    <CreditCard className="h-3 w-3 mr-1 text-primary" />
+                    {payment.paymentConfig.name}
+                  </Badge>
+                </div>
+
+                {/* Monto destacado */}
+                <div className="relative bg-background/70 backdrop-blur-md rounded-lg p-4 mb-4 shadow-sm border border-primary/10 z-10">
+                  <div className="absolute -right-1 -top-1 w-20 h-20 bg-primary/5 rounded-full blur-xl"></div>
+                  <p className="text-xs text-muted-foreground mb-1">Monto total</p>
                   <div className="text-3xl font-bold text-primary">
                     {formatCurrency(payment.amount)}
                   </div>
-                  <div className="text-sm mt-1 text-muted-foreground">
-                    {payment.paymentConfig.name}
-                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-medium">
+                {/* Fechas en cards más estilizadas */}
+                <div className="grid grid-cols-2 gap-4 mt-2 relative z-10">
+                  <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-2 mb-2 text-primary">
+                      <Calendar className="h-4 w-4" />
+                      <span className="text-xs font-semibold">
                         Fecha de creación
                       </span>
                     </div>
-                    <p className="text-sm font-medium">
-                      {format(new Date(payment.createdAt), "dd/MM/yyyy")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(new Date(payment.createdAt), "HH:mm")}
-                    </p>
+                    <div className="flex flex-col">
+                      <p className="text-sm font-medium">
+                        {format(new Date(payment.createdAt), "dd/MM/yyyy")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(payment.createdAt), "HH:mm")} hrs
+                      </p>
+                    </div>
                   </div>
 
                   {payment.reviewedAt ? (
-                    <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span className="text-xs font-medium">
+                    <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-primary/10 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-2 mb-2 text-primary">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-xs font-semibold">
                           Fecha de revisión
                         </span>
                       </div>
-                      <p className="text-sm font-medium">
-                        {format(new Date(payment.reviewedAt), "dd/MM/yyyy")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(payment.reviewedAt), "HH:mm")}
-                      </p>
+                      <div className="flex flex-col">
+                        <p className="text-sm font-medium">
+                          {format(new Date(payment.reviewedAt), "dd/MM/yyyy")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(payment.reviewedAt), "HH:mm")} hrs
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="h-4 w-4 text-amber-500" />
-                        <span className="text-xs font-medium">
+                    <div className="bg-amber-50/80 dark:bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 border border-amber-200/30 dark:border-amber-700/30 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2 text-amber-700 dark:text-amber-400">
+                        <Clock className="h-4 w-4" />
+                        <span className="text-xs font-semibold">
                           En espera de revisión
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-amber-600/90 dark:text-amber-400/90 font-medium">
                         Pendiente de aprobación
                       </p>
                     </div>
                   )}
                 </div>
 
-                {payment.transactionId && (
-                  <div className="mt-4 bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <FileText className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-medium">
-                        ID de transacción
-                      </span>
+                {/* Metadata con mejor formato */}
+                {payment.metadata && Object.keys(payment.metadata).length > 0 && (
+                  <div className="mt-4 bg-background/80 backdrop-blur-sm rounded-lg p-4 border border-primary/10 shadow-sm relative z-10">
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/50">
+                      <Info className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Información adicional</span>
                     </div>
-                    <p className="text-sm font-mono">{payment.transactionId}</p>
+                    <div className="grid gap-2">
+                      {Object.entries(payment.metadata).map(([key, value]) => (
+                        <div key={key} className="flex justify-between text-xs py-1 border-b border-border/20 last:border-0">
+                          <span className="text-muted-foreground capitalize">{key.replace(/_/g, " ")}:</span>
+                          <span className="font-medium text-foreground">{value.toString()}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -209,15 +225,27 @@ export default function PaymentDetailPage() {
                     </div>
                   </div>
 
-                  <div className="pl-2 border-l-2 border-primary/20 mt-4">
-                    <p className="text-sm text-muted-foreground mb-1">Email:</p>
-                    <p className="text-base font-medium break-all">
-                      {payment.user.email}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-3 mb-1">
-                      ID de usuario:
-                    </p>
-                    <p className="text-sm font-mono">{payment.user.id}</p>
+                  <div className="pl-2 border-l-2 border-primary/20 mt-4 space-y-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Nombre completo:</p>
+                      <p className="text-base font-medium">
+                        {payment.user.personalInfo.firstName} {payment.user.personalInfo.lastName}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Documento:</p>
+                      <p className="text-base font-medium">
+                        {payment.user.personalInfo.documentNumber}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Email:</p>
+                      <p className="text-base font-medium break-all">
+                        {payment.user.email}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -225,7 +253,7 @@ export default function PaymentDetailPage() {
                   <div className="bg-background rounded-xl p-5 border shadow-sm">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                        <User className="h-5 w-5 text-blue-500" />
+                        <Building className="h-5 w-5 text-blue-500" />
                       </div>
                       <div>
                         <h3 className="font-medium">Revisado por</h3>
@@ -274,7 +302,7 @@ export default function PaymentDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {payment.images.length > 0 ? (
+            {payment.images && payment.images.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
                 {payment.images.map((image) => (
                   <div
@@ -297,16 +325,22 @@ export default function PaymentDetailPage() {
                       </div>
                     </div>
                     <div className="p-2 bg-muted/30 text-xs">
+                      <div className="flex items-center gap-1 text-primary/70 mb-1">
+                        <Building className="h-3 w-3 flex-shrink-0" />
+                        <p className="font-medium truncate">{image.bankName || "Banco"}</p>
+                      </div>
                       <p className="font-medium truncate">
                         {image.transactionReference}
                       </p>
                       <div className="flex justify-between mt-1 text-muted-foreground">
                         <span>{formatCurrency(image.amount)}</span>
                         <span>
-                          {format(
-                            new Date(image.transactionDate),
-                            "dd/MM/yyyy"
-                          )}
+                          {new Date(image.transactionDate).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            timeZone: 'UTC'
+                          })}
                         </span>
                       </div>
                     </div>

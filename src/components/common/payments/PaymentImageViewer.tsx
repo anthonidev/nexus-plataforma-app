@@ -12,7 +12,6 @@ export function PaymentImageViewer({
   imageUrl,
   onClose,
 }: PaymentImageViewerProps) {
-  // Bloquear el scroll cuando el visor está abierto
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -20,7 +19,6 @@ export function PaymentImageViewer({
     };
   }, []);
 
-  // Cerrar el visor con la tecla Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();

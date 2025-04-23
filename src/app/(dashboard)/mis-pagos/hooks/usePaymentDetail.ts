@@ -1,12 +1,14 @@
 "use client";
 
 import { getUserPaymentById } from "@/lib/actions/payments/payment.action";
-import { PaymentResponse } from "@/types/payment/payment-detail.type";
+import { PaymentDetailUserResponse } from "@/types/payment/payment-detail-user.type";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function usePaymentDetail(paymentId: number) {
-  const [payment, setPayment] = useState<PaymentResponse | null>(null);
+  const [payment, setPayment] = useState<PaymentDetailUserResponse | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 

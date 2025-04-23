@@ -1,28 +1,19 @@
 export interface PaymentImageResponse {
   id: number;
   url: string;
-  cloudinaryPublicId: string;
   amount: number;
-  bankName?: string;
+  bankName: string;
+  transactionDate: Date;
   transactionReference: string;
-  transactionDate: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PaymentUserResponse {
   id: string;
   email: string;
-  referralCode: string;
-  isActive: boolean;
   personalInfo: {
     firstName: string;
     lastName: string;
     documentNumber: string;
-  };
-  contactInfo: {
-    phone: string;
   };
 }
 
@@ -34,15 +25,9 @@ export interface PaymentReviewerResponse {
 export interface PaymentConfigResponse {
   id: number;
   name: string;
-  code: string;
-  description?: string;
-  requiresApproval: boolean;
-  isActive: boolean;
-  minimumAmount?: number;
-  maximumAmount?: number;
 }
 
-export interface PaymentResponse {
+export interface PaymentDetailUserResponse {
   id: number;
   amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
@@ -51,10 +36,7 @@ export interface PaymentResponse {
   updatedAt: string;
   reviewedAt?: string;
   isArchived: boolean;
-  relatedEntityType?: string;
-  relatedEntityId?: number;
-  transactionId?: string;
-  paymentMethod?: string;
+
   metadata?: Record<string, any>;
   user: PaymentUserResponse;
   paymentConfig: PaymentConfigResponse;

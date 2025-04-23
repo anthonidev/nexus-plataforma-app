@@ -29,22 +29,20 @@ const Navbar = () => {
       animate={{ opacity: 1, y: 0 }}
       className=" border-b border-border bg-layout-topbar text-layout-topbar-foreground px-6 flex items-center justify-between shadow-sm p-3"
     >
-      {}
-      <div className="flex items-center space-x-4">
+      { }
+      <div className="flex items-center space-x-4 ml-8">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-sm font-medium capitalize text-muted-foreground flex items-center gap-2 bg-primary/10 px-2 py-1 rounded-lg"
+          className="text-xs font-medium capitalize text-muted-foreground flex items-center gap-2 bg-primary/10 px-2 py-1 rounded-lg"
         >
-          <Calendar size={20} className="text-muted-foreground" />
+          <Calendar size={15} className="text-muted-foreground" />
           {formatDate()}
         </motion.div>
       </div>
-      {}
       <div className="flex items-center gap-4">
-        {}
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -99,7 +97,7 @@ const Navbar = () => {
               </div>
             )}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
         <Separator orientation="vertical" className="h-6 bg-border" />
         <ThemeSwitch />
       </div>

@@ -1,5 +1,6 @@
 "use server";
 import { httpClient } from "@/lib/api/http-client";
+import { PaymentDetailUserResponse } from "@/types/payment/payment-detail-user.type";
 import {
   PaymentResponse,
   ResponseApprovePayment,
@@ -23,9 +24,11 @@ export async function getUserPayments(
 
 export async function getUserPaymentById(
   paymentId: number
-): Promise<PaymentResponse> {
+): Promise<PaymentDetailUserResponse> {
   try {
-    return await httpClient<PaymentResponse>(`/api/payments/${paymentId}`);
+    return await httpClient<PaymentDetailUserResponse>(
+      `/api/payments/${paymentId}`
+    );
   } catch (error) {
     console.error(`Error al obtener el pago con ID ${paymentId}:`, error);
     throw error;
@@ -90,7 +93,7 @@ export async function rejectPayment(
       `/api/finance/payments/approval/${paymentId}/reject`,
       {
         method: "POST",
-        body: JSON.stringify({ rejectionReason }),
+        body: { rejectionReason },
       }
     );
   } catch (error) {
