@@ -4,8 +4,8 @@ import EmptyPlansMessage from "./components/EmptyPlansMessage";
 import ErrorMessage from "./components/ErrorMessage";
 import MembershipPlansList from "./components/MembershipPlansList";
 import MembershipStatusCard from "./components/MembershipStatusCard";
-import PageHeader from "./components/PageHeader";
 import { useMembershipPlans } from "./hooks/useMembership";
+import { PageHeader } from "@/components/common/PageHeader";
 
 export default function MembershipPlansPage() {
   const router = useRouter();
@@ -35,7 +35,15 @@ export default function MembershipPlansPage() {
 
   return (
     <div className="container max-w-7xl mx-auto py-10 px-4 sm:px-6">
-      <PageHeader />
+      <PageHeader
+        title=" Planes de Membresía"
+        subtitle=" Selecciona el plan que mejor se ajuste a tus necesidades y comienza tu
+            camino al éxito"
+        variant="gradient"
+      // icon={FileText}
+
+      />
+
 
       {error && <ErrorMessage errorMessage={error} onRetry={refetch} />}
 

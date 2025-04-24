@@ -54,7 +54,7 @@ export default function RegisterPage() {
             className="mb-8 text-center"
           >
             <h1 className="text-3xl font-bold tracking-tight">
-              Únete a Nexus Global
+              Únete a Nexus H. Global
             </h1>
             <p className="text-muted-foreground mt-2">
               {referrerCode !== "new" ? (

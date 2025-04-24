@@ -1,22 +1,37 @@
+export interface ContactInfo {
+  phone: string;
+}
+
+export interface PersonalInfo {
+  firstName: string;
+  lastName: string;
+  documentNumber: string;
+}
+export interface ItemPaymentConfig {
+  name: string;
+}
+
+export interface ReviewedBy {
+  id: string;
+  email: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  photo: null;
+  personalInfo: PersonalInfo;
+  contactInfo: ContactInfo;
+}
 export interface PaymentListItem {
   id: number;
   amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
-  reviewedAt?: string;
-  relatedEntityType?: string;
-  relatedEntityId?: number;
-
-  paymentConfig: {
-    id: number;
-    name: string;
-    code: string;
-  };
-
-  reviewer?: {
-    id: string;
-    email: string;
-  };
+  reviewedAt: Date | null;
+  paymentConfig: ItemPaymentConfig;
+  reviewedBy: ReviewedBy | null;
+  user: User;
 }
 
 export interface PaymentConfigListItem {

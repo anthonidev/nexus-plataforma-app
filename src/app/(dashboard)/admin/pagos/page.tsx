@@ -4,9 +4,10 @@ import { PaymentsTable } from "./components/PaymentsTable";
 import { PaymentsFilters } from "./components/PaymentsFilters";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { FileText, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useFinancePayments } from "./hooks/useFinancePayments";
+import { PageHeader } from "@/components/common/PageHeader";
 
 export default function PaymentsPageAdmin() {
   const [openFilters, setOpenFilters] = useState(false);
@@ -15,7 +16,7 @@ export default function PaymentsPageAdmin() {
     payments,
     paymentConfigs,
     isLoading,
-    // totalItems,
+    totalItems,
     currentPage,
     itemsPerPage,
     totalPages,
@@ -37,35 +38,35 @@ export default function PaymentsPageAdmin() {
 
   return (
     <div className="container py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mis Pagos</h1>
-          <p className="text-muted-foreground mt-1">
-            Visualiza y filtra todos los pagos realizados
-          </p>
-        </div>
+      <PageHeader
+        title="Pagos"
+        subtitle="Visualiza y filtra todos los pagos realizados"
+        variant="gradient"
+        icon={FileText}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setOpenFilters(!openFilters)}
+            >
+              {openFilters ? "Ocultar filtros" : "Mostrar filtros"}
+            </Button>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setOpenFilters(!openFilters)}
-          >
-            {openFilters ? "Ocultar filtros" : "Mostrar filtros"}
-          </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              title="Actualizar"
+              onClick={() => refresh()}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              />
+            </Button>
+          </>
+        }
+      />
 
-          <Button
-            variant="outline"
-            size="icon"
-            title="Actualizar"
-            onClick={() => refresh()}
-            disabled={isLoading}
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-            />
-          </Button>
-        </div>
-      </div>
 
       <Card className="mb-6">
         <CardHeader className="pb-3">
