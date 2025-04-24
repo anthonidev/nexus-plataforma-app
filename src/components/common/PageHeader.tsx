@@ -2,9 +2,9 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { ReactNode } from "react";
 import { Button } from "../ui/button";
-import Link from "next/link";
 
 interface PageHeaderProps {
     title: string;
@@ -80,7 +80,7 @@ export function PageHeader({
             <div className="flex items-start gap-3">
                 {
                     backUrl && (
-                        <Link href="/mis-pagos" passHref>
+                        <Link href={backUrl} passHref>
                             <Button variant="ghost" size="sm" className="mr-2 -ml-3">
                                 <ArrowLeft className="h-4 w-4 mr-1" />
                                 Volver

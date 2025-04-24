@@ -1,6 +1,5 @@
-// src/app/(dashboard)/admin/pagos/components/modals/ApprovePaymentModal.tsx
-
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -9,20 +8,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { PaymentResponse } from "@/types/payment/payment-detail.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
-import { CheckCircle2, CalendarIcon, Loader2 } from "lucide-react";
-import { useState } from "react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { CalendarIcon, CheckCircle2, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ApprovePaymentModalProps {
   isOpen: boolean;
@@ -37,6 +42,8 @@ interface ApprovePaymentModalProps {
   isSubmitting: boolean;
 }
 
+const BANK_OPTIONS = ["BCP", "INTERBANK", "BBVA", "OTRO"];
+
 export function ApprovePaymentModal({
   isOpen,
   onClose,
@@ -45,11 +52,23 @@ export function ApprovePaymentModal({
   isSubmitting,
 }: ApprovePaymentModalProps) {
   const [codeOperation, setCodeOperation] = useState("");
-  const [banckName, setBanckName] = useState("");
+  const [selectedBank, setSelectedBank] = useState<string>("");
+  const [customBankName, setCustomBankName] = useState<string>("");
   const [dateOperation, setDateOperation] = useState<Date | undefined>(
     new Date()
   );
   const [numberTicket, setNumberTicket] = useState("");
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setCodeOperation("");
+      setSelectedBank("");
+      setCustomBankName("");
+      setDateOperation(new Date());
+      setNumberTicket("");
+    }
+  }, [isOpen]);
 
   if (!payment) return null;
 
@@ -57,13 +76,22 @@ export function ApprovePaymentModal({
     const formattedDate = dateOperation
       ? format(dateOperation, "yyyy-MM-dd")
       : "";
+
+    const bankName = selectedBank === "OTRO" ? customBankName : selectedBank;
+
     onApprove({
       codeOperation,
-      banckName,
+      banckName: bankName,
       dateOperation: formattedDate,
       numberTicket,
     });
   };
+
+  const isFormValid =
+    codeOperation.trim() !== "" &&
+    (selectedBank !== "" && (selectedBank !== "OTRO" || customBankName.trim() !== "")) &&
+    dateOperation !== undefined &&
+    numberTicket.trim() !== "";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -109,14 +137,34 @@ export function ApprovePaymentModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="banckName">Nombre del banco</Label>
-              <Input
-                id="banckName"
-                value={banckName}
-                onChange={(e) => setBanckName(e.target.value)}
-                placeholder="Ingrese el nombre del banco"
+              <Label htmlFor="bankSelect">Banco</Label>
+              <Select
+                value={selectedBank}
+                onValueChange={setSelectedBank}
                 disabled={isSubmitting}
-              />
+              >
+                <SelectTrigger id="bankSelect" className="w-full">
+                  <SelectValue placeholder="Seleccione un banco" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BANK_OPTIONS.map((bank) => (
+                    <SelectItem key={bank} value={bank}>
+                      {bank}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {selectedBank === "OTRO" && (
+                <div className="mt-2">
+                  <Input
+                    value={customBankName}
+                    onChange={(e) => setCustomBankName(e.target.value)}
+                    placeholder="Ingrese el nombre del banco"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -171,13 +219,7 @@ export function ApprovePaymentModal({
             variant="default"
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={handleApprove}
-            disabled={
-              isSubmitting ||
-              !codeOperation ||
-              !banckName ||
-              !dateOperation ||
-              !numberTicket
-            }
+            disabled={isSubmitting || !isFormValid}
           >
             {isSubmitting ? (
               <>
