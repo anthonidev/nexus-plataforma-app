@@ -1,10 +1,8 @@
 export interface UserPointsResponse {
-  id: number;
   availablePoints: number;
   totalEarnedPoints: number;
   totalWithdrawnPoints: number;
   membershipPlan: {
-    id: number;
     name: string;
   } | null;
 }
@@ -24,10 +22,6 @@ export interface PointTransactionItem {
   type: "WITHDRAWAL" | "BINARY_COMMISSION" | "DIRECT_BONUS";
   amount: number;
   status: "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED";
-  membershipPlan?: {
-    id: number;
-    name: string;
-  };
   metadata?: Record<string, any>;
   createdAt: Date;
 }

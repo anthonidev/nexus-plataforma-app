@@ -1,4 +1,5 @@
 import { TreeNode } from "@/types/tree/tree.types";
+import { calculateHorizontalSpacing } from "@/utils/size";
 import {
   Background,
   BackgroundVariant,
@@ -6,7 +7,6 @@ import {
   Controls,
   Edge,
   MarkerType,
-  MiniMap,
   Node,
   Panel,
   ReactFlow,
@@ -14,13 +14,12 @@ import {
   useNodesState
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { useCallback, useEffect, useState } from "react";
 import { useUserTree } from "../hooks/useUserTree";
 import TreeControls from "./controls";
 import CustomNode from "./detail/CustomNode";
 import NodeDetailSheet from "./detail/NodeDetailSheet";
-import { calculateHorizontalSpacing } from "@/utils/size";
 
 interface Props {
   userId: string;

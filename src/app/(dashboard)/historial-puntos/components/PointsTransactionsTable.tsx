@@ -157,7 +157,6 @@ export default function PointsTransactionsTable({
                 <TableHead>Cantidad</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Fecha</TableHead>
-                <TableHead>Plan</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,9 +197,7 @@ export default function PointsTransactionsTable({
                     <TableCell>
                       {format(new Date(transaction.createdAt), "dd/MM/yyyy")}
                     </TableCell>
-                    <TableCell>
-                      {transaction.membershipPlan?.name || "—"}
-                    </TableCell>
+
                   </TableRow>
                 ))
               ) : (
