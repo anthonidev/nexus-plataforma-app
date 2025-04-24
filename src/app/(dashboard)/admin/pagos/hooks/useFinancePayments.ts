@@ -19,7 +19,7 @@ export interface PaymentsFilters {
   search?: string;
 }
 
-interface UsePaymentsReturn {
+interface UseFinancePaymentsReturn {
   // Data y metadata
   payments: PaymentListItem[];
   paymentConfigs: PaymentConfigListItem[];
@@ -36,6 +36,7 @@ interface UsePaymentsReturn {
   startDate: string | undefined;
   endDate: string | undefined;
   order: "ASC" | "DESC";
+  search: string | undefined;
 
   // Handlers específicos
   handlePageChange: (page: number) => void;
@@ -47,13 +48,14 @@ interface UsePaymentsReturn {
   handleStartDateChange: (date: string | undefined) => void;
   handleEndDateChange: (date: string | undefined) => void;
   handleOrderChange: (order: "ASC" | "DESC") => void;
+  handleSearchChange: (search: string | undefined) => void;
 
   // Reseteo y actualización manual
   resetFilters: () => void;
   refresh: () => Promise<void>;
 }
 
-interface UsePaymentsProps {
+interface UseFinancePaymentsProps {
   initialPage?: number;
   initialLimit?: number;
   initialStatus?: "PENDING" | "APPROVED" | "REJECTED";
@@ -65,7 +67,7 @@ export function useFinancePayments({
   initialLimit = 10,
   initialStatus = undefined,
   initialOrder = "DESC",
-}: UsePaymentsProps = {}): UsePaymentsReturn {
+}: UseFinancePaymentsProps = {}): UseFinancePaymentsReturn {
   const [payments, setPayments] = useState<PaymentListItem[]>([]);
   const [paymentConfigs, setPaymentConfigs] = useState<PaymentConfigListItem[]>(
     []
@@ -88,6 +90,7 @@ export function useFinancePayments({
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
   const [endDate, setEndDate] = useState<string | undefined>(undefined);
   const [order, setOrder] = useState<"ASC" | "DESC">(initialOrder);
+  const [search, setSearch] = useState<string | undefined>(undefined);
 
   const fetchPayments = useCallback(async () => {
     try {
@@ -104,6 +107,7 @@ export function useFinancePayments({
       if (paymentConfigId) params.paymentConfigId = paymentConfigId;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
+      if (search) params.search = search;
 
       const response = await getPayments(params);
 
@@ -132,6 +136,7 @@ export function useFinancePayments({
     paymentConfigId,
     startDate,
     endDate,
+    search,
   ]);
 
   useEffect(() => {
@@ -179,12 +184,18 @@ export function useFinancePayments({
     setCurrentPage(1);
   }, []);
 
+  const handleSearchChange = useCallback((value: string | undefined) => {
+    setSearch(value);
+    setCurrentPage(1);
+  }, []);
+
   const resetFilters = useCallback(() => {
     setStatus(undefined);
     setPaymentConfigId(undefined);
     setStartDate(undefined);
     setEndDate(undefined);
     setOrder("DESC");
+    setSearch(undefined);
     setCurrentPage(1);
     setItemsPerPage(10);
   }, []);
@@ -204,6 +215,7 @@ export function useFinancePayments({
     startDate,
     endDate,
     order,
+    search,
 
     handlePageChange,
     handleItemsPerPageChange,
@@ -212,6 +224,7 @@ export function useFinancePayments({
     handleStartDateChange,
     handleEndDateChange,
     handleOrderChange,
+    handleSearchChange,
 
     resetFilters,
     refresh: fetchPayments,

@@ -25,10 +25,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useState } from "react";
-import { useFinancePaymentDetail } from "../../hooks/useFinancePaymentDetail";
 import { ApprovePaymentModal } from "../../components/modals/ApprovePaymentModal";
-import { RejectPaymentModal } from "../../components/modals/RejectPaymentModal";
 import { PaymentResponseModal } from "../../components/modals/PaymentResponseModal";
+import { RejectPaymentModal } from "../../components/modals/RejectPaymentModal";
+import { useFinancePaymentDetail } from "../../hooks/useFinancePaymentDetail";
 
 export default function PaymentDetailPage() {
   const params = useParams<{ id: string }>();
@@ -232,17 +232,6 @@ export default function PaymentDetailPage() {
                   )}
                 </div>
 
-                {payment.transactionId && (
-                  <div className="mt-4 bg-background/80 backdrop-blur-sm rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <FileText className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-medium">
-                        ID de transacción
-                      </span>
-                    </div>
-                    <p className="text-sm font-mono">{payment.transactionId}</p>
-                  </div>
-                )}
               </div>
 
               {/* Información del usuario y estado */}

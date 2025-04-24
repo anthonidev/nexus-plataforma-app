@@ -1,15 +1,15 @@
 "use client";
 
-import { PaymentsTable } from "./components/PaymentsTable";
-import { PaymentsFilters } from "./components/PaymentsFilters";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useFinancePayments } from "./hooks/useFinancePayments";
-import { PageHeader } from "@/components/common/PageHeader";
+import { PaymentsFilters } from "./components/PaymentsFilters";
+import { PaymentsTable } from "./components/PaymentsTable";
 
-export default function PaymentsPageAdmin() {
+export default function PaymentsAdminPage() {
   const [openFilters, setOpenFilters] = useState(false);
 
   const {
@@ -25,6 +25,7 @@ export default function PaymentsPageAdmin() {
     startDate,
     endDate,
     order,
+    search,
     handlePageChange,
     handleItemsPerPageChange,
     handleStatusChange,
@@ -32,6 +33,7 @@ export default function PaymentsPageAdmin() {
     handleStartDateChange,
     handleEndDateChange,
     handleOrderChange,
+    handleSearchChange,
     resetFilters,
     refresh,
   } = useFinancePayments();
@@ -39,8 +41,8 @@ export default function PaymentsPageAdmin() {
   return (
     <div className="container py-8">
       <PageHeader
-        title="Pagos"
-        subtitle="Visualiza y filtra todos los pagos realizados"
+        title="Administración de Pagos"
+        subtitle="Gestiona y filtra todos los pagos de los usuarios"
         variant="gradient"
         icon={FileText}
         actions={
@@ -67,14 +69,8 @@ export default function PaymentsPageAdmin() {
         }
       />
 
-
       <Card className="mb-6">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">
-            Historial de Pagos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {openFilters && (
             <PaymentsFilters
               status={status}
@@ -82,12 +78,14 @@ export default function PaymentsPageAdmin() {
               startDate={startDate}
               endDate={endDate}
               order={order}
+              search={search}
               paymentConfigs={paymentConfigs}
               onStatusChange={handleStatusChange}
               onPaymentConfigChange={handlePaymentConfigChange}
               onStartDateChange={handleStartDateChange}
               onEndDateChange={handleEndDateChange}
               onOrderChange={handleOrderChange}
+              onSearchChange={handleSearchChange}
               onReset={resetFilters}
               className="mb-6"
             />
@@ -101,6 +99,7 @@ export default function PaymentsPageAdmin() {
             pageSize={itemsPerPage}
             onPageChange={handlePageChange}
             onPageSizeChange={handleItemsPerPageChange}
+            totalItems={totalItems}
           />
         </CardContent>
       </Card>
