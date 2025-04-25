@@ -1,6 +1,8 @@
 "use client";
 
-import MonthlyVolumesHeader from "../components/volumen/MonthlyVolumesHeader";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 import MonthlyVolumesSummary from "../components/volumen/MonthlyVolumesSummary";
 import MonthlyVolumesTable from "../components/volumen/MonthlyVolumesTable";
 import { useMonthlyVolumes } from "../hooks/useMonthlyVolumes";
@@ -22,7 +24,25 @@ export default function MonthlyVolumesPage() {
 
   return (
     <div className="container py-8">
-      <MonthlyVolumesHeader onRefresh={refreshVolumes} isLoading={isLoading} />
+      <PageHeader
+        title="Volumen Mensual"
+        subtitle="Visualiza tu historial de volúmenes y puntos mensuales"
+        variant="gradient"
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshVolumes}
+            disabled={isLoading}
+            className="mt-4 md:mt-0"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
+            <span>Actualizar</span>
+          </Button>
+        }
+      />
 
       <MonthlyVolumesSummary
         latestVolume={latestVolume}
