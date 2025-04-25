@@ -1,10 +1,10 @@
 "use client";
 
 import { PageHeader } from "@/components/common/PageHeader";
-import WeeklyVolumesTable from "./components/WeeklyVolumesTable";
-import { useWeeklyVolumes } from "./hooks/useWeeklyVolumes";
 import { Button } from "@/components/ui/button";
-import { ChartNoAxesCombined, RefreshCw } from "lucide-react";
+import { ChartBarIcon, RefreshCw } from "lucide-react";
+import { useWeeklyVolumes } from "./hooks/useWeeklyVolumes";
+import WeeklyVolumesTable from "./components/WeeklyVolumesTable";
 
 export default function WeeklyVolumesPage() {
   const {
@@ -14,8 +14,13 @@ export default function WeeklyVolumesPage() {
     meta,
     currentPage,
     itemsPerPage,
+    filters,
     handlePageChange,
     handleItemsPerPageChange,
+    handleStatusChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    resetFilters,
     refreshVolumes,
   } = useWeeklyVolumes();
 
@@ -25,7 +30,7 @@ export default function WeeklyVolumesPage() {
         title="Volúmenes Semanales"
         subtitle="Visualiza tu historial de volúmenes binarios y comisiones generadas"
         variant="gradient"
-        icon={ChartNoAxesCombined}
+        icon={ChartBarIcon}
         actions={
           <Button
             variant="outline"
@@ -51,6 +56,13 @@ export default function WeeklyVolumesPage() {
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
         onPageSizeChange={handleItemsPerPageChange}
+        onRefresh={refreshVolumes}
+
+        filters={filters}
+        onStatusChange={handleStatusChange}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+        onResetFilters={resetFilters}
       />
     </div>
   );

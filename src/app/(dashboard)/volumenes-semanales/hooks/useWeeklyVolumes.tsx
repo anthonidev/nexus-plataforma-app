@@ -23,9 +23,20 @@ interface UseWeeklyVolumesReturn {
   currentPage: number;
   itemsPerPage: number;
 
+  // Parámetros de filtros
+  filters: {
+    status: "PENDING" | "PROCESSED" | "CANCELLED" | undefined;
+    startDate: string | undefined;
+    endDate: string | undefined;
+  };
+
   // Funciones de control
   handlePageChange: (page: number) => void;
   handleItemsPerPageChange: (pageSize: number) => void;
+  handleStatusChange: (status: "PENDING" | "PROCESSED" | "CANCELLED" | undefined) => void;
+  handleStartDateChange: (date: string | undefined) => void;
+  handleEndDateChange: (date: string | undefined) => void;
+  resetFilters: () => void;
   refreshVolumes: () => Promise<void>;
 }
 
@@ -43,6 +54,13 @@ export function useWeeklyVolumes(
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [itemsPerPage, setItemsPerPage] = useState<number>(initialLimit);
 
+  // Estados para los filtros
+  const [status, setStatus] = useState<"PENDING" | "PROCESSED" | "CANCELLED" | undefined>(
+    undefined
+  );
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
+
   // Función para obtener los volúmenes semanales
   const fetchWeeklyVolumes = useCallback(
     async (page: number = currentPage, limit: number = itemsPerPage) => {
@@ -50,10 +68,15 @@ export function useWeeklyVolumes(
         setIsLoading(true);
         setError(null);
 
-        const params = {
+        const params: Record<string, unknown> = {
           page,
           limit,
         };
+
+        // Añadir filtros si están definidos
+        if (status) params.status = status;
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
 
         const response = await getWeeklyVolumes(params);
 
@@ -75,7 +98,7 @@ export function useWeeklyVolumes(
         setIsLoading(false);
       }
     },
-    [currentPage, itemsPerPage]
+    [currentPage, itemsPerPage, status, startDate, endDate]
   );
 
   // Función para cambiar de página
@@ -93,25 +116,55 @@ export function useWeeklyVolumes(
     setCurrentPage(1); // Resetear a la primera página al cambiar el límite
   }, []);
 
+  // Funciones para manejar los filtros
+  const handleStatusChange = useCallback(
+    (value: "PENDING" | "PROCESSED" | "CANCELLED" | undefined) => {
+      setStatus(value);
+      setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+    },
+    []
+  );
+
+  const handleStartDateChange = useCallback((date: string | undefined) => {
+    setStartDate(date);
+    setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+  }, []);
+
+  const handleEndDateChange = useCallback((date: string | undefined) => {
+    setEndDate(date);
+    setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setStatus(undefined);
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setCurrentPage(1); // Resetear a la primera página al limpiar los filtros
+  }, []);
+
   // Cargar datos iniciales
   useEffect(() => {
     fetchWeeklyVolumes(currentPage, itemsPerPage);
-  }, [fetchWeeklyVolumes, currentPage, itemsPerPage]);
+  }, [fetchWeeklyVolumes, currentPage, itemsPerPage, status, startDate, endDate]);
 
   return {
-    // Datos
     volumes,
     isLoading,
     error,
     meta,
-
-    // Paginación
     currentPage,
     itemsPerPage,
-
-    // Funciones
+    filters: {
+      status,
+      startDate,
+      endDate,
+    },
     handlePageChange,
     handleItemsPerPageChange,
+    handleStatusChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    resetFilters,
     refreshVolumes: () => fetchWeeklyVolumes(currentPage, itemsPerPage),
   };
 }

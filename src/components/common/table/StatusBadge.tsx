@@ -70,6 +70,14 @@ export function StatusBadge({ status }: StatusBadgeProps) {
                     <span>Fallido</span>
                 </Badge>
             );
+
+        case "PROCESSED":
+            return (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/40 flex items-center gap-1.5 px-2 py-0.5">
+                    <CheckCircle className="h-3 w-3" />
+                    <span>Procesado</span>
+                </Badge>
+            );
         default:
             return <Badge variant="outline">{status}</Badge>;
     }
