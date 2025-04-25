@@ -29,9 +29,28 @@ interface UsePointsReturn {
   currentPage: number;
   itemsPerPage: number;
 
+  // Filtros
+  filters: {
+    status: "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED" | undefined;
+    type: "WITHDRAWAL" | "BINARY_COMMISSION" | "DIRECT_BONUS" | undefined;
+    startDate: string | undefined;
+    endDate: string | undefined;
+  };
+
   // Funciones para controlar la paginación
   handlePageChange: (page: number) => void;
   handleItemsPerPageChange: (pageSize: number) => void;
+
+  // Funciones para controlar los filtros
+  handleStatusChange: (
+    status: "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED" | undefined
+  ) => void;
+  handleTypeChange: (
+    type: "WITHDRAWAL" | "BINARY_COMMISSION" | "DIRECT_BONUS" | undefined
+  ) => void;
+  handleStartDateChange: (date: string | undefined) => void;
+  handleEndDateChange: (date: string | undefined) => void;
+  resetFilters: () => void;
 
   // Funciones para recargar datos
   refreshPoints: () => Promise<void>;
@@ -59,6 +78,16 @@ export function usePoints(
   // Estados para la paginación
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [itemsPerPage, setItemsPerPage] = useState<number>(initialLimit);
+
+  // Estados para los filtros
+  const [status, setStatus] = useState<
+    "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED" | undefined
+  >(undefined);
+  const [type, setType] = useState<
+    "WITHDRAWAL" | "BINARY_COMMISSION" | "DIRECT_BONUS" | undefined
+  >(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   // Función para obtener los puntos del usuario
   const fetchPoints = useCallback(async () => {
@@ -88,10 +117,16 @@ export function usePoints(
         setTransactionsLoading(true);
         setTransactionsError(null);
 
-        const params = {
+        const params: Record<string, unknown> = {
           page,
           limit,
         };
+
+        // Añadir filtros si están definidos
+        if (status) params.status = status;
+        if (type) params.type = type;
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
 
         const response = await getPointsTransactions(params);
 
@@ -113,7 +148,7 @@ export function usePoints(
         setTransactionsLoading(false);
       }
     },
-    [currentPage, itemsPerPage]
+    [currentPage, itemsPerPage, status, type, startDate, endDate]
   );
 
   // Función para cambiar de página
@@ -132,6 +167,43 @@ export function usePoints(
     setCurrentPage(1); // Resetear a la primera página al cambiar el límite
   }, []);
 
+  // Funciones para manejar los filtros
+  const handleStatusChange = useCallback(
+    (value: "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED" | undefined) => {
+      setStatus(value);
+      setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+    },
+    []
+  );
+
+  const handleTypeChange = useCallback(
+    (
+      value: "WITHDRAWAL" | "BINARY_COMMISSION" | "DIRECT_BONUS" | undefined
+    ) => {
+      setType(value);
+      setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+    },
+    []
+  );
+
+  const handleStartDateChange = useCallback((date: string | undefined) => {
+    setStartDate(date);
+    setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+  }, []);
+
+  const handleEndDateChange = useCallback((date: string | undefined) => {
+    setEndDate(date);
+    setCurrentPage(1); // Resetear a la primera página al cambiar el filtro
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setStatus(undefined);
+    setType(undefined);
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setCurrentPage(1); // Resetear a la primera página al limpiar los filtros
+  }, []);
+
   // Cargar datos iniciales
   useEffect(() => {
     fetchPoints();
@@ -139,7 +211,15 @@ export function usePoints(
 
   useEffect(() => {
     fetchTransactions(currentPage, itemsPerPage);
-  }, [fetchTransactions, currentPage, itemsPerPage]);
+  }, [
+    fetchTransactions,
+    currentPage,
+    itemsPerPage,
+    status,
+    type,
+    startDate,
+    endDate,
+  ]);
 
   return {
     // Datos de puntos del usuario
@@ -157,9 +237,26 @@ export function usePoints(
     currentPage,
     itemsPerPage,
 
-    // Funciones
+    // Filtros
+    filters: {
+      status,
+      type,
+      startDate,
+      endDate,
+    },
+
+    // Funciones para paginación
     handlePageChange,
     handleItemsPerPageChange,
+
+    // Funciones para filtros
+    handleStatusChange,
+    handleTypeChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    resetFilters,
+
+    // Funciones para recargar datos
     refreshPoints: fetchPoints,
     refreshTransactions: () => fetchTransactions(currentPage, itemsPerPage),
   };

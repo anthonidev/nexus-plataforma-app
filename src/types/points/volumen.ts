@@ -12,15 +12,16 @@ export interface WeeklyVolumeItem {
   id: number;
   leftVolume: number;
   rightVolume: number;
+
   weekStartDate: string;
   weekEndDate: string;
+
   status: "PENDING" | "PROCESSED" | "CANCELLED";
-  paidAmount?: number;
-  selectedSide?: "LEFT" | "RIGHT";
+
+  paidAmount: number | null;
+  selectedSide: "LEFT" | "RIGHT" | null;
   carryOverVolume: number;
-  membershipPlan?: {
-    id: number;
-    name: string;
-  };
   createdAt: Date;
+
+  metadata: Record<string, any> | null;
 }

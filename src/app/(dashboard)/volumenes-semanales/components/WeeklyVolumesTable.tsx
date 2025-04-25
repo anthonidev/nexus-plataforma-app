@@ -116,7 +116,6 @@ export default function WeeklyVolumesTable({
                 <TableHead>Volumen Der.</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Comisión</TableHead>
-                <TableHead>Plan</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,13 +155,7 @@ export default function WeeklyVolumesTable({
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      {volume.membershipPlan ? (
-                        volume.membershipPlan.name
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
+
                   </TableRow>
                 ))
               ) : (

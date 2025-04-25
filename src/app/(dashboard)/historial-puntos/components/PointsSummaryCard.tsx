@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
@@ -9,6 +10,7 @@ import {
   BadgeDollarSign,
   History,
   Landmark,
+  RefreshCw,
 } from "lucide-react";
 import { UserPointsResponse } from "@/types/points/point";
 
@@ -16,12 +18,14 @@ interface PointsSummaryCardProps {
   points: UserPointsResponse | null;
   isLoading: boolean;
   error: string | null;
+  onRefresh?: () => Promise<void>;
 }
 
 export default function PointsSummaryCard({
   points,
   isLoading,
   error,
+  onRefresh,
 }: PointsSummaryCardProps) {
   if (isLoading) {
     return <PointsSummaryCardSkeleton />;
@@ -33,7 +37,18 @@ export default function PointsSummaryCard({
         <CardContent className="pt-6">
           <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800/50 text-center">
             <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
-            <p className="text-red-600 dark:text-red-300">{error}</p>
+            <p className="text-red-600 dark:text-red-300 mb-3">{error}</p>
+            {onRefresh && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                className="border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-2" />
+                Reintentar
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -48,6 +63,17 @@ export default function PointsSummaryCard({
             <p className="text-muted-foreground">
               No hay información de puntos disponible
             </p>
+            {onRefresh && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                className="mt-3"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-2" />
+                Actualizar
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -61,13 +87,21 @@ export default function PointsSummaryCard({
       transition={{ duration: 0.3 }}
     >
       <Card className="mb-6 overflow-hidden border-primary/10">
-        <CardHeader >
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
             Resumen de Puntos
-
           </CardTitle>
-
+          {onRefresh && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRefresh}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
