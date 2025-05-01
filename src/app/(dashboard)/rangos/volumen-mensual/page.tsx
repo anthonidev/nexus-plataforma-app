@@ -3,7 +3,6 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import MonthlyVolumesSummary from "../components/volumen/MonthlyVolumesSummary";
 import MonthlyVolumesTable from "../components/volumen/MonthlyVolumesTable";
 import { useMonthlyVolumes } from "../hooks/useMonthlyVolumes";
 
@@ -20,7 +19,6 @@ export default function MonthlyVolumesPage() {
     refreshVolumes,
   } = useMonthlyVolumes();
 
-  const latestVolume = volumes.length > 0 ? volumes[0] : null;
 
   return (
     <div className="container py-8">
@@ -42,11 +40,6 @@ export default function MonthlyVolumesPage() {
             <span>Actualizar</span>
           </Button>
         }
-      />
-
-      <MonthlyVolumesSummary
-        latestVolume={latestVolume}
-        isLoading={isLoading}
       />
 
       <MonthlyVolumesTable

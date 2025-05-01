@@ -57,10 +57,8 @@ export default function CurrentRankCard({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Columna izquierda - Rango Actual */}
             <div className="md:col-span-4">
               <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20 shadow-sm h-full flex flex-col gap-5">
-                {/* Rango Actual - Diseño mejorado */}
                 <div className="flex items-center gap-5 bg-white/50 dark:bg-gray-800/30 rounded-xl p-4 transition-all hover:shadow-md">
                   <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary flex items-center justify-center shadow-lg">
                     <Award className="h-8 w-8 text-white" />
@@ -77,7 +75,6 @@ export default function CurrentRankCard({
                   </div>
                 </div>
 
-                {/* Mayor rango alcanzado - Diseño mejorado */}
                 <div className="bg-gradient-to-r from-amber-50/80 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-800/10 rounded-xl p-5 border border-amber-200/50 dark:border-amber-700/30 shadow-sm transition-all hover:shadow-md">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-200 to-amber-400 dark:from-amber-600 dark:to-amber-800 flex items-center justify-center shadow-md">
@@ -109,7 +106,6 @@ export default function CurrentRankCard({
                   )}
                 </div>
 
-                {/* Siguiente rango - Diseño mejorado */}
                 {nextRank && (
                   <div className="bg-gradient-to-r from-blue-50/80 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10 rounded-xl p-5 border border-blue-200/50 dark:border-blue-700/30 shadow-sm transition-all hover:shadow-md">
                     <div className="flex items-center justify-between mb-3">
@@ -132,7 +128,6 @@ export default function CurrentRankCard({
                   </div>
                 )}
 
-                {/* Información sobre progreso - Diseño mejorado */}
                 <div className="mt-auto bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20 transition-all hover:shadow-md">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -148,11 +143,9 @@ export default function CurrentRankCard({
               </div>
             </div>
 
-            {/* Columna central - Progreso */}
             <div className="md:col-span-8">
               <div className="bg-card rounded-xl p-6 border shadow-sm h-full">
                 <div className="space-y-6">
-                  {/* Información de Volumen */}
                   <div className="space-y-4">
                     {/* Header con título */}
                     <div className="flex items-center gap-2 mb-2">
@@ -160,7 +153,6 @@ export default function CurrentRankCard({
                       <h3 className="text-lg font-medium">Métricas de Volumen</h3>
                     </div>
 
-                    {/* Panel de Volumen Total - Destacado */}
                     <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-5 rounded-xl border border-primary/15 shadow-sm">
                       <div className="flex items-start justify-between">
                         <div>
@@ -185,11 +177,8 @@ export default function CurrentRankCard({
                       </div>
                     </div>
 
-                    {/* Paneles de Volumen por Rama - En 2 columnas */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Volumen Izquierda */}
                       <div className="bg-blue-50/70 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/20 hover:shadow-md transition-shadow relative overflow-hidden group">
-                        {/* Elemento decorativo */}
                         <div className="absolute -right-10 -top-10 w-24 h-24 bg-blue-500/5 rounded-full blur-xl transform group-hover:scale-125 transition-transform"></div>
 
                         <div className="flex items-start gap-3 relative z-10">
@@ -209,7 +198,6 @@ export default function CurrentRankCard({
                               </span>
                             </div>
 
-                            {/* Porcentaje del total */}
                             <div className="mt-2 text-xs text-muted-foreground flex items-center justify-end">
                               <span className="font-medium text-blue-600/80 dark:text-blue-400/80">
                                 {progress.currentVolume > 0
@@ -221,9 +209,7 @@ export default function CurrentRankCard({
                         </div>
                       </div>
 
-                      {/* Volumen Derecha */}
                       <div className="bg-emerald-50/70 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/20 hover:shadow-md transition-shadow relative overflow-hidden group">
-                        {/* Elemento decorativo */}
                         <div className="absolute -left-10 -top-10 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl transform group-hover:scale-125 transition-transform"></div>
 
                         <div className="flex items-start gap-3 relative z-10">
@@ -242,7 +228,6 @@ export default function CurrentRankCard({
                               </span>
                             </div>
 
-                            {/* Porcentaje del total */}
                             <div className="mt-2 text-xs text-muted-foreground flex items-center justify-end">
                               <span className="font-medium text-emerald-600/80 dark:text-emerald-400/80">
                                 {progress.currentVolume > 0
@@ -256,7 +241,6 @@ export default function CurrentRankCard({
                     </div>
                   </div>
 
-                  {/* Información de Directos */}
                   <div className="bg-emerald-50/30 dark:bg-emerald-900/5 p-4 rounded-xl border border-emerald-100/50 dark:border-emerald-800/10">
                     <div className="flex items-start justify-between">
                       <div>
@@ -277,7 +261,6 @@ export default function CurrentRankCard({
                     </div>
                   </div>
 
-                  {/* Distribución de directos */}
                   <div className="border-t pt-5">
                     <div className="flex items-center gap-1.5 mb-4">
                       <Users className="h-4 w-4 text-primary" />
