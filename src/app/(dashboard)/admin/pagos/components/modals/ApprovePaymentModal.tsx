@@ -59,7 +59,6 @@ export function ApprovePaymentModal({
   );
   const [numberTicket, setNumberTicket] = useState("");
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setCodeOperation("");

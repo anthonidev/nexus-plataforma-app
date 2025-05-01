@@ -12,7 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -34,6 +40,8 @@ interface PaymentImageModalProps {
   initialData?: Partial<Omit<PaymentImageModalType, "fileIndex">>;
 }
 
+const BANK_OPTIONS = ["BCP", "INTERBANK", "BBVA", "BN", "SCOTIABANK", "OTRO",];
+
 export function PaymentImageModal({
   isOpen,
   onClose,
@@ -41,6 +49,8 @@ export function PaymentImageModal({
   initialData,
 }: PaymentImageModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedBank, setSelectedBank] = useState<string>(initialData?.bankName || "");
+  const [customBankName, setCustomBankName] = useState<string>("");
 
   const {
     control,
@@ -70,24 +80,40 @@ export function PaymentImageModal({
     }
   };
 
+  const handleBankChange = (value: string) => {
+    setSelectedBank(value);
+    if (value !== "OTRO") {
+      setValue("bankName", value);
+    }
+  };
+
+  const handleCustomBankChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomBankName(value);
+    setValue("bankName", value);
+  };
+
   const onSubmitHandler = (data: Omit<PaymentImageModalType, "fileIndex">) => {
-    // Ensure file is present
     if (!selectedFile) {
-      // Handle error - no file selected
       return;
     }
 
+    // Asegurarse de usar el nombre de banco correcto
+    const finalBankName = selectedBank === "OTRO" ? customBankName : selectedBank;
+
     onSubmit({
       ...data,
-
+      bankName: finalBankName,
       file: selectedFile,
     });
 
-    // Reset form and close modal
     reset();
     setSelectedFile(null);
+    setSelectedBank("");
+    setCustomBankName("");
     onClose();
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -99,10 +125,34 @@ export function PaymentImageModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
-          {/* Bank Name (Optional) */}
+          {/* Bank Name Selector */}
           <div className="grid gap-2">
-            <Label htmlFor="bankName">Nombre del Banco (Opcional)</Label>
-            <Input {...register("bankName")} placeholder="Nombre del banco" />
+            <Label htmlFor="bankSelect">Banco</Label>
+            <Select
+              value={selectedBank}
+              onValueChange={handleBankChange}
+            >
+              <SelectTrigger id="bankSelect" className="w-full">
+                <SelectValue placeholder="Seleccione un banco" />
+              </SelectTrigger>
+              <SelectContent>
+                {BANK_OPTIONS.map((bank) => (
+                  <SelectItem key={bank} value={bank}>
+                    {bank}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {selectedBank === "OTRO" && (
+              <div className="mt-2">
+                <Input
+                  value={customBankName}
+                  onChange={handleCustomBankChange}
+                  placeholder="Ingrese el nombre del banco"
+                />
+              </div>
+            )}
           </div>
 
           {/* Transaction Reference */}
@@ -176,7 +226,6 @@ export function PaymentImageModal({
                 setValueAs: (v) => parseFloat(v),
               })}
               placeholder="Monto del pago"
-              // Removed the error prop as it is not supported
             />
             {errors.amount && (
               <p className="text-destructive text-sm">

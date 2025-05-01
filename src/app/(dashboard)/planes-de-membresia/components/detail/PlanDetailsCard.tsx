@@ -7,6 +7,7 @@ import {
   FileText,
   Package,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 interface PlanDetailsCardProps {
   plan: MembershipPlan;
@@ -21,6 +22,7 @@ export function PlanDetailsCard({
   planPrice,
   userMembership,
 }: PlanDetailsCardProps) {
+  const { data: session } = useSession();
   return (
     <Card className="h-fit">
       <CardHeader>
@@ -109,6 +111,20 @@ export function PlanDetailsCard({
               </li>
             ))}
           </ul>
+        </div>
+        <div className="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+          <h3 className="font-medium text-gray-800 dark:text-gray-300 mb-2">
+            Detalles del Usuario
+          </h3>
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Correo:</span>
+            <span>{session?.user?.email}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Nombre:</span>
+            <span>{session?.user?.firstName + " " + session?.user?.lastName}</span>
+          </div>
+
         </div>
       </CardContent>
     </Card>

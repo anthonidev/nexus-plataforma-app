@@ -8,6 +8,8 @@ export interface UserClient {
   email: string;
   photo?: string;
   nickname?: string;
+  firstName: string;
+  lastName: string;
   role: Role;
   views: View[];
   membership: Membership;

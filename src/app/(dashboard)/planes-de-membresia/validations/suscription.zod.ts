@@ -96,8 +96,8 @@ export const PaymentImageModalSchema = z.object({
     }),
   file: z
     .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "La imagen no debe superar 5MB",
+    .refine((file) => file.size <= 2 * 1024 * 1024, {
+      message: "La imagen no debe superar 2MB",
     })
     .refine(
       (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),

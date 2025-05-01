@@ -52,9 +52,17 @@ export interface PaymentResponse {
   images: PaymentImageResponse[];
 }
 
+export interface UserResponse {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
 export interface ResponseApprovePayment {
   success: boolean;
   message: string;
+  user: UserResponse;
   paymentId: number;
   reviewedBy: {
     id: string;

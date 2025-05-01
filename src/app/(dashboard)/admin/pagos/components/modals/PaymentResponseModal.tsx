@@ -12,7 +12,7 @@ import {
   ResponseRejectPayment,
 } from "@/types/payment/payment-detail.type";
 import { format } from "date-fns";
-import { CheckCircle2, ListChecks, XCircle } from "lucide-react";
+import { CheckCircle2, ListChecks, User, XCircle } from "lucide-react";
 
 interface PaymentResponseModalProps {
   isOpen: boolean;
@@ -57,11 +57,10 @@ export function PaymentResponseModal({
 
         <div className="py-4">
           <div
-            className={`p-4 rounded-lg border ${
-              isApproved
+            className={`p-4 rounded-lg border ${isApproved
                 ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50"
                 : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
-            }`}
+              }`}
           >
             <div className="space-y-3">
               <div className="flex justify-between">
@@ -79,8 +78,33 @@ export function PaymentResponseModal({
                 </span>
               </div>
 
+              {/* Información del usuario */}
+              {response.user && (
+                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Datos del Usuario</span>
+                  </div>
+
+                  <div className="grid gap-2 pl-6">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground">Nombre:</span>
+                      <span className="text-sm">{response.user.firstName} {response.user.lastName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground">Email:</span>
+                      <span className="text-sm">{response.user.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground">Teléfono:</span>
+                      <span className="text-sm">{response.user.phone || "No disponible"}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {!isApproved && rejectResponse && (
-                <div className="mt-2 pt-2 border-t">
+                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                   <p className="text-sm font-medium mb-1">Motivo de rechazo:</p>
                   <p className="text-sm bg-red-100/50 dark:bg-red-900/30 p-2 rounded">
                     {rejectResponse.rejectionReason}
