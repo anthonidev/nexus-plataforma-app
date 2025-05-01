@@ -1,35 +1,33 @@
 export interface RankResponse {
   ranks: Rank[];
   userRank: UserRank;
-  userInfo: UserInfo;
 }
 
-export interface Rank {
+export interface RankBase {
   id: number;
   name: string;
   code: string;
+}
+export interface Rank extends RankBase {
   requiredPoints: number;
   requiredDirects: number;
-  isActive: boolean;
-  benefits: null;
-  createdAt: Date;
-  updatedAt: Date;
 }
-
-export interface UserInfo {
-  id: string;
-  email: string;
+export interface ProgressRank {
+  directsProgress: number;
+  volumeProgress: number;
+  leftLegDirects: number;
+  rightLegDirects: number;
+  totalDirects: number;
+  requiredDirects: number;
+  currentVolume: number;
+  requiredVolume: number;
 }
 
 export interface UserRank {
-  currentRank: Rank;
-  highestRank: Rank;
-  membershipPlan: MembershipPlan;
-}
-
-export interface MembershipPlan {
-  id: number;
-  name: string;
+  currentRank: RankBase;
+  highestRank: RankBase;
+  nextRank: Rank;
+  progress: ProgressRank;
 }
 
 export interface MonthlyVolumenResponse {

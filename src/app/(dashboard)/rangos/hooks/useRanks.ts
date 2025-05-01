@@ -5,15 +5,7 @@ import { Rank, UserRank } from "@/types/ranks/rank.types";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface UseRanksReturn {
-  ranks: Rank[];
-  userRank: UserRank | null;
-  isLoading: boolean;
-  error: string | null;
-  refreshRanks: () => Promise<void>;
-}
-
-export function useRanks(): UseRanksReturn {
+export function useRanks() {
   const [ranks, setRanks] = useState<Rank[]>([]);
   const [userRank, setUserRank] = useState<UserRank | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);

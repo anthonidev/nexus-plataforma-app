@@ -26,21 +26,10 @@ export default function RankProgressCard({
     return null;
   }
 
-  // Ordena los rangos por puntos requeridos
-  const sortedRanks = [...ranks]
-    .filter((rank) => rank.isActive)
-    .sort((a, b) => a.requiredPoints - b.requiredPoints);
-
-  // Encuentra el rango actual del usuario
   const currentRank = userRank.currentRank;
+  const nextRank = userRank.nextRank;
+  const progress = userRank.progress;
 
-  // Encuentra el siguiente rango al que puede ascender el usuario
-  const nextRankIndex =
-    sortedRanks.findIndex((rank) => rank.id === currentRank.id) + 1;
-  const nextRank =
-    nextRankIndex < sortedRanks.length ? sortedRanks[nextRankIndex] : null;
-
-  // Si no hay siguiente rango (el usuario está en el rango más alto), no muestra el componente
   if (!nextRank) {
     return (
       <Card className="mb-6">
@@ -65,21 +54,21 @@ export default function RankProgressCard({
     );
   }
 
-  // Calcula el progreso hacia el siguiente rango
-  const pointsProgress = Math.min(
+  // Calcula el progreso hacia el siguiente rango para volumen
+  const volumeProgress = Math.min(
     100,
-    (currentRank.requiredPoints / nextRank.requiredPoints) * 100
+    (progress.currentVolume / progress.requiredVolume) * 100
   );
 
   // Calcula el progreso en el número de directos
   const directsProgress = Math.min(
     100,
-    (currentRank.requiredDirects / nextRank.requiredDirects) * 100
+    (progress.totalDirects / progress.requiredDirects) * 100
   );
 
   // Calcula la diferencia de puntos y directos necesarios para el próximo rango
-  const pointsNeeded = nextRank.requiredPoints - currentRank.requiredPoints;
-  const directsNeeded = nextRank.requiredDirects - currentRank.requiredDirects;
+  const volumeNeeded = Math.max(0, progress.requiredVolume - progress.currentVolume);
+  const directsNeeded = Math.max(0, progress.requiredDirects - progress.totalDirects);
 
   return (
     <motion.div
@@ -116,17 +105,20 @@ export default function RankProgressCard({
               <div className="flex justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm font-medium">Puntos Requeridos</span>
+                  <span className="text-sm font-medium">Volumen Requerido</span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {currentRank.requiredPoints.toLocaleString()} /{" "}
-                  {nextRank.requiredPoints.toLocaleString()}
+                  {progress.currentVolume.toLocaleString()} /{" "}
+                  {progress.requiredVolume.toLocaleString()}
                 </span>
               </div>
-              <Progress value={pointsProgress} className="h-2" />
+              <Progress value={volumeProgress} className="h-2" />
               <p className="text-xs text-muted-foreground mt-1">
-                Necesitas {pointsNeeded.toLocaleString()} puntos más para el
-                siguiente rango
+                {volumeProgress >= 100 ? (
+                  <span className="text-green-600 font-medium">¡Requisito cumplido!</span>
+                ) : (
+                  `Necesitas ${volumeNeeded.toLocaleString()} puntos más para el siguiente rango`
+                )}
               </p>
             </div>
 
@@ -139,13 +131,27 @@ export default function RankProgressCard({
                   </span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {currentRank.requiredDirects} / {nextRank.requiredDirects}
+                  {progress.totalDirects} / {progress.requiredDirects}
                 </span>
               </div>
               <Progress value={directsProgress} className="h-2" />
               <p className="text-xs text-muted-foreground mt-1">
-                Necesitas {directsNeeded} directos más para el siguiente rango
+                {directsProgress >= 100 ? (
+                  <span className="text-green-600 font-medium">¡Requisito cumplido!</span>
+                ) : (
+                  `Necesitas ${directsNeeded} directos más para el siguiente rango`
+                )}
               </p>
+              <div className="flex justify-between mt-2 text-xs">
+                <div>
+                  <span className="text-blue-500 font-medium">Izquierda:</span>{" "}
+                  <span>{progress.leftLegDirects} directos</span>
+                </div>
+                <div>
+                  <span className="text-emerald-500 font-medium">Derecha:</span>{" "}
+                  <span>{progress.rightLegDirects} directos</span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

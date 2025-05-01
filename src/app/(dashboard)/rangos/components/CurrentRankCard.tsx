@@ -2,9 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Rank, UserRank } from "@/types/ranks/rank.types";
+import { UserRank } from "@/types/ranks/rank.types";
 import { motion } from "framer-motion";
-import { Award, Crown, Medal, ArrowUp, Star } from "lucide-react";
+import { ArrowUp, Award, Crown, TrendingUp, Users } from "lucide-react";
 
 interface CurrentRankCardProps {
   userRank: UserRank | null;
@@ -38,6 +38,7 @@ export default function CurrentRankCard({
   const currentRank = userRank.currentRank;
   const highestRank = userRank.highestRank;
   const isAtHighestRank = currentRank.id === highestRank.id;
+  const progress = userRank.progress;
 
   return (
     <motion.div
@@ -67,7 +68,7 @@ export default function CurrentRankCard({
                     </h3>
                     <h2 className="text-2xl font-bold">{currentRank.name}</h2>
                     <p className="text-sm text-muted-foreground">
-                      Plan: {userRank.membershipPlan.name}
+                      Código: {currentRank.code}
                     </p>
                   </div>
                 </div>
@@ -76,20 +77,20 @@ export default function CurrentRankCard({
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-background rounded-lg p-4 border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Star className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-medium">Requisitos</span>
+                    <TrendingUp className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm font-medium">Volumen</span>
                   </div>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="text-muted-foreground">Puntos:</span>{" "}
+                      <span className="text-muted-foreground">Actual:</span>{" "}
                       <span className="font-medium">
-                        {currentRank.requiredPoints}
+                        {progress.currentVolume.toLocaleString()}
                       </span>
                     </p>
                     <p>
-                      <span className="text-muted-foreground">Directos:</span>{" "}
+                      <span className="text-muted-foreground">Requerido:</span>{" "}
                       <span className="font-medium">
-                        {currentRank.requiredDirects}
+                        {progress.requiredVolume.toLocaleString()}
                       </span>
                     </p>
                   </div>
@@ -97,40 +98,61 @@ export default function CurrentRankCard({
 
                 <div className="bg-background rounded-lg p-4 border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Medal className="h-4 w-4 text-amber-500" />
-                    <span className="text-sm font-medium">Historial</span>
+                    <Users className="h-4 w-4 text-amber-500" />
+                    <span className="text-sm font-medium">Directos</span>
                   </div>
                   <div className="text-sm space-y-1">
                     <p>
-                      <span className="text-muted-foreground">
-                        Mayor rango alcanzado:
-                      </span>{" "}
-                      <span className="font-medium">{highestRank.name}</span>
+                      <span className="text-muted-foreground">Total:</span>{" "}
+                      <span className="font-medium">
+                        {progress.totalDirects}
+                      </span>
                     </p>
-                    {!isAtHighestRank && (
-                      <p className="text-amber-600 flex items-center gap-1">
-                        <ArrowUp className="h-3 w-3" />
-                        <span>Puedes subir de rango</span>
+                    <p>
+                      <span className="text-muted-foreground">Requeridos:</span>{" "}
+                      <span className="font-medium">
+                        {progress.requiredDirects}
+                      </span>
+                    </p>
+                    <div className="flex justify-between">
+                      <p>
+                        <span className="text-blue-500">Izq:</span>{" "}
+                        <span className="font-medium">
+                          {progress.leftLegDirects}
+                        </span>
                       </p>
-                    )}
+                      <p>
+                        <span className="text-emerald-500">Der:</span>{" "}
+                        <span className="font-medium">
+                          {progress.rightLegDirects}
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Detalles del Rango */}
             <div className="space-y-4">
               <div className="bg-secondary/30 dark:bg-secondary/20 rounded-lg p-6 border h-full flex flex-col justify-center">
                 <h3 className="text-lg font-medium mb-4 text-center">
-                  Beneficios
+                  Historial
                 </h3>
                 <div className="space-y-3">
-                  <p className="text-sm text-center">
-                    Disfruta de los beneficios exclusivos de tu rango actual.
-                  </p>
-                  <p className="text-center text-primary font-medium">
-                    {currentRank.code}
-                  </p>
+                  <div className="bg-background/80 dark:bg-background/40 rounded-lg p-3">
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">
+                        Mayor rango alcanzado:
+                      </span>{" "}
+                      <span className="font-medium block mt-1">{highestRank.name}</span>
+                    </p>
+                  </div>
+                  {!isAtHighestRank && (
+                    <p className="text-amber-600 flex items-center gap-1 justify-center mt-2">
+                      <ArrowUp className="h-3 w-3" />
+                      <span>Puedes subir de rango</span>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
