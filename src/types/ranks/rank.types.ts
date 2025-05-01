@@ -21,6 +21,8 @@ export interface ProgressRank {
   requiredDirects: number;
   currentVolume: number;
   requiredVolume: number;
+  leftVolume: number;
+  rightVolume: number;
 }
 
 export interface UserRank {
