@@ -1,10 +1,5 @@
-// src/hooks/useNotifications.ts
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { io, Socket } from "socket.io-client";
-import { toast } from "sonner";
 import {
   deleteNotification,
   getNotifications,
@@ -17,6 +12,10 @@ import {
   NotificationFilters,
   NotificationResponse,
 } from "@/types/notifications/notification.type";
+import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
+import { toast } from "sonner";
 
 export function useNotifications(initialFilters?: NotificationFilters) {
   const { data: session } = useSession();
@@ -30,57 +29,154 @@ export function useNotifications(initialFilters?: NotificationFilters) {
     initialFilters || { page: 1, limit: 10 }
   );
 
-  // Inicialización de Socket.IO
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!session?.user) return;
+
+    try {
+      const countResponse = await getUnreadCount();
+
+      if (countResponse && typeof countResponse.count === "number") {
+        setUnreadCount(countResponse.count);
+      } else {
+        console.warn(
+          "El conteo de notificaciones no tiene el formato esperado:",
+          countResponse
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Error al obtener conteo de notificaciones no leídas:",
+        err
+      );
+    }
+  }, [session?.user]);
+
   useEffect(() => {
+    if (reconnectTimeout.current) {
+      clearTimeout(reconnectTimeout.current);
+      reconnectTimeout.current = null;
+    }
+
     if (!session?.user?.id) return;
 
-    const socketInstance = io(
-      `${process.env.NEXT_PUBLIC_API_URL}/notifications`,
-      {
-        query: {
-          userId: session.user.id,
-        },
-        transports: ["websocket"],
-        withCredentials: true,
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      console.error("NEXT_PUBLIC_API_URL no está definido");
+      setError("Error de configuración: URL del API no definida");
+      return;
+    }
+
+    const connectSocket = () => {
+      try {
+        console.log(
+          `Intentando conectar al servidor de notificaciones: ${apiUrl}/notifications`
+        );
+
+        const socketInstance = io(`${apiUrl}/notifications`, {
+          query: {
+            userId: session.user.id,
+          },
+          transports: ["websocket"],
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 3,
+          reconnectionDelay: 1000,
+        });
+
+        socketInstance.on("connect", () => {
+          console.log("✅ Conectado al servidor de notificaciones");
+          reconnectAttempts.current = 0; // Resetear los intentos al conectar exitosamente
+        });
+
+        socketInstance.on("connect_error", (err) => {
+          console.error(
+            "❌ Error al conectar con el servidor de notificaciones:",
+            err
+          );
+
+          if (reconnectAttempts.current >= maxReconnectAttempts) {
+            console.error(
+              `Máximo número de intentos de reconexión (${maxReconnectAttempts}) alcanzado.`
+            );
+            return;
+          }
+
+          reconnectAttempts.current += 1;
+          const delay = 5000 * Math.pow(2, reconnectAttempts.current - 1); // Backoff exponencial
+
+          console.log(
+            `Intentando reconectar en ${delay / 1000} segundos (intento ${
+              reconnectAttempts.current
+            }/${maxReconnectAttempts})...`
+          );
+
+          reconnectTimeout.current = setTimeout(() => {
+            if (socketInstance) socketInstance.connect();
+          }, delay);
+        });
+
+        socketInstance.on("disconnect", (reason) => {
+          console.log(`Desconectado del servidor de notificaciones: ${reason}`);
+        });
+
+        socketInstance.on("error", (err) => {
+          console.error("Error en el socket:", err);
+        });
+
+        socketInstance.on("newNotification", (notification: Notification) => {
+          console.log("📬 Nueva notificación recibida:", notification);
+
+          if (!notification || !notification.id) {
+            console.error("Formato de notificación inválido:", notification);
+            return;
+          }
+
+          setNotifications((prev) => [notification, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+
+          toast(notification.title, {
+            description: notification.message,
+            action: notification.actionUrl
+              ? {
+                  label: "Ver",
+                  onClick: () => {
+                    if (typeof window !== "undefined") {
+                      window.location.href = notification.actionUrl || "#";
+                    }
+                  },
+                }
+              : undefined,
+          });
+
+          fetchUnreadCount();
+        });
+
+        setSocket(socketInstance);
+
+        return () => {
+          console.log("Desconectando socket...");
+          socketInstance.disconnect();
+
+          if (reconnectTimeout.current) {
+            clearTimeout(reconnectTimeout.current);
+            reconnectTimeout.current = null;
+          }
+        };
+      } catch (err) {
+        console.error("Error al inicializar el socket:", err);
+        setError("Error al conectar con el servidor de notificaciones");
+        return undefined;
       }
-    );
-
-    socketInstance.on("connect", () => {
-      console.log("Conectado al servidor de notificaciones");
-    });
-
-    socketInstance.on("disconnect", () => {
-      console.log("Desconectado del servidor de notificaciones");
-    });
-
-    socketInstance.on("newNotification", (notification: Notification) => {
-      console.log("Nueva notificación recibida:", notification);
-
-      // Actualizar el estado local con la nueva notificación
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-
-      // Mostrar toast con la notificación
-      toast(notification.title, {
-        description: notification.message,
-        action: notification.actionUrl
-          ? {
-              label: "Ver",
-              onClick: () =>
-                (window.location.href = notification.actionUrl || "#"),
-            }
-          : undefined,
-      });
-    });
-
-    setSocket(socketInstance);
-
-    return () => {
-      socketInstance.disconnect();
     };
-  }, [session?.user?.id]);
 
-  // Cargar notificaciones
+    const cleanup = connectSocket();
+    return cleanup;
+  }, [session?.user?.id, fetchUnreadCount]);
+
   const fetchNotifications = useCallback(async () => {
     if (!session?.user) return;
 
@@ -89,34 +185,58 @@ export function useNotifications(initialFilters?: NotificationFilters) {
       setError(null);
 
       const response = await getNotifications(filters);
-      setNotifications(response.items);
-      setMeta(response.meta);
 
-      // También actualizar el conteo de no leídas
-      const countResponse = await getUnreadCount();
-      setUnreadCount(countResponse.count);
+      if (response && Array.isArray(response.items)) {
+        setNotifications(response.items);
+
+        if (response.meta) {
+          setMeta(response.meta);
+        }
+      } else {
+        console.error(
+          "Formato de respuesta de notificaciones inválido:",
+          response
+        );
+        setError("Error en el formato de respuesta");
+      }
+
+      await fetchUnreadCount();
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Error al cargar notificaciones";
       setError(errorMessage);
       console.error("Error al cargar notificaciones:", err);
+
+      try {
+        await fetchUnreadCount();
+      } catch (countErr) {
+        console.error("Error también al obtener conteo:", countErr);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user, filters]);
+  }, [session?.user, filters, fetchUnreadCount]);
 
-  // Cargar datos iniciales
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (session?.user) {
+      fetchNotifications();
+    }
+  }, [fetchNotifications, session?.user]);
 
-  // Marcar notificación(es) como leída(s)
-  const handleMarkAsRead = useCallback(async (ids: number[]) => {
-    try {
-      const response = await markAsRead(ids);
+  useEffect(() => {
+    if (session?.user) {
+      fetchNotifications();
+    }
+  }, [filters, fetchNotifications, session?.user]);
 
-      if (response.success) {
-        // Actualizar el estado local
+  const handleMarkAsRead = useCallback(
+    async (ids: number[]) => {
+      if (!ids.length)
+        return { success: false, message: "No hay IDs para marcar" };
+
+      try {
+        const response = await markAsRead(ids);
+
         setNotifications((prev) =>
           prev.map((notification) =>
             ids.includes(notification.id)
@@ -125,41 +245,46 @@ export function useNotifications(initialFilters?: NotificationFilters) {
           )
         );
 
-        // Actualizar conteo de no leídas
-        const countResponse = await getUnreadCount();
-        setUnreadCount(countResponse.count);
+        await fetchUnreadCount();
 
-        return response;
+        return (
+          response || {
+            success: true,
+            message: "Notificaciones marcadas como leídas",
+          }
+        );
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Error al marcar como leída";
+        toast.error(errorMessage);
+        console.error("Error al marcar notificación como leída:", err);
+
+        return { success: false, message: errorMessage };
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Error al marcar como leída";
-      toast.error(errorMessage);
-      console.error("Error al marcar notificación como leída:", err);
-      throw err;
-    }
-  }, []);
+    },
+    [fetchUnreadCount]
+  );
 
-  // Marcar todas como leídas
   const handleMarkAllAsRead = useCallback(async () => {
     try {
       const response = await markAllAsRead();
 
-      if (response.success) {
-        // Actualizar el estado local
-        setNotifications((prev) =>
-          prev.map((notification) => ({
-            ...notification,
-            isRead: true,
-            readAt: new Date(),
-          }))
-        );
+      setNotifications((prev) =>
+        prev.map((notification) => ({
+          ...notification,
+          isRead: true,
+          readAt: new Date(),
+        }))
+      );
 
-        // Actualizar conteo de no leídas
-        setUnreadCount(0);
+      setUnreadCount(0);
 
-        return response;
-      }
+      return (
+        response || {
+          success: true,
+          message: "Todas las notificaciones marcadas como leídas",
+        }
+      );
     } catch (err) {
       const errorMessage =
         err instanceof Error
@@ -170,42 +295,40 @@ export function useNotifications(initialFilters?: NotificationFilters) {
         "Error al marcar todas las notificaciones como leídas:",
         err
       );
-      throw err;
+
+      return { success: false, message: errorMessage };
     }
   }, []);
 
-  // Eliminar notificación
   const handleDeleteNotification = useCallback(
     async (id: number) => {
+      if (!id) return { success: false, message: "ID no válido" };
+
       try {
         const response = await deleteNotification(id);
 
-        if (response.success) {
-          // Actualizar el estado local
-          setNotifications((prev) =>
-            prev.filter((notification) => notification.id !== id)
-          );
+        setNotifications((prev) =>
+          prev.filter((notification) => notification.id !== id)
+        );
 
-          // Si la notificación no estaba leída, actualizar conteo
-          const wasUnread = notifications.find((n) => n.id === id && !n.isRead);
-          if (wasUnread) {
-            setUnreadCount((prev) => Math.max(0, prev - 1));
-          }
-
-          return response;
+        const wasUnread = notifications.find((n) => n.id === id && !n.isRead);
+        if (wasUnread) {
+          setUnreadCount((prev) => Math.max(0, prev - 1));
         }
+
+        return response || { success: true, message: "Notificación eliminada" };
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Error al eliminar notificación";
         toast.error(errorMessage);
         console.error("Error al eliminar notificación:", err);
-        throw err;
+
+        return { success: false, message: errorMessage };
       }
     },
     [notifications]
   );
 
-  // Actualizar filtros
   const updateFilters = useCallback(
     (newFilters: Partial<NotificationFilters>) => {
       setFilters((prev) => ({
@@ -216,6 +339,11 @@ export function useNotifications(initialFilters?: NotificationFilters) {
     },
     []
   );
+
+  const forceRefresh = useCallback(async () => {
+    await fetchNotifications();
+    await fetchUnreadCount();
+  }, [fetchNotifications, fetchUnreadCount]);
 
   return {
     notifications,
@@ -228,6 +356,6 @@ export function useNotifications(initialFilters?: NotificationFilters) {
     markAllAsRead: handleMarkAllAsRead,
     deleteNotification: handleDeleteNotification,
     updateFilters,
-    refresh: fetchNotifications,
+    refresh: forceRefresh,
   };
 }
