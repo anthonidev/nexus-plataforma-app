@@ -44,8 +44,8 @@ export interface Item {
   rightVolume: number;
   leftDirects: number;
   rightDirects: number;
-  monthStartDate: string;
-  monthEndDate: string;
+  monthStartDate: Date;
+  monthEndDate: Date;
   status: string;
   metadata: null;
   createdAt: Date;

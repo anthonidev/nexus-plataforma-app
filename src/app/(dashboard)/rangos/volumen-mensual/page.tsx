@@ -3,8 +3,8 @@
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import MonthlyVolumesTable from "../components/volumen/MonthlyVolumesTable";
 import { useMonthlyVolumes } from "../hooks/useMonthlyVolumes";
+import MonthlyVolumesTable from "../components/volumen/MonthlyVolumesTable";
 
 export default function MonthlyVolumesPage() {
   const {
@@ -14,8 +14,13 @@ export default function MonthlyVolumesPage() {
     meta,
     currentPage,
     itemsPerPage,
+    filters,
     handlePageChange,
     handleItemsPerPageChange,
+    handleStatusChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    resetFilters,
     refreshVolumes,
   } = useMonthlyVolumes();
 
@@ -42,6 +47,8 @@ export default function MonthlyVolumesPage() {
         }
       />
 
+
+
       <MonthlyVolumesTable
         volumes={volumes}
         isLoading={isLoading}
@@ -52,6 +59,12 @@ export default function MonthlyVolumesPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handleItemsPerPageChange}
         onRefresh={refreshVolumes}
+
+        filters={filters}
+        onStatusChange={handleStatusChange}
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+        onResetFilters={resetFilters}
       />
     </div>
   );

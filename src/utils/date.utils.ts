@@ -1,26 +1,32 @@
 import { format as dateFnsFormat, parseISO } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { es } from "date-fns/locale";
 
+// Define tu zona horaria local (Lima, Perú)
+const TIME_ZONE = "America/Lima";
+
 export function format(
-  date: string | Date | number,
+  date: string | Date | number | null | undefined,
   formatStr: string
 ): string {
-  if (typeof date === "string") {
-    return dateFnsFormat(parseISO(date), formatStr, { locale: es });
+  const parsedDate = toDate(date);
+  const timeZone = "America/Lima";
+  if (!parsedDate) {
+    return dateFnsFormat(new Date(), formatStr, { locale: es });
   }
-  if (typeof date === "number") {
-    return dateFnsFormat(new Date(date), formatStr, { locale: es });
-  }
-  if (date instanceof Date) {
-    return dateFnsFormat(parseISO(date.toISOString()), formatStr, {
-      locale: es,
-    });
-  }
-
-  return dateFnsFormat(date, formatStr, { locale: es });
+  const formattedDate = formatInTimeZone(parsedDate, timeZone, formatStr, {
+    locale: es,
+  });
+  return formattedDate;
 }
 
-export function toDate(date: string | Date | number): Date {
+export function toDate(
+  date: string | Date | number | null | undefined
+): Date | undefined {
+  if (!date) {
+    return undefined;
+  }
+
   if (typeof date === "string") {
     return parseISO(date);
   }

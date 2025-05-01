@@ -90,7 +90,7 @@ export function PaymentSummary({
         <PaymentImageModal
           isOpen={!!editingPayment}
           onClose={() => setEditingPayment(null)}
-          onSubmit={handleEditPayment}
+          onSubmit={() => handleEditPayment}
           initialData={editingPayment.payment}
         />
       )}

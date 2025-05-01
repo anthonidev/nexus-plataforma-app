@@ -15,10 +15,23 @@ interface UseMonthlyVolumesReturn {
     totalPages: number;
     currentPage: number;
   } | null;
+
   currentPage: number;
   itemsPerPage: number;
+  filters: {
+    status?: "PENDING" | "PROCESSED" | "CANCELLED";
+    startDate?: string;
+    endDate?: string;
+  };
+
   handlePageChange: (page: number) => void;
   handleItemsPerPageChange: (pageSize: number) => void;
+  handleStatusChange: (
+    status: "PENDING" | "PROCESSED" | "CANCELLED" | undefined
+  ) => void;
+  handleStartDateChange: (date: string | undefined) => void;
+  handleEndDateChange: (date: string | undefined) => void;
+  resetFilters: () => void;
   refreshVolumes: () => Promise<void>;
 }
 
@@ -30,8 +43,15 @@ export function useMonthlyVolumes(
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [meta, setMeta] = useState<UseMonthlyVolumesReturn["meta"]>(null);
+
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [itemsPerPage, setItemsPerPage] = useState<number>(initialLimit);
+
+  const [status, setStatus] = useState<
+    "PENDING" | "PROCESSED" | "CANCELLED" | undefined
+  >(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   const fetchVolumes = useCallback(
     async (page: number = currentPage, limit: number = itemsPerPage) => {
@@ -39,10 +59,14 @@ export function useMonthlyVolumes(
         setIsLoading(true);
         setError(null);
 
-        const params = {
+        const params: Record<string, unknown> = {
           page,
           limit,
         };
+
+        if (status) params.status = status;
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
 
         const response = await getVolumenMensual(params);
 
@@ -64,7 +88,7 @@ export function useMonthlyVolumes(
         setIsLoading(false);
       }
     },
-    [currentPage, itemsPerPage]
+    [currentPage, itemsPerPage, status, startDate, endDate]
   );
 
   const handlePageChange = useCallback(
@@ -80,9 +104,34 @@ export function useMonthlyVolumes(
     setCurrentPage(1); // Resetear a la primera página al cambiar el límite
   }, []);
 
+  const handleStatusChange = useCallback(
+    (value: "PENDING" | "PROCESSED" | "CANCELLED" | undefined) => {
+      setStatus(value);
+      setCurrentPage(1);
+    },
+    []
+  );
+
+  const handleStartDateChange = useCallback((date: string | undefined) => {
+    setStartDate(date);
+    setCurrentPage(1);
+  }, []);
+
+  const handleEndDateChange = useCallback((date: string | undefined) => {
+    setEndDate(date);
+    setCurrentPage(1);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setStatus(undefined);
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setCurrentPage(1);
+  }, []);
+
   useEffect(() => {
     fetchVolumes(currentPage, itemsPerPage);
-  }, [fetchVolumes, currentPage, itemsPerPage]);
+  }, [fetchVolumes, currentPage, itemsPerPage, status, startDate, endDate]);
 
   return {
     volumes,
@@ -91,8 +140,17 @@ export function useMonthlyVolumes(
     meta,
     currentPage,
     itemsPerPage,
+    filters: {
+      status,
+      startDate,
+      endDate,
+    },
     handlePageChange,
     handleItemsPerPageChange,
+    handleStatusChange,
+    handleStartDateChange,
+    handleEndDateChange,
+    resetFilters,
     refreshVolumes: () => fetchVolumes(currentPage, itemsPerPage),
   };
 }
