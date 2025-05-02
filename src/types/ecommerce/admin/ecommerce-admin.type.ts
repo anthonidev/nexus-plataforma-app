@@ -100,7 +100,7 @@ export interface StockProductResponse {
 
 export interface Item {
   id: number;
-  actionType: string;
+  actionType: "INCREASE" | "DECREASE" | "UPDATE";
   previousQuantity: number;
   newQuantity: number;
   quantityChanged: number;
