@@ -102,12 +102,9 @@ export async function getProducts(
 
 export async function getDetailProduct(id: number) {
   try {
-    return await httpClient<DetailProductAdminResponse>(
-      `/api/ecommerce/products/${id}`,
-      {
-        method: "GET",
-      }
-    );
+    return await httpClient<DetailProductAdminResponse>(`/api/products/${id}`, {
+      method: "GET",
+    });
   } catch (error) {
     console.error("Error al obtener el producto:", error);
     throw error;
@@ -121,7 +118,7 @@ export async function getListStockHistory(
 ) {
   try {
     return await httpClient<StockProductResponse>(
-      `/api/ecommerce/products/${id}/stock-history`,
+      `/api/products/${id}/stock-history`,
       {
         method: "GET",
         params: { page, limit },
@@ -192,8 +189,6 @@ export async function updateProduct(
   }
 }
 
-//[PATCH]actualizar imagen products/:productId/images/:imageId
-
 export async function updateImageProduct(
   productId: number,
   imageId: number,
@@ -223,7 +218,6 @@ export async function updateImageProduct(
   }
 }
 
-// [DELETE] eliminar imagen products/:productId/images/:imageId
 export async function deleteImageProduct(
   productId: number,
   imageId: number
