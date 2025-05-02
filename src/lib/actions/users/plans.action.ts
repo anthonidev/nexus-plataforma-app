@@ -41,24 +41,20 @@ export async function subscribeToPlan(
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
-    // Parse and validate payments
     const paymentsString = formData.get("payments") as string;
     const payments = JSON.parse(paymentsString);
     const paymentImages = formData.getAll("paymentImages") as File[];
 
-    // Validate payments structure
     if (!Array.isArray(payments) || payments.length === 0) {
       throw new Error("Debe proporcionar al menos un pago");
     }
 
-    // Validate file count matches payment count
     if (paymentImages.length !== payments.length) {
       throw new Error(
         "El número de imágenes debe coincidir con el número de pagos"
       );
     }
 
-    // Validate total amount
     const totalAmount = parseFloat(formData.get("totalAmount") as string);
     const paymentTotal = payments.reduce(
       (sum, payment) => sum + payment.amount,
@@ -71,7 +67,6 @@ export async function subscribeToPlan(
       );
     }
 
-    // Send subscription request
     console.log("Enviando datos de suscripción:", formData);
     const response = await httpClient<{ success: boolean; message: string }>(
       "/api/user-memberships/subscribe",
@@ -83,7 +78,6 @@ export async function subscribeToPlan(
       }
     );
 
-    // Revalidate relevant paths
     revalidatePath("/planes");
     revalidatePath("/");
 
@@ -91,7 +85,6 @@ export async function subscribeToPlan(
   } catch (error) {
     console.error("Error al suscribirse al plan:", error);
 
-    // Throw a more user-friendly error
     throw new Error(
       error instanceof Error
         ? error.message
@@ -104,24 +97,20 @@ export async function upgradeToPlan(
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
-    // Parse and validate payments
     const paymentsString = formData.get("payments") as string;
     const payments = JSON.parse(paymentsString);
     const paymentImages = formData.getAll("paymentImages") as File[];
 
-    // Validate payments structure
     if (!Array.isArray(payments) || payments.length === 0) {
       throw new Error("Debe proporcionar al menos un pago");
     }
 
-    // Validate file count matches payment count
     if (paymentImages.length !== payments.length) {
       throw new Error(
         "El número de imágenes debe coincidir con el número de pagos"
       );
     }
 
-    // Validate total amount
     const totalAmount = parseFloat(formData.get("totalAmount") as string);
     const paymentTotal = payments.reduce(
       (sum, payment) => sum + payment.amount,
@@ -134,8 +123,6 @@ export async function upgradeToPlan(
       );
     }
 
-    // Send subscription request
-    console.log("Enviando datos de suscripción:", formData);
     const response = await httpClient<{ success: boolean; message: string }>(
       "/api/user-memberships/upgrade",
       {
@@ -146,7 +133,6 @@ export async function upgradeToPlan(
       }
     );
 
-    // Revalidate relevant paths
     revalidatePath("/planes");
     revalidatePath("/");
 
@@ -154,7 +140,6 @@ export async function upgradeToPlan(
   } catch (error) {
     console.error("Error al suscribirse al plan:", error);
 
-    // Throw a more user-friendly error
     throw new Error(
       error instanceof Error
         ? error.message
