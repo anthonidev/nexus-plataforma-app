@@ -1,6 +1,12 @@
 "use server";
 import { httpClient } from "@/lib/api/http-client";
-import { ResponseCategories } from "@/types/ecommerce/admin/ecommerce-admin.type";
+import {
+  DetailProductAdminResponse,
+  ProductAdminFilters,
+  ProductsAdminResponse,
+  ResponseCategories,
+  StockProductResponse,
+} from "@/types/ecommerce/admin/ecommerce-admin.type";
 import { revalidatePath } from "next/cache";
 
 export async function getCategoriesEcommerce(): Promise<ResponseCategories> {
@@ -78,6 +84,168 @@ export async function createProduct(
         error instanceof Error
           ? error.message
           : "Error al registrar el producto. Inténtelo nuevamente.",
+    };
+  }
+}
+export async function getProducts(
+  filters?: ProductAdminFilters
+): Promise<ProductsAdminResponse> {
+  try {
+    return await httpClient<ProductsAdminResponse>("/api/products", {
+      params: filters as Record<string, unknown>,
+    });
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    throw error;
+  }
+}
+
+export async function getDetailProduct(id: number) {
+  try {
+    return await httpClient<DetailProductAdminResponse>(
+      `/api/ecommerce/products/${id}`,
+      {
+        method: "GET",
+      }
+    );
+  } catch (error) {
+    console.error("Error al obtener el producto:", error);
+    throw error;
+  }
+}
+
+export async function getListStockHistory(
+  id: number,
+  page: number = 1,
+  limit: number = 10
+) {
+  try {
+    return await httpClient<StockProductResponse>(
+      `/api/ecommerce/products/${id}/stock-history`,
+      {
+        method: "GET",
+        params: { page, limit },
+      }
+    );
+  } catch (error) {
+    console.error("Error al obtener el historial de stock:", error);
+    throw error;
+  }
+}
+
+export async function updateProduct(
+  id: number,
+  formData: FormData
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const categoryId = formData.get("categoryId");
+    if (!categoryId || isNaN(Number(categoryId)) || Number(categoryId) <= 0) {
+      throw new Error("Debe seleccionar una categoría válida");
+    }
+
+    const memberPrice = parseFloat(formData.get("memberPrice") as string);
+    const publicPrice = parseFloat(formData.get("publicPrice") as string);
+
+    if (isNaN(memberPrice) || memberPrice < 0) {
+      throw new Error(
+        "El precio de socio debe ser un número válido no negativo"
+      );
+    }
+
+    if (isNaN(publicPrice) || publicPrice < 0) {
+      throw new Error(
+        "El precio público debe ser un número válido no negativo"
+      );
+    }
+
+    const benefitsData = formData.get("benefits") as string;
+    if (benefitsData) {
+      try {
+        JSON.parse(benefitsData);
+      } catch (error) {
+        throw new Error("El formato de los beneficios es inválido");
+      }
+    }
+
+    console.log("Enviando datos del producto:", Object.fromEntries(formData));
+
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/ecommerce/products/${id}`, {
+      method: "PUT",
+      body: formData,
+      skipJsonStringify: true,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al crear el producto:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al registrar el producto. Inténtelo nuevamente.",
+    };
+  }
+}
+
+//[PATCH]actualizar imagen products/:productId/images/:imageId
+
+export async function updateImageProduct(
+  productId: number,
+  imageId: number,
+  formData: FormData
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/ecommerce/products/${productId}/images/${imageId}`, {
+      method: "PATCH",
+      body: formData,
+      skipJsonStringify: true,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al actualizar la imagen del producto:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al actualizar la imagen del producto. Inténtelo nuevamente.",
+    };
+  }
+}
+
+// [DELETE] eliminar imagen products/:productId/images/:imageId
+export async function deleteImageProduct(
+  productId: number,
+  imageId: number
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/ecommerce/products/${productId}/images/${imageId}`, {
+      method: "DELETE",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al eliminar la imagen del producto:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al eliminar la imagen del producto. Inténtelo nuevamente.",
     };
   }
 }
