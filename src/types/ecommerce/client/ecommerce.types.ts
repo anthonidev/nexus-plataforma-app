@@ -70,3 +70,74 @@ export interface ProductClientFilters {
   limit?: number;
   isActive?: boolean;
 }
+
+//-------------------------------------------------------------------------------------------
+export interface OrdersClientResponse {
+  success: boolean;
+  items: ItemOrder[];
+  meta: Meta;
+}
+
+export interface ItemOrder {
+  id: number;
+  totalItems: number;
+  totalAmount: number;
+  status: "PENDIENTE" | "APROBADO" | "ENVIADO" | "ENTREGADO" | "RECHAZADO";
+  metadata: Metadata;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Metadata {
+  Productos?: Producto[];
+}
+
+export interface Producto {
+  SKU: string;
+  Nombre: string;
+  Cantidad: number;
+  Precio: number;
+}
+
+export interface Meta {
+  totalItems: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
+}
+//-------------------------------------------------------------------------------------------
+export interface OrderDetailClientResponse {
+  id: number;
+  userId: string;
+  status: "PENDIENTE" | "APROBADO" | "ENVIADO" | "ENTREGADO" | "RECHAZADO";
+  totalAmount: number;
+  totalItems: number;
+  createdAt: Date;
+  updatedAt: Date;
+  orderDetails: OrderDetail[];
+  orderHistory: OrderHistory[];
+}
+
+export interface OrderDetail {
+  id: string;
+  productId: number;
+  productName: string;
+  productImage: string;
+  quantity: number;
+  price: number;
+}
+
+export interface OrderHistory {
+  id: string;
+  action:
+    | "CREADO"
+    | "APROBADO"
+    | "ENVIADO"
+    | "ENTREGADO"
+    | "CANCELADO"
+    | "RECHAZADO";
+  changes: null;
+  notes: string;
+  metadata: null;
+  createdAt: Date;
+}

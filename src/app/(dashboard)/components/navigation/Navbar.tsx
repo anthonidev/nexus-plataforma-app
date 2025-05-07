@@ -1,21 +1,13 @@
 "use client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
-import { Bell, Calendar } from "lucide-react";
-import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
-import ThemeSwitch from "@/components/common/ThemeSwich";
+import NavbarCartIcon from "@/components/common/NavbarCartIcon";
 import NotificationIcon from "@/components/common/NotificationIcon";
+import ThemeSwitch from "@/components/common/ThemeSwich";
+import { Separator } from "@/components/ui/separator";
+import { motion } from "framer-motion";
+import { Calendar } from "lucide-react";
+
 const Navbar = () => {
-  const [notifications] = useState([
-    { id: 1, text: "Nueva propiedad agregada", time: "Hace 5 min" },
-    { id: 2, text: "Actualización de proyecto", time: "Hace 30 min" },
-  ]);
+
   const formatDate = () => {
     return new Intl.DateTimeFormat("es-ES", {
       weekday: "long",
@@ -43,8 +35,8 @@ const Navbar = () => {
         </motion.div>
       </div>
       <div className="flex items-center gap-4">
+        <NavbarCartIcon />
         <NotificationIcon />
-
         <Separator orientation="vertical" className="h-6 bg-border" />
         <ThemeSwitch />
       </div>

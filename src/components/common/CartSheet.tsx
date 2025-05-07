@@ -10,13 +10,13 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { formatCurrency } from "@/utils/format-currency.utils";
-import { MinusCircle, PlusCircle, ShoppingBag, ShoppingCart, Trash2, X } from "lucide-react";
+import { MinusCircle, PlusCircle, ShoppingBag, ShoppingCart, Trash2, X, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { CartItem, useCartStore } from "@/context/CartStore";
+import { useRouter } from "next/navigation";
 
 interface CartSheetProps {
     open: boolean;
@@ -25,11 +25,11 @@ interface CartSheetProps {
 
 export function CartSheet({ open, onOpenChange }: CartSheetProps) {
     const { items, itemCount, totalAmount, removeItem, updateQuantity, clearCart } = useCartStore();
+    const router = useRouter();
 
     const handleCheckout = () => {
-        // Aquí iría la lógica para el checkout
-        toast.success("Procesando compra... Esta función estará disponible pronto");
         onOpenChange(false);
+        router.push('/tienda/carrito');
     };
 
     const handleClearCart = () => {
@@ -160,16 +160,16 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                             </AnimatePresence>
                         </ScrollArea>
 
-                        <div className="border-t border-border   bg-muted/20 p-4 rounded-lg">
+                        <div className="border-t border-border bg-muted/20 p-4 rounded-lg">
                             <div className="flex items-center justify-between">
                                 <span className="font-semibold">Total</span>
                                 <span className="font-bold text-xl text-primary">{formatCurrency(totalAmount)}</span>
                             </div>
                         </div>
 
-                        <SheetFooter className="flex-col gap-2  sm:flex-col border-t border-border ">
+                        <SheetFooter className="flex-col gap-2 sm:flex-col border-t border-border">
                             <Button onClick={handleCheckout} className="w-full bg-primary hover:bg-primary/90">
-                                Finalizar compra
+                                Ir a Pagar <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                             <Button
                                 variant="outline"

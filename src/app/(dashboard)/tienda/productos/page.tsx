@@ -4,9 +4,8 @@ import { CartSheet } from "@/components/common/CartSheet";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCartStore } from "@/context/CartStore";
 import { Filter, RefreshCw, ShoppingBag } from "lucide-react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { ProductFilters } from "../components/ProductFilters";
 import { ProductsList } from "../components/ProductsList";
 import { useProducts } from "../hooks/useProducts";
@@ -16,9 +15,6 @@ import { useProducts } from "../hooks/useProducts";
 export default function TiendaPage() {
     const [showFilters, setShowFilters] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const { itemCount } = useCartStore();
-
-
 
     const {
         products,
@@ -67,20 +63,7 @@ export default function TiendaPage() {
                             />
                         </Button>
 
-                        <Button
-                            variant="default"
-                            size="sm"
-                            className="relative h-9"
-                            onClick={() => setIsCartOpen(true)}
-                        >
-                            <ShoppingBag className="h-4 w-4 mr-2" />
-                            Carrito
-                            {itemCount > 0 && (
-                                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-white">
-                                    {itemCount}
-                                </span>
-                            )}
-                        </Button>
+
                     </div>
                 }
             />

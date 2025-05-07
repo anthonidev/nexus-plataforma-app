@@ -1,6 +1,8 @@
 "use server";
 import { httpClient } from "@/lib/api/http-client";
 import {
+  OrderDetailClientResponse,
+  OrdersClientResponse,
   ProductClientFilters,
   ProductDetailClientResponse,
   ProductsClientResponse,
@@ -97,5 +99,35 @@ export async function createOrder(formData: FormData): Promise<OrderResponse> {
           ? error.message
           : "No se pudo procesar la orden. Inténtelo nuevamente.",
     };
+  }
+}
+
+export async function getMyOrdersClient(): Promise<OrdersClientResponse> {
+  try {
+    return await httpClient<OrdersClientResponse>(
+      "/api/orders/list/with-clients",
+      {
+        method: "GET",
+      }
+    );
+  } catch (error) {
+    console.error("Error al obtener las órdenes del cliente:", error);
+    throw error;
+  }
+}
+
+export async function getOrderDetailClient(
+  id: number
+): Promise<OrderDetailClientResponse> {
+  try {
+    return await httpClient<OrderDetailClientResponse>(
+      `/api/orders/${id}/item/with-clients`,
+      {
+        method: "GET",
+      }
+    );
+  } catch (error) {
+    console.error("Error al obtener el detalle de la orden:", error);
+    throw error;
   }
 }
