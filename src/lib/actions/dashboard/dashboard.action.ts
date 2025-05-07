@@ -5,7 +5,7 @@ import { DashboardClient } from "@/types/dashboard/client-dashboard.type";
 
 export async function getMyClientDashboard(): Promise<DashboardClient> {
   try {
-    return await httpClient<DashboardClient>("/api/dashboard");
+    return await httpClient<DashboardClient>("/api/dashboard-users/all-data");
   } catch (error) {
     console.error("Error al obtener los pagos del usuario:", error);
     throw error;

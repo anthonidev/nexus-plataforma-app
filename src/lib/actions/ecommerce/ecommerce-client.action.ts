@@ -1,3 +1,4 @@
+"use server";
 import { httpClient } from "@/lib/api/http-client";
 import {
   ProductClientFilters,
