@@ -25,7 +25,7 @@ export async function getProductsClient(
 ): Promise<ProductsClientResponse> {
   try {
     return await httpClient<ProductsClientResponse>(
-      "/api/products/list/with-clients?isActive=true",
+      "/api/products/list/with-clients",
       {
         params: filters as Record<string, unknown>,
       }

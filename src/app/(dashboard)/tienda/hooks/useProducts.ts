@@ -17,7 +17,7 @@ export function useProducts(initialFilters?: ProductClientFilters) {
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filters, setFilters] = useState<ProductClientFilters>(
-    initialFilters || { page: 1, limit: 12 }
+    initialFilters || { page: 1, limit: 12, isActive: true }
   );
   const [meta, setMeta] = useState<{
     totalItems: number;

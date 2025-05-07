@@ -7,7 +7,10 @@ export const ProductImageSchema = z.object({
       message: "La imagen no debe superar 5MB",
     })
     .refine(
-      (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
+      (file) =>
+        ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(
+          file.type
+        ),
       { message: "Solo se permiten imágenes JPG, JPEG o PNG" }
     ),
 });

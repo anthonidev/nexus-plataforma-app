@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCartStore } from "@/context/CartStore";
 import { Filter, RefreshCw, ShoppingBag } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { ProductFilters } from "../components/ProductFilters";
 import { ProductsList } from "../components/ProductsList";
 import { useProducts } from "../hooks/useProducts";
@@ -15,13 +14,11 @@ import { useProducts } from "../hooks/useProducts";
 
 
 export default function TiendaPage() {
-    const searchParams = useSearchParams();
     const [showFilters, setShowFilters] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { itemCount } = useCartStore();
 
-    const categoryParam = searchParams.get("category");
-    const nameParam = searchParams.get("name");
+
 
     const {
         products,
@@ -34,19 +31,9 @@ export default function TiendaPage() {
         handlePageChange,
         resetFilters,
         refresh,
-    } = useProducts({
-        categoryId: categoryParam ? parseInt(categoryParam) : undefined,
-        name: nameParam || undefined,
-    });
+    } = useProducts();
 
-    useEffect(() => {
-        if (categoryParam) {
-            updateFilters({ categoryId: parseInt(categoryParam) });
-        }
-        if (nameParam) {
-            updateFilters({ name: nameParam });
-        }
-    }, [categoryParam, nameParam, updateFilters]);
+
 
     return (
         <div className="container max-w-7xl mx-auto p-6">
