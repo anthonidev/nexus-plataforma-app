@@ -18,7 +18,6 @@ export async function getMembershipPlans(
         params,
       }
     );
-    console.log("Planes de membresía obtenidos:", response);
 
     return response;
   } catch (error) {
