@@ -36,8 +36,9 @@ const Navbar = () => {
         </motion.div>
       </div>
       <div className="flex items-center gap-4">
-        <NavbarCartIcon />
         <PointsIcon />
+
+        <NavbarCartIcon />
         <NotificationIcon />
         <Separator orientation="vertical" className="h-6 bg-border" />
         <ThemeSwitch />
