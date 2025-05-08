@@ -38,6 +38,7 @@ export async function getProductsClient(
     throw error;
   }
 }
+
 interface OrderResponse {
   success: boolean;
   message: string;
@@ -102,12 +103,23 @@ export async function createOrder(formData: FormData): Promise<OrderResponse> {
   }
 }
 
-export async function getMyOrdersClient(): Promise<OrdersClientResponse> {
+export interface OrderFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export async function getMyOrdersClient(
+  filters?: OrderFilters
+): Promise<OrdersClientResponse> {
   try {
     return await httpClient<OrdersClientResponse>(
       "/api/orders/list/with-clients",
       {
         method: "GET",
+        params: filters as Record<string, unknown>,
       }
     );
   } catch (error) {
