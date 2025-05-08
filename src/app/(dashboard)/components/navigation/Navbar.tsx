@@ -1,6 +1,7 @@
 "use client";
 import NavbarCartIcon from "@/components/common/NavbarCartIcon";
 import NotificationIcon from "@/components/common/NotificationIcon";
+import PointsIcon from "@/components/common/PointsIcon";
 import ThemeSwitch from "@/components/common/ThemeSwich";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
@@ -36,6 +37,7 @@ const Navbar = () => {
       </div>
       <div className="flex items-center gap-4">
         <NavbarCartIcon />
+        <PointsIcon />
         <NotificationIcon />
         <Separator orientation="vertical" className="h-6 bg-border" />
         <ThemeSwitch />
