@@ -7,6 +7,12 @@ import { useCartStore } from "@/context/CartStore";
 import { PaymentImageModalType } from "../../planes-de-membresia/validations/suscription.zod";
 import { createOrder } from "@/lib/actions/ecommerce/ecommerce-client.action";
 
+// Agregar enum para los métodos de pago
+export enum MethodPayment {
+  VOUCHER = "VOUCHER",
+  POINTS = "POINTS",
+}
+
 export function useCartCheckout() {
   const router = useRouter();
   const { items, totalAmount, clearCart } = useCartStore();
@@ -19,6 +25,10 @@ export function useCartCheckout() {
     index: number;
     payment: PaymentImageModalType;
   } | null>(null);
+  // Nuevo estado para seleccionar el método de pago
+  const [paymentMethod, setPaymentMethod] = useState<MethodPayment>(
+    MethodPayment.VOUCHER
+  );
 
   // Total pagado de los comprobantes añadidos
   const totalPaidAmount = payments.reduce(
@@ -29,9 +39,12 @@ export function useCartCheckout() {
   // Monto pendiente por pagar
   const remainingAmount = Math.max(0, totalAmount - totalPaidAmount);
 
-  // Verificar si el pago está completo
+  // Verificar si el pago está completo dependiendo del método de pago
   const isPaymentComplete =
-    totalPaidAmount === totalAmount && payments.length > 0;
+    paymentMethod === MethodPayment.POINTS ||
+    (paymentMethod === MethodPayment.VOUCHER &&
+      totalPaidAmount === totalAmount &&
+      payments.length > 0);
 
   // Handlers para los pagos
   const handlePaymentModalOpen = useCallback(() => {
@@ -104,6 +117,11 @@ export function useCartCheckout() {
     [editingPayment, editPayment]
   );
 
+  // Manejar cambio en el método de pago
+  const handlePaymentMethodChange = useCallback((method: MethodPayment) => {
+    setPaymentMethod(method);
+  }, []);
+
   // Validar antes de enviar la orden
   const validateOrder = useCallback(() => {
     if (items.length === 0) {
@@ -111,18 +129,28 @@ export function useCartCheckout() {
       return false;
     }
 
-    if (payments.length === 0) {
-      toast.error("Debe agregar al menos un comprobante de pago");
-      return false;
-    }
+    if (paymentMethod === MethodPayment.VOUCHER) {
+      if (payments.length === 0) {
+        toast.error("Debe agregar al menos un comprobante de pago");
+        return false;
+      }
 
-    if (Math.abs(totalPaidAmount - totalAmount) > 0.01) {
-      toast.error(`El monto total pagado debe ser igual al valor del carrito`);
-      return false;
+      if (Math.abs(totalPaidAmount - totalAmount) > 0.01) {
+        toast.error(
+          `El monto total pagado debe ser igual al valor del carrito`
+        );
+        return false;
+      }
     }
 
     return true;
-  }, [items.length, payments.length, totalPaidAmount, totalAmount]);
+  }, [
+    items.length,
+    payments.length,
+    totalPaidAmount,
+    totalAmount,
+    paymentMethod,
+  ]);
 
   // Enviar la orden
   const handleSubmitOrder = useCallback(async () => {
@@ -135,6 +163,7 @@ export function useCartCheckout() {
 
       // Añadir datos básicos
       formData.append("totalAmount", totalAmount.toFixed(2));
+      formData.append("methodPayment", paymentMethod);
       if (notes) formData.append("notes", notes);
 
       // Añadir items del carrito
@@ -144,20 +173,22 @@ export function useCartCheckout() {
       }));
       formData.append("items", JSON.stringify(orderItems));
 
-      // Añadir pagos
-      const paymentsData = payments.map((payment, index) => ({
-        bankName: payment.bankName || "",
-        transactionReference: payment.transactionReference,
-        transactionDate: payment.transactionDate,
-        amount: payment.amount,
-        fileIndex: index,
-      }));
-      formData.append("payments", JSON.stringify(paymentsData));
+      // Añadir pagos solo si el método es VOUCHER
+      if (paymentMethod === MethodPayment.VOUCHER) {
+        const paymentsData = payments.map((payment, index) => ({
+          bankName: payment.bankName || "",
+          transactionReference: payment.transactionReference,
+          transactionDate: payment.transactionDate,
+          amount: payment.amount,
+          fileIndex: index,
+        }));
+        formData.append("payments", JSON.stringify(paymentsData));
 
-      // Añadir imágenes de comprobantes
-      payments.forEach((payment) => {
-        formData.append("paymentImages", payment.file);
-      });
+        // Añadir imágenes de comprobantes
+        payments.forEach((payment) => {
+          formData.append("paymentImages", payment.file);
+        });
+      }
 
       // Realizar la petición al backend
       const result = await createOrder(formData);
@@ -165,7 +196,7 @@ export function useCartCheckout() {
       if (result.success) {
         toast.success("¡Orden creada con éxito!");
         clearCart(); // Vaciar el carrito después de crear la orden
-        router.push("/mis-ordenes"); // Redirigir a la página de órdenes
+        router.push("/tienda/pedidos"); // Redirigir a la página de órdenes
       } else {
         toast.error(result.message || "Error al procesar la orden");
       }
@@ -180,7 +211,16 @@ export function useCartCheckout() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [validateOrder, items, totalAmount, notes, payments, router, clearCart]);
+  }, [
+    validateOrder,
+    items,
+    totalAmount,
+    notes,
+    payments,
+    router,
+    clearCart,
+    paymentMethod,
+  ]);
 
   return {
     items,
@@ -194,6 +234,7 @@ export function useCartCheckout() {
     totalPaidAmount,
     remainingAmount,
     isPaymentComplete,
+    paymentMethod,
     handlePaymentModalOpen,
     handlePaymentModalClose,
     addPayment,
@@ -202,6 +243,7 @@ export function useCartCheckout() {
     handleEditPayment,
     handleEditComplete,
     handleSubmitOrder,
+    handlePaymentMethodChange,
     setEditingPayment,
   };
 }

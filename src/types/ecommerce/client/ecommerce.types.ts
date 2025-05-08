@@ -83,6 +83,7 @@ export interface ItemOrder {
   totalItems: number;
   totalAmount: number;
   status: "PENDIENTE" | "APROBADO" | "ENVIADO" | "ENTREGADO" | "RECHAZADO";
+  methodPayment: "VOUCHER" | "POINTS";
   metadata: Metadata;
   createdAt: Date;
   updatedAt: Date;
@@ -110,6 +111,7 @@ export interface OrderDetailClientResponse {
   id: number;
   userId: string;
   status: "PENDIENTE" | "APROBADO" | "ENVIADO" | "ENTREGADO" | "RECHAZADO";
+  methodPayment: "VOUCHER" | "POINTS";
   totalAmount: number;
   totalItems: number;
   createdAt: Date;

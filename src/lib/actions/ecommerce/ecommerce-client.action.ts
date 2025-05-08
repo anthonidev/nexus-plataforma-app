@@ -1,4 +1,5 @@
 "use server";
+import { MethodPayment } from "@/app/(dashboard)/tienda/hooks/useCartCheckout";
 import { httpClient } from "@/lib/api/http-client";
 import {
   OrderDetailClientResponse,
@@ -47,38 +48,46 @@ interface OrderResponse {
 
 export async function createOrder(formData: FormData): Promise<OrderResponse> {
   try {
-    const paymentsString = formData.get("payments") as string;
-    const itemsString = formData.get("items") as string;
-    const payments = JSON.parse(paymentsString);
-    const items = JSON.parse(itemsString);
-    const paymentImages = formData.getAll("paymentImages") as File[];
+    const methodPayment = formData.get("methodPayment") as MethodPayment;
 
-    if (!Array.isArray(payments) || payments.length === 0) {
-      throw new Error("Debe proporcionar al menos un pago");
+    // Validar los datos según el método de pago
+    if (methodPayment === MethodPayment.VOUCHER) {
+      const paymentsString = formData.get("payments") as string;
+      const payments = JSON.parse(paymentsString);
+      const paymentImages = formData.getAll("paymentImages") as File[];
+
+      if (!Array.isArray(payments) || payments.length === 0) {
+        throw new Error("Debe proporcionar al menos un pago");
+      }
+
+      if (paymentImages.length !== payments.length) {
+        throw new Error(
+          "El número de imágenes debe coincidir con el número de pagos"
+        );
+      }
+
+      const totalAmount = parseFloat(formData.get("totalAmount") as string);
+      const paymentTotal = payments.reduce(
+        (sum: number, payment: any) => sum + payment.amount,
+        0
+      );
+
+      if (Math.abs(totalAmount - paymentTotal) > 0.01) {
+        throw new Error(
+          `La suma de los pagos (${paymentTotal}) debe ser igual al monto total (${totalAmount})`
+        );
+      }
     }
+
+    // Validar items del carrito
+    const itemsString = formData.get("items") as string;
+    const items = JSON.parse(itemsString);
 
     if (!Array.isArray(items) || items.length === 0) {
       throw new Error("Debe proporcionar al menos un producto");
     }
 
-    if (paymentImages.length !== payments.length) {
-      throw new Error(
-        "El número de imágenes debe coincidir con el número de pagos"
-      );
-    }
-
-    const totalAmount = parseFloat(formData.get("totalAmount") as string);
-    const paymentTotal = payments.reduce(
-      (sum: number, payment: any) => sum + payment.amount,
-      0
-    );
-
-    if (Math.abs(totalAmount - paymentTotal) > 0.01) {
-      throw new Error(
-        `La suma de los pagos (${paymentTotal}) debe ser igual al monto total (${totalAmount})`
-      );
-    }
-
+    // Realizar la petición al backend
     const response = await httpClient<OrderResponse>("/api/orders/create", {
       method: "POST",
       body: formData,
@@ -86,7 +95,7 @@ export async function createOrder(formData: FormData): Promise<OrderResponse> {
       skipJsonStringify: true,
     });
 
-    revalidatePath("/mis-ordenes");
+    revalidatePath("/tienda/pedidos");
     revalidatePath("/tienda/carrito");
 
     return response;
@@ -102,7 +111,6 @@ export async function createOrder(formData: FormData): Promise<OrderResponse> {
     };
   }
 }
-
 export interface OrderFilters {
   page?: number;
   limit?: number;

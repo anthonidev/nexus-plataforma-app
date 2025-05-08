@@ -4,7 +4,7 @@ import { useCartStore } from "@/context/CartStore";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ShoppingCart } from "lucide-react";
 import { PaymentImageModal } from "../../planes-de-membresia/components/PaymentImageModal";
-import { useCartCheckout } from "../hooks/useCartCheckout";
+import { useCartCheckout, MethodPayment } from "../hooks/useCartCheckout";
 import { CartEmptyState } from "../components/CartEmptyState";
 import { CartProductList } from "../components/CartProductList";
 import { CheckoutSummary } from "../components/CheckoutSummary";
@@ -22,6 +22,7 @@ export default function CartPage() {
         totalPaidAmount,
         remainingAmount,
         isPaymentComplete,
+        paymentMethod,
         handlePaymentModalOpen,
         handlePaymentModalClose,
         addPayment,
@@ -29,6 +30,7 @@ export default function CartPage() {
         handleEditPayment,
         handleEditComplete,
         handleSubmitOrder,
+        handlePaymentMethodChange,
         setEditingPayment,
     } = useCartCheckout();
 
@@ -75,31 +77,35 @@ export default function CartPage() {
                         isSubmitting={isSubmitting}
                         payments={payments}
                         notes={notes}
+                        paymentMethod={paymentMethod}
                         onNotesChange={setNotes}
                         onAddPayment={handlePaymentModalOpen}
                         onDeletePayment={deletePayment}
                         onEditPayment={handleEditPayment}
                         onSubmitOrder={handleSubmitOrder}
+                        onPaymentMethodChange={handlePaymentMethodChange}
                     />
                 </div>
             </div>
 
-            {/* Modal para añadir comprobante */}
-            <PaymentImageModal
-                isOpen={isPaymentModalOpen}
-                onClose={handlePaymentModalClose}
-                onSubmit={addPayment}
-                initialData={{
-                    bankName: "",
-                    transactionReference: "",
-                    transactionDate: new Date().toISOString().split("T")[0],
-                    amount: remainingAmount > 0 ? remainingAmount : totalAmount,
-                    file: undefined,
-                }}
-            />
+            {/* Modal para añadir comprobante - solo si el método es VOUCHER */}
+            {paymentMethod === MethodPayment.VOUCHER && (
+                <PaymentImageModal
+                    isOpen={isPaymentModalOpen}
+                    onClose={handlePaymentModalClose}
+                    onSubmit={addPayment}
+                    initialData={{
+                        bankName: "",
+                        transactionReference: "",
+                        transactionDate: new Date().toISOString().split("T")[0],
+                        amount: remainingAmount > 0 ? remainingAmount : totalAmount,
+                        file: undefined,
+                    }}
+                />
+            )}
 
             {/* Modal para editar comprobante */}
-            {editingPayment && (
+            {editingPayment && paymentMethod === MethodPayment.VOUCHER && (
                 <PaymentImageModal
                     isOpen={!!editingPayment}
                     onClose={() => setEditingPayment(null)}
