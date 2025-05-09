@@ -1,8 +1,13 @@
 "use server";
-import { UpdateProductFormType } from "@/app/(dashboard)/admin/ecommerce/hooks/useProductDetail";
+import {
+  StockUpdateFormType,
+  UpdateProductFormType,
+} from "@/app/(dashboard)/admin/ecommerce/hooks/useProductDetail";
 import { httpClient } from "@/lib/api/http-client";
 import {
+  DetailOrderAdminResponse,
   DetailProductAdminResponse,
+  ListOrdersAdminResponse,
   ProductAdminFilters,
   ProductsAdminResponse,
   ResponseCategories,
@@ -261,17 +266,13 @@ export async function deleteImageProduct(
 
 export async function addStockProduct(
   productId: number,
-  data: {
-    quantity: number;
-    description?: string;
-    actionType: "INCREASE" | "INCREASE";
-  }
+  data: StockUpdateFormType
 ): Promise<{ success: boolean; message: string }> {
   try {
     const response = await httpClient<{
       success: boolean;
       message: string;
-    }>(`/api/ecommerce/products/${productId}/stock`, {
+    }>(`/api/ecommerce/products/${productId}/stock-history`, {
       method: "POST",
       body: JSON.stringify(data),
       contentType: "application/json",
@@ -288,6 +289,64 @@ export async function addStockProduct(
         error instanceof Error
           ? error.message
           : "Error al agregar stock al producto. Inténtelo nuevamente.",
+    };
+  }
+}
+
+export async function listOrdersAdmin(
+  filters?: ProductAdminFilters
+): Promise<ListOrdersAdminResponse> {
+  try {
+    return await httpClient<ListOrdersAdminResponse>("/api/orders/list", {
+      params: filters as Record<string, unknown>,
+    });
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    throw error;
+  }
+}
+
+export async function getOrderDetail(
+  id: number
+): Promise<DetailOrderAdminResponse> {
+  try {
+    return await httpClient<DetailOrderAdminResponse>(
+      `/api/orders/${id}/item`,
+      {
+        method: "GET",
+      }
+    );
+  } catch (error) {
+    console.error("Error al obtener el producto:", error);
+    throw error;
+  }
+}
+
+export async function updateOrderStatus(
+  id: number,
+  status: "ENVIADO" | "ENTREGADO"
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/orders/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+      contentType: "application/json",
+      skipJsonStringify: true,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al actualizar el estado del pedido:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al actualizar el estado del pedido. Inténtelo nuevamente.",
     };
   }
 }

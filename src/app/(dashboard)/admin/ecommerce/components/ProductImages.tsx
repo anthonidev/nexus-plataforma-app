@@ -2,11 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+    CardContent
 } from "@/components/ui/card";
 import {
     Dialog,
@@ -14,15 +10,14 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+    DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ImageProduct } from "@/types/ecommerce/admin/ecommerce-admin.type";
 import { motion } from "framer-motion";
-import { Check, Edit, Image, Loader2, Star, Trash2 } from "lucide-react";
+import { Check, Edit, Image, Loader2, Plus, Star, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 interface ProductImagesProps {
@@ -31,6 +26,7 @@ interface ProductImagesProps {
     onDelete: (imageId: number) => Promise<void>;
     onUpdateImage: (imageId: number, isMain: boolean, order: number) => Promise<void>;
     imageToDelete: number | null;
+    onAddImage: () => void;
 }
 
 export function ProductImages({
@@ -39,6 +35,7 @@ export function ProductImages({
     onDelete,
     onUpdateImage,
     imageToDelete,
+    onAddImage,
 }: ProductImagesProps) {
     const [selectedImage, setSelectedImage] = useState<ImageProduct | null>(null);
     const [isMain, setIsMain] = useState(false);
@@ -65,6 +62,19 @@ export function ProductImages({
 
     return (
         <div className="space-y-4">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h3 className="text-lg font-semibold">Imágenes del Producto</h3>
+                    <p className="text-sm text-muted-foreground">
+                        {images.length}/5 imágenes utilizadas
+                    </p>
+                </div>
+                <Button onClick={onAddImage} disabled={images.length >= 5}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Imagen
+                </Button>
+            </div>
+
             {images.length === 0 ? (
                 <div className="text-center p-8 border rounded-lg bg-muted/10">
                     <div className="mx-auto w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mb-4">
@@ -74,6 +84,10 @@ export function ProductImages({
                     <p className="text-muted-foreground">
                         Este producto no tiene imágenes asociadas.
                     </p>
+                    <Button onClick={onAddImage} className="mt-4">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar primera imagen
+                    </Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

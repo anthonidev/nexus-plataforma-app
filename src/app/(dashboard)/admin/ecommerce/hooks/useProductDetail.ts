@@ -10,6 +10,8 @@ import {
   deleteImageProduct,
   updateImageProduct,
   getCategoriesEcommerce,
+  addStockProduct,
+  addImageProduct,
 } from "@/lib/actions/ecommerce/ecommerce-admin.action";
 import {
   Category,
@@ -52,6 +54,13 @@ const UpdateProductSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
+// Schema para manejo de stock
+const StockUpdateSchema = z.object({
+  quantity: z.number().min(1, "La cantidad debe ser mayor a 0"),
+  description: z.string().optional(),
+  actionType: z.enum(["INCREASE", "DECREASE"]),
+});
+
 // Interfaz para el stock history
 interface StockHistoryItem {
   id: number;
@@ -75,6 +84,7 @@ interface StockHistoryMeta {
 }
 
 export type UpdateProductFormType = z.infer<typeof UpdateProductSchema>;
+export type StockUpdateFormType = z.infer<typeof StockUpdateSchema>;
 
 export function useProductDetail() {
   const params = useParams<{ id: string }>();
@@ -88,12 +98,16 @@ export function useProductDetail() {
     useState<StockHistoryMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAddingStock, setIsAddingStock] = useState(false);
+  const [isAddingImage, setIsAddingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [benefitsList, setBenefitsList] = useState<string[]>([]);
   const [stockPage, setStockPage] = useState(1);
   const [stockLimit, setStockLimit] = useState(10);
   const [imageToDelete, setImageToDelete] = useState<number | null>(null);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   // Form para edición del producto
   const form = useForm<UpdateProductFormType>({
@@ -106,6 +120,16 @@ export function useProductDetail() {
       benefits: [],
       categoryId: 0,
       isActive: true,
+    },
+  });
+
+  // Form para actualización de stock
+  const stockForm = useForm<StockUpdateFormType>({
+    resolver: zodResolver(StockUpdateSchema),
+    defaultValues: {
+      quantity: 1,
+      description: "",
+      actionType: "INCREASE",
     },
   });
 
@@ -186,24 +210,6 @@ export function useProductDetail() {
 
     try {
       setIsSubmitting(true);
-
-      // const formData = new FormData();
-      // console.log("FormData:", formData); // Verificar el contenido de FormData
-      // console.log("Datos del formulario:", data); // Verificar los datos del formulario
-
-      // // Añadir los campos del formulario al FormData
-      // formData.append("name", data.name);
-      // formData.append("description", data.description);
-      // formData.append("memberPrice", data.memberPrice.toString());
-      // formData.append("publicPrice", data.publicPrice.toString());
-      // formData.append("categoryId", data.categoryId.toString());
-      // formData.append("isActive", data.isActive ? "true" : "false");
-
-      // // // Añadir beneficios como array JSON
-      // if (data.benefits && data.benefits.length > 0) {
-      //   formData.append("benefits", JSON.stringify(data.benefits));
-      // }
-
       const response = await updateProduct(productId, data);
 
       if (response.success) {
@@ -220,6 +226,76 @@ export function useProductDetail() {
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Agregar o quitar stock
+  const handleStockUpdate = async (data: StockUpdateFormType) => {
+    if (isNaN(productId)) return;
+
+    try {
+      setIsAddingStock(true);
+      const response = await addStockProduct(productId, data);
+
+      if (response.success) {
+        toast.success(
+          `Stock ${
+            data.actionType === "INCREASE" ? "agregado" : "removido"
+          } correctamente`
+        );
+        setShowStockModal(false);
+        stockForm.reset({
+          quantity: 1,
+          description: "",
+          actionType: "INCREASE",
+        });
+        await fetchProductDetails();
+        await fetchStockHistory();
+      } else {
+        toast.error(
+          response.message ||
+            `Error al ${
+              data.actionType === "INCREASE" ? "agregar" : "quitar"
+            } stock`
+        );
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : `Error al ${
+              data.actionType === "INCREASE" ? "agregar" : "quitar"
+            } stock`;
+      toast.error(errorMessage);
+    } finally {
+      setIsAddingStock(false);
+    }
+  };
+
+  // Agregar nueva imagen
+  const handleAddImage = async (file: File) => {
+    if (isNaN(productId) || !file) return;
+
+    try {
+      setIsAddingImage(true);
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await addImageProduct(productId, formData);
+
+      if (response.success) {
+        toast.success("Imagen agregada correctamente");
+        setShowImageModal(false);
+        await fetchProductDetails();
+      } else {
+        toast.error(response.message || "Error al agregar la imagen");
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Error al agregar la imagen";
+      toast.error(errorMessage);
+    } finally {
+      setIsAddingImage(false);
     }
   };
 
@@ -321,21 +397,30 @@ export function useProductDetail() {
     stockHistoryMeta,
     isLoading,
     isSubmitting,
+    isAddingStock,
+    isAddingImage,
     error,
     categories,
     benefitsList,
     form,
+    stockForm,
     imageToDelete,
+    showStockModal,
+    showImageModal,
 
     // Funciones
     fetchProductDetails,
     updateProductDetails: form.handleSubmit(updateProductDetails),
+    handleStockUpdate: stockForm.handleSubmit(handleStockUpdate),
+    handleAddImage,
     updateImage,
     deleteImage,
     addBenefit,
     removeBenefit,
     handleStockPageChange,
     handleStockLimitChange,
+    setShowStockModal,
+    setShowImageModal,
     goBack: () => router.back(),
   };
 }

@@ -1,17 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/common/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Package } from "lucide-react";
-import { useProductDetail } from "../../../hooks/useProductDetail";
-import { ProductSkeleton } from "../../../components/ProductSkeleton";
-import { ProductErrorState } from "../../../components/ProductErrorState";
+import { Package } from "lucide-react";
 import { ProductBasicInfo } from "../../../components/ProductBasicInfo";
-import { ProductImages } from "../../../components/ProductImages";
 import { ProductBenefits } from "../../../components/ProductBenefits";
+import { ProductErrorState } from "../../../components/ProductErrorState";
+import { ProductImages } from "../../../components/ProductImages";
+import { ProductSkeleton } from "../../../components/ProductSkeleton";
 import { StockHistory } from "../../../components/StockHistory";
-
+import { ImageUploadModal } from "../../../components/modal/ImageUploadModal";
+import { StockUpdateModal } from "../../../components/modal/StockUpdateModal";
+import { useProductDetail } from "../../../hooks/useProductDetail";
 
 export default function ProductDetailPage() {
     const {
@@ -20,30 +21,35 @@ export default function ProductDetailPage() {
         stockHistoryMeta,
         isLoading,
         isSubmitting,
+        isAddingStock,
+        isAddingImage,
         error,
         categories,
         benefitsList,
         form,
+        stockForm,
         imageToDelete,
+        showStockModal,
+        showImageModal,
 
-        // Funciones
-        fetchProductDetails,
         updateProductDetails,
+        handleStockUpdate,
+        handleAddImage,
         updateImage,
         deleteImage,
         addBenefit,
         removeBenefit,
         handleStockPageChange,
         handleStockLimitChange,
+        setShowStockModal,
+        setShowImageModal,
         goBack
     } = useProductDetail();
 
-    // Mostrar pantalla de carga
     if (isLoading) {
         return <ProductSkeleton />;
     }
 
-    // Mostrar pantalla de error
     if (error || !product) {
         return (
             <ProductErrorState
@@ -55,24 +61,15 @@ export default function ProductDetailPage() {
 
     return (
         <div className="container max-w-7xl mx-auto p-6">
-            <div className="mb-6">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mb-4 -ml-3"
-                    onClick={goBack}
-                >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Volver
-                </Button>
-                <h1 className="text-3xl font-bold flex items-center gap-2">
-                    <Package className="h-8 w-8 text-primary" />
-                    {product.name}
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    SKU: {product.sku} | Última actualización: {new Date(product.updatedAt).toLocaleString('es-ES')}
-                </p>
-            </div>
+
+            <PageHeader
+                title={product.name}
+                subtitle={` SKU: ${product.sku} | Última actualización: ${new Date(product.updatedAt).toLocaleString('es-ES')}`}
+                variant="gradient"
+                icon={Package}
+                backUrl="/admin/ecommerce/productos"
+
+            />
 
             <Tabs defaultValue="info" className="space-y-6">
                 <TabsList>
@@ -113,6 +110,7 @@ export default function ProductDetailPage() {
                                 onDelete={deleteImage}
                                 onUpdateImage={updateImage}
                                 imageToDelete={imageToDelete}
+                                onAddImage={() => setShowImageModal(true)}
                             />
                         </CardContent>
                     </Card>
@@ -146,11 +144,30 @@ export default function ProductDetailPage() {
                                 meta={stockHistoryMeta}
                                 onPageChange={handleStockPageChange}
                                 onPageSizeChange={handleStockLimitChange}
+                                onUpdateStock={() => setShowStockModal(true)}
+                                currentStock={product.stock}
                             />
                         </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            <StockUpdateModal
+                isOpen={showStockModal}
+                onClose={() => setShowStockModal(false)}
+                onSubmit={handleStockUpdate}
+                form={stockForm}
+                isSubmitting={isAddingStock}
+                currentStock={product.stock}
+            />
+
+            <ImageUploadModal
+                isOpen={showImageModal}
+                onClose={() => setShowImageModal(false)}
+                onUpload={handleAddImage}
+                isSubmitting={isAddingImage}
+                currentImagesCount={product.images.length}
+            />
         </div>
     );
 }
