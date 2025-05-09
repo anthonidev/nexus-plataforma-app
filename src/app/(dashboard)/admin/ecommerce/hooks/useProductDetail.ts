@@ -187,22 +187,24 @@ export function useProductDetail() {
     try {
       setIsSubmitting(true);
 
-      const formData = new FormData();
+      // const formData = new FormData();
+      // console.log("FormData:", formData); // Verificar el contenido de FormData
+      // console.log("Datos del formulario:", data); // Verificar los datos del formulario
 
-      // Añadir los campos del formulario al FormData
-      formData.append("name", data.name);
-      formData.append("description", data.description);
-      formData.append("memberPrice", data.memberPrice.toString());
-      formData.append("publicPrice", data.publicPrice.toString());
-      formData.append("categoryId", data.categoryId.toString());
-      formData.append("isActive", data.isActive ? "true" : "false");
+      // // Añadir los campos del formulario al FormData
+      // formData.append("name", data.name);
+      // formData.append("description", data.description);
+      // formData.append("memberPrice", data.memberPrice.toString());
+      // formData.append("publicPrice", data.publicPrice.toString());
+      // formData.append("categoryId", data.categoryId.toString());
+      // formData.append("isActive", data.isActive ? "true" : "false");
 
-      // Añadir beneficios como array JSON
-      if (data.benefits && data.benefits.length > 0) {
-        formData.append("benefits", JSON.stringify(data.benefits));
-      }
+      // // // Añadir beneficios como array JSON
+      // if (data.benefits && data.benefits.length > 0) {
+      //   formData.append("benefits", JSON.stringify(data.benefits));
+      // }
 
-      const response = await updateProduct(productId, formData);
+      const response = await updateProduct(productId, data);
 
       if (response.success) {
         toast.success("Producto actualizado correctamente");

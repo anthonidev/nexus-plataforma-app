@@ -1,36 +1,22 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { TablePagination } from "@/components/common/table/TablePagination";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TablePagination } from "@/components/common/table/TablePagination";
 import { formatCurrency } from "@/utils/format-currency.utils";
 
+import { ProductAdmin } from "@/types/ecommerce/admin/ecommerce-admin.type";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import {
-    Archive,
-    CheckCircle2,
-    CircleOff,
     Eye,
     FileEdit,
-    MoreVertical,
     Package,
-    Pencil,
-    Tags,
-    Trash2,
-    XCircle,
+    Tags
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ProductAdmin } from "@/types/ecommerce/admin/ecommerce-admin.type";
 
 interface ProductsMobileViewProps {
     products: ProductAdmin[];
@@ -62,37 +48,7 @@ export function ProductsMobileView({
         router.push(`/admin/ecommerce/productos/detalle/${productId}`);
     };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "IN_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        En stock
-                    </Badge>
-                );
-            case "LOW_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
-                        <CircleOff className="h-3 w-3 mr-1" />
-                        Stock bajo
-                    </Badge>
-                );
-            case "OUT_OF_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
-                        <XCircle className="h-3 w-3 mr-1" />
-                        Sin stock
-                    </Badge>
-                );
-            default:
-                return (
-                    <Badge variant="outline">
-                        {status}
-                    </Badge>
-                );
-        }
-    };
+
 
     if (products.length === 0 && !isLoading) {
         return (
@@ -161,21 +117,6 @@ export function ProductsMobileView({
                                             <div className="flex items-center gap-1">
                                                 <Tags className="h-3.5 w-3.5 text-muted-foreground" />
                                                 <span className="text-sm font-medium">{product.category.name}</span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-muted-foreground mb-1">Estado</p>
-                                            <div className="flex flex-col gap-1">
-                                                {getStatusBadge(product.status)}
-                                                <Badge
-                                                    variant={product.isActive ? "default" : "outline"}
-                                                    className={`mt-1 text-xs ${product.isActive
-                                                        ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-400"
-                                                        : "bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-400"
-                                                        }`}
-                                                >
-                                                    {product.isActive ? "Activo" : "Inactivo"}
-                                                </Badge>
                                             </div>
                                         </div>
                                     </div>

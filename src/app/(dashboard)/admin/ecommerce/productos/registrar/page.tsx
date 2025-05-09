@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHeader } from "@/components/common/PageHeader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import {
     AlertCircle,
-    ArrowLeft,
     DollarSign,
     Image as ImageIcon,
     Loader2,
@@ -25,13 +25,11 @@ import {
     Plus,
     Trash2
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SuccessModal } from "../../components/modal/SuccessModal";
 import { useProductRegistration } from "../../hooks/useProductRegistration";
 
 export default function RegisterProductPage() {
-    const router = useRouter();
     const {
         form,
         categories,
@@ -74,28 +72,18 @@ export default function RegisterProductPage() {
 
     return (
         <div className="container mx-auto p-6 max-w-5xl">
-            <div className="mb-8">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mb-4 -ml-3"
-                    onClick={() => router.back()}
-                >
-                    <ArrowLeft className="h-4 w-4 mr-1" />
-                    Volver
-                </Button>
-                <h1 className="text-3xl font-bold flex items-center gap-2">
-                    <Package className="h-8 w-8 text-primary" />
-                    Registrar Nuevo Producto
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Complete la información del producto para agregarlo al catálogo
-                </p>
-            </div>
+            <PageHeader
+                title="Registrar Nuevo Producto"
+                subtitle="Complete la información del producto para agregarlo al catálogo"
+                variant="gradient"
+                icon={Package}
+                backUrl="/admin/ecommerce/productos"
+
+            />
+
 
             <form onSubmit={onSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                    {/* Información Básica */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -219,9 +207,7 @@ export default function RegisterProductPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Imágenes y Beneficios */}
                     <div className="space-y-6">
-                        {/* Imágenes */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -298,7 +284,6 @@ export default function RegisterProductPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Beneficios */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
@@ -345,15 +330,7 @@ export default function RegisterProductPage() {
                     </div>
                 </div>
 
-                {/* Botón de envío */}
                 <div className="flex justify-end gap-4">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                    >
-                        Cancelar
-                    </Button>
                     <Button
                         type="submit"
                         disabled={isLoading}

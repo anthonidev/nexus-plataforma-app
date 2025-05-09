@@ -19,13 +19,10 @@ import { es } from "date-fns/locale";
 import { motion } from "framer-motion";
 import {
     Archive,
-    CheckCircle2,
-    CircleOff,
     Eye,
     FileEdit,
     Image as ImageIcon,
-    Tags,
-    XCircle
+    Tags
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -33,7 +30,6 @@ import { useRouter } from "next/navigation";
 interface ProductsTableProps {
     products: ProductAdmin[];
     isLoading: boolean;
-
     meta: {
         totalItems: number;
         itemsPerPage: number;
@@ -42,7 +38,6 @@ interface ProductsTableProps {
     } | null;
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
-
 }
 
 export function ProductsTable({
@@ -60,37 +55,7 @@ export function ProductsTable({
         router.push(`/admin/ecommerce/productos/detalle/${productId}`);
     };
 
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "IN_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        En stock
-                    </Badge>
-                );
-            case "LOW_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
-                        <CircleOff className="h-3 w-3 mr-1" />
-                        Stock bajo
-                    </Badge>
-                );
-            case "OUT_OF_STOCK":
-                return (
-                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
-                        <XCircle className="h-3 w-3 mr-1" />
-                        Sin stock
-                    </Badge>
-                );
-            default:
-                return (
-                    <Badge variant="outline">
-                        {status}
-                    </Badge>
-                );
-        }
-    };
+
 
     const columns: ColumnDef<ProductAdmin>[] = [
         {
@@ -162,11 +127,6 @@ export function ProductsTable({
                     {row.original.stock}
                 </span>
             ),
-        },
-        {
-            accessorKey: "status",
-            header: "Estado",
-            cell: ({ row }) => getStatusBadge(row.original.status),
         },
         {
             accessorKey: "isActive",
