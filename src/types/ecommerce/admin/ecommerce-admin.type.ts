@@ -171,6 +171,12 @@ export interface DetailOrderAdminResponse {
   orderDetails: OrderDetail[];
   orderHistory: OrderHistory[];
   payment: PaymentOrder;
+  user: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    documentNumber?: string;
+  };
 }
 
 export interface OrderDetail {
@@ -203,4 +209,20 @@ export interface PaymentOrder {
   amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED";
   methodPayment: "VOUCHER" | "POINTS" | "PAYMENT_GATEWAY";
+}
+
+export interface OrderAdminFilters {
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  status?:
+    | "PENDIENTE"
+    | "APROBADO"
+    | "ENVIADO"
+    | "ENTREGADO"
+    | "RECHAZADO"
+    | "all"
+    | undefined;
 }

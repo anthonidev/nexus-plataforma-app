@@ -8,6 +8,7 @@ import {
   DetailOrderAdminResponse,
   DetailProductAdminResponse,
   ListOrdersAdminResponse,
+  OrderAdminFilters,
   ProductAdminFilters,
   ProductsAdminResponse,
   ResponseCategories,
@@ -294,7 +295,7 @@ export async function addStockProduct(
 }
 
 export async function listOrdersAdmin(
-  filters?: ProductAdminFilters
+  filters?: OrderAdminFilters
 ): Promise<ListOrdersAdminResponse> {
   try {
     return await httpClient<ListOrdersAdminResponse>("/api/orders/list", {
