@@ -14,9 +14,11 @@ import { es } from "date-fns/locale";
 import {
     Calendar,
     CreditCard,
+    ExternalLink,
     Info,
     X,
 } from "lucide-react";
+import Link from "next/link";
 
 interface TransactionDetailModalProps {
     transaction: PointTransactionItem;
@@ -151,15 +153,29 @@ export function TransactionDetailModal({
                     )}
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="flex sm:flex-row gap-2">
                     <Button
                         variant="outline"
                         onClick={onClose}
-                        className="w-full sm:w-auto flex items-center justify-center gap-1"
+                        className="flex-1"
                     >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4 mr-2" />
                         Cerrar
                     </Button>
+
+                    <Link
+                        href={`/historial-puntos/detalle/${transaction.id}`}
+                        className="flex-1"
+                        onClick={onClose}
+                    >
+                        <Button
+                            className="w-full"
+                            variant="default"
+                        >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Ver Detalle Completo
+                        </Button>
+                    </Link>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

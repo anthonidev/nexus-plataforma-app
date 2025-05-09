@@ -14,6 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  ExternalLink,
   Eye,
   FilterIcon,
   History,
@@ -25,6 +26,7 @@ import { DesktopTableView } from "./DesktopTableView";
 import { MobileTableView } from "./MobileTableView";
 import { PointsTransactionsFilters } from "./PointsTransactionsFilters";
 import { TransactionDetailModal } from "./TransactionDetailModal";
+import Link from "next/link";
 
 export interface PointsTransactionsFiltersState {
   status?: "PENDING" | "COMPLETED" | "CANCELLED" | "FAILED";
@@ -153,22 +155,38 @@ export default function PointsTransactionsTable({
       },
       {
         id: "actions",
-        header: "Detalle",
+        header: "Acciones",
         cell: ({ row }) => {
+          const transaction = row.original;
+
           return (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleViewDetail(row.original)}
-              className="hover:bg-primary/10 hover:text-primary"
-              title="Ver detalle"
-            >
-              <Eye className="h-4 w-4" />
-              <span className="sr-only">Ver detalle</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleViewDetail(transaction)}
+                className="hover:bg-primary/10 hover:text-primary"
+                title="Vista rápida"
+              >
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">Vista rápida</span>
+              </Button>
+
+              <Link href={`/historial-puntos/detalle/${transaction.id}`} passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:bg-primary/10 hover:text-primary"
+                  title="Ver detalle completo"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="sr-only">Ver detalle completo</span>
+                </Button>
+              </Link>
+            </div>
           );
         },
-      },
+      }
     ],
     []
   );

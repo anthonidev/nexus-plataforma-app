@@ -18,6 +18,9 @@ export default function Home() {
     if (userRole === "CLI") {
       router.push("/dashboard");
     }
+    else if (userRole === "FAC") {
+      router.push("/billing/dashboard");
+    }
     // Aquí se pueden agregar más redirecciones para otros roles en el futuro
   }, [userRole, router]);
 

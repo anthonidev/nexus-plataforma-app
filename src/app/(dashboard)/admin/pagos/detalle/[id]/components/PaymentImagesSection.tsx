@@ -8,24 +8,28 @@ import Image from "next/image";
 interface PaymentImagesSectionProps {
     images: PaymentImageResponse[];
     onImageClick: (url: string) => void;
+    methodPayment: string;
 }
 
 export default function PaymentImagesSection({
     images,
     onImageClick,
+    methodPayment
 }: PaymentImagesSectionProps) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <ImageIcon className="h-5 w-5 text-primary" />
-                    Comprobantes
+                    {methodPayment === "VOUCHER" && "Comprobantes"}
+                    {methodPayment === "POINTS" && "Puntos"}{" "}
+                    {methodPayment === "PAYMENT_GATEWAY" && "Comprobante de pago"}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 {images.length > 0 ? (
                     <div className="grid grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
-                        {images.map((image) => (
+                        {methodPayment === "VOUCHER" && images.map((image) => (
                             <div
                                 key={image.id}
                                 className="border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
@@ -60,6 +64,44 @@ export default function PaymentImagesSection({
                                                 new Date(image.transactionDate),
                                                 "dd/MM/yyyy"
                                             )}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {methodPayment === "POINTS" && images.map((image) => (
+                            <div
+                                key={image.id}
+                                className="border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                            // href={"/historial-puntos/detalle/" + image.pointsTransaction?.id}
+                            >
+                                <div className="w-full h-24 relative bg-muted">
+                                    <Image
+                                        width={500}
+                                        height={500}
+                                        src="/imgs/logo.png"
+                                        alt={`Comprobante #${image.id}`}
+                                        className="w-full h-full object-contain"
+                                    />
+
+                                </div>
+                                <div className="p-2 bg-muted/30 text-xs">
+                                    <div className="flex items-center gap-1 text-primary/70 mb-1">
+                                        <Building className="h-3 w-3 flex-shrink-0" />
+                                        <p className="font-medium truncate">{image.bankName || "Banco"}</p>
+                                    </div>
+                                    <p className="font-medium truncate">
+                                        {image.transactionReference}
+                                    </p>
+                                    <div className="flex justify-between mt-1 text-muted-foreground">
+                                        <span>{formatCurrency(image.amount)}</span>
+                                        <span>
+                                            {new Date(image.transactionDate).toLocaleDateString('es-ES', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric',
+                                                timeZone: 'UTC'
+                                            })}
                                         </span>
                                     </div>
                                 </div>

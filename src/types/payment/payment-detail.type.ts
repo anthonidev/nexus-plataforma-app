@@ -5,6 +5,10 @@ export interface PaymentImageResponse {
   bankName?: string;
   transactionReference: string;
   transactionDate: string;
+  pointsTransaction?: {
+    id: number;
+    amount: number;
+  };
 }
 
 export interface PaymentUserResponse {
@@ -31,6 +35,7 @@ export interface PaymentResponse {
   id: number;
   amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
+  methodPayment: "VOUCHER" | "POINTS" | "PAYMENT_GATEWAY";
 
   codeOperation: string | null;
   banckName: string | null;

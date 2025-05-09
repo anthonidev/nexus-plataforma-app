@@ -22,6 +22,7 @@ import {
   XCircle
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useState } from "react";
 import { usePaymentDetail } from "../../hooks/usePaymentDetail";
@@ -293,18 +294,19 @@ export default function PaymentDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Imágenes de comprobantes */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-primary" />
-              Comprobantes
+              {payment.methodPayment === "VOUCHER" && "Comprobantes"}
+              {payment.methodPayment === "POINTS" && "Puntos"}{" "}
+              {payment.methodPayment === "PAYMENT_GATEWAY" && "Comprobante de pago"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {payment.images && payment.images.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
-                {payment.images.map((image) => (
+                {payment.methodPayment === "VOUCHER" && payment.images.map((image) => (
                   <div
                     key={image.id}
                     className="border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
@@ -346,6 +348,45 @@ export default function PaymentDetailPage() {
                     </div>
                   </div>
                 ))}
+                {payment.methodPayment === "POINTS" && payment.images.map((image) => (
+                  <Link
+                    key={image.id}
+                    className="border rounded-md overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                    href={"/historial-puntos/detalle/" + image.pointsTransaction?.id}
+                  >
+                    <div className="w-full h-24 relative bg-muted">
+                      <Image
+                        width={500}
+                        height={500}
+                        src="/imgs/logo.png"
+                        alt={`Comprobante #${image.id}`}
+                        className="w-full h-full object-contain"
+                      />
+
+                    </div>
+                    <div className="p-2 bg-muted/30 text-xs">
+                      <div className="flex items-center gap-1 text-primary/70 mb-1">
+                        <Building className="h-3 w-3 flex-shrink-0" />
+                        <p className="font-medium truncate">{image.bankName || "Banco"}</p>
+                      </div>
+                      <p className="font-medium truncate">
+                        {image.transactionReference}
+                      </p>
+                      <div className="flex justify-between mt-1 text-muted-foreground">
+                        <span>{formatCurrency(image.amount)}</span>
+                        <span>
+                          {new Date(image.transactionDate).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            timeZone: 'UTC'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+
               </div>
             ) : (
               <div className="text-center py-6 text-muted-foreground">

@@ -10,11 +10,13 @@ import {
     CreditCard,
     DollarSign,
     Calendar,
-    XCircle
+    XCircle,
+    ExternalLink
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 
 interface MobileTableViewProps {
     transactions: PointTransactionItem[];
@@ -142,16 +144,27 @@ export function MobileTableView({ transactions, onViewDetail }: MobileTableViewP
                                 </div>
 
                                 {/* Pie con botón de acción */}
-                                <div className="p-3 bg-muted/10">
+                                <div className="p-3 bg-muted/10 flex gap-2">
                                     <Button
-                                        variant="default"
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => onViewDetail(transaction)}
-                                        className="w-full flex items-center justify-center gap-2"
+                                        className="flex-1 flex items-center justify-center gap-1"
                                     >
-                                        <Eye className="h-4 w-4" />
-                                        <span>Ver detalles</span>
+                                        <Eye className="h-3.5 w-3.5" />
+                                        <span>Vista rápida</span>
                                     </Button>
+
+                                    <Link href={`/historial-puntos/detalle/${transaction.id}`} className="flex-1">
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="w-full flex items-center justify-center gap-1"
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                            <span>Detalle</span>
+                                        </Button>
+                                    </Link>
                                 </div>
                             </div>
                         </CardContent>

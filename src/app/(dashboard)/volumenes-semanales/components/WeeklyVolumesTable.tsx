@@ -18,6 +18,7 @@ import {
   ArrowRight,
   BarChart3,
   ChartBarIcon,
+  ExternalLink,
   Eye,
   FilterIcon,
   RefreshCw,
@@ -27,6 +28,7 @@ import { VolumeDetailModal } from "./VolumeDetailModal";
 import { DesktopTableView } from "./DesktopTableView";
 import { WeeklyVolumesFilters } from "./WeeklyVolumesFilters";
 import { MobileTableView } from "./MobileTableView";
+import Link from "next/link";
 
 export interface WeeklyVolumesFiltersState {
   status?: "PENDING" | "PROCESSED" | "CANCELLED";
@@ -141,22 +143,38 @@ export default function WeeklyVolumesTable({
       },
       {
         id: "actions",
-        header: "Detalle",
+        header: "Acciones",
         cell: ({ row }) => {
+          const volume = row.original;
+
           return (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleViewDetail(row.original)}
-              className="hover:bg-primary/10 hover:text-primary"
-              title="Ver detalle"
-            >
-              <Eye className="h-4 w-4" />
-              <span className="sr-only">Ver detalle</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleViewDetail(volume)}
+                className="hover:bg-primary/10 hover:text-primary"
+                title="Vista rápida"
+              >
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">Vista rápida</span>
+              </Button>
+
+              <Link href={`/volumenes-semanales/detalle/${volume.id}`} passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:bg-primary/10 hover:text-primary"
+                  title="Ver detalle completo"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="sr-only">Ver detalle completo</span>
+                </Button>
+              </Link>
+            </div>
           );
         },
-      },
+      }
     ],
     []
   );
