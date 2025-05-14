@@ -9,10 +9,7 @@ export interface WithdrawalsResponse {
     bankName: string;
     accountNumber: string;
     cci?: string;
-    reviewedBy?: {
-      id: string;
-      email: string;
-    };
+    metadata?: Record<string, any>;
   }[];
   meta: Meta;
 }

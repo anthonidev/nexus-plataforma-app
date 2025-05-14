@@ -1,6 +1,7 @@
 "use client";
 
 import { useUsersCreatedByDate } from "@/app/(dashboard)/billing/dashboard/hooks/useUsersCreatedByDate";
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
@@ -8,13 +9,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { RefreshCw, UserPlus, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { AlertCircle, RefreshCw, UserPlus } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 // Define chart configuration
 const chartConfig = {
