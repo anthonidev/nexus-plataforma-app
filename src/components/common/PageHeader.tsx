@@ -1,4 +1,3 @@
-// src/components/common/PageHeader.tsx
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, LucideIcon } from "lucide-react";

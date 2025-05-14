@@ -1,36 +1,33 @@
 "use client";
 
-import { useWithdrawals } from "./hooks/useWithdrawals";
-import WithdrawalsHeader from "./components/WithdrawalsHeader";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Button } from "@/components/ui/button";
+import { FileText, RefreshCw } from "lucide-react";
+import WithdrawalModal from "./components/WithdrawalModal";
 import WithdrawalsSummaryCard from "./components/WithdrawalsSummaryCard";
 import WithdrawalsTable from "./components/WithdrawalsTable";
-import WithdrawalModal from "./components/WithdrawalModal";
+import { useWithdrawals } from "./hooks/useWithdrawals";
 
 export default function MisRetirosPage() {
   const {
-    // Datos principales
     withdrawals,
     withdrawalsInfo,
     isLoading,
     error,
 
-    // Estado del modal
     isModalOpen,
     openModal,
     closeModal,
 
-    // Estado del formulario
     withdrawalAmount,
     setWithdrawalAmount,
     isSubmitting,
 
-    // Paginación
     currentPage,
     itemsPerPage,
     handlePageChange,
     handleItemsPerPageChange,
 
-    // Acciones
     submitWithdrawal,
     refreshData,
   } = useWithdrawals();
@@ -39,12 +36,38 @@ export default function MisRetirosPage() {
 
   return (
     <div className="container py-8">
-      <WithdrawalsHeader
-        onRefresh={refreshData}
-        onOpenWithdrawalModal={openModal}
-        canWithdraw={canWithdraw}
-        isLoading={isLoading}
+
+      <PageHeader
+        title="Mis Retiros"
+        subtitle="Visualiza tus puntos disponibles y solicita retiros"
+        variant="gradient"
+        icon={FileText}
+        actions={
+          <div >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshData}
+              disabled={isLoading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+              />
+              <span>Actualizar</span>
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={openModal}
+              disabled={!canWithdraw || isLoading}
+            >
+              <span>Solicitar Retiro</span>
+            </Button>
+          </div>
+        }
       />
+
 
       <WithdrawalsSummaryCard
         withdrawalsInfo={withdrawalsInfo}

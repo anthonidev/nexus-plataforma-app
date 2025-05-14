@@ -1,7 +1,10 @@
 "use server";
 
 import { httpClient } from "@/lib/api/http-client";
-import { FinanceWithdrawals } from "@/types/withdrawals/finance-withdrawals.type";
+import {
+  FinanceWithdrawalDetailResponse,
+  FinanceWithdrawals,
+} from "@/types/withdrawals/finance-withdrawals.type";
 
 export async function getAllWithdrawals(
   params?: Record<string, unknown> | undefined
@@ -55,6 +58,26 @@ export async function rejectWithdrawal(
     );
   } catch (error) {
     console.error("Error al rechazar el retiro:", error);
+    throw error;
+  }
+}
+
+export async function getWithdrawalDetail(
+  id: number,
+  params?: Record<string, unknown> | undefined
+): Promise<FinanceWithdrawalDetailResponse> {
+  try {
+    return await httpClient<FinanceWithdrawalDetailResponse>(
+      "/api/finance/withdrawals/" + id,
+      {
+        params: params,
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Error al obtener el detalle del pago del usuario con sus puntos usados:",
+      error
+    );
     throw error;
   }
 }

@@ -1,15 +1,7 @@
-"use client";
-
+import { TablePagination } from "@/components/common/table/TablePagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -19,16 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import { format } from "date-fns";
 import {
   AlertCircle,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   CreditCard,
-  RefreshCw,
+  Eye,
+  RefreshCw
 } from "lucide-react";
+import { useState } from "react";
+import { MobileWithdrawalsView } from "./MobileWithdrawalsView";
+import { WithdrawalDetailModal } from "./WithdrawalDetailModal";
 
 // Configuración de estados para badges
 const statusConfig = {
@@ -90,6 +85,19 @@ export default function WithdrawalsTable({
   onPageSizeChange,
   onRefresh,
 }: WithdrawalsTableProps) {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  const handleViewDetails = (withdrawal: any) => {
+    setSelectedWithdrawal(withdrawal);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsDetailModalOpen(false);
+  };
+
   if (isLoading) {
     return <WithdrawalsTableSkeleton />;
   }
@@ -130,137 +138,131 @@ export default function WithdrawalsTable({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Monto</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha Solicitud</TableHead>
-                <TableHead>Fecha Revisión</TableHead>
-                <TableHead>Banco</TableHead>
-                <TableHead>Cuenta</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {withdrawals.length > 0 ? (
-                withdrawals.map((withdrawal) => (
-                  <TableRow key={withdrawal.id}>
-                    <TableCell className="font-medium">
-                      #{withdrawal.id}
-                    </TableCell>
-                    <TableCell>{formatCurrency(withdrawal.amount)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          statusConfig[withdrawal.status]?.variant ||
-                          "bg-gray-100 text-gray-800"
-                        }
-                      >
-                        {statusConfig[withdrawal.status]?.label ||
-                          withdrawal.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>
-                          {format(new Date(withdrawal.createdAt), "dd/MM/yyyy")}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {withdrawal.reviewedAt ? (
+        {isMobile ? (
+          <MobileWithdrawalsView
+            withdrawals={withdrawals}
+            onViewDetails={handleViewDetails}
+          />
+        ) : (
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Monto</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha Solicitud</TableHead>
+                  <TableHead>Fecha Revisión</TableHead>
+                  <TableHead>Banco</TableHead>
+                  <TableHead>Cuenta</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withdrawals.length > 0 ? (
+                  withdrawals.map((withdrawal) => (
+                    <TableRow key={withdrawal.id}>
+                      <TableCell className="font-medium">
+                        #{withdrawal.id}
+                      </TableCell>
+                      <TableCell>{formatCurrency(withdrawal.amount)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            statusConfig[withdrawal.status]?.variant ||
+                            "bg-gray-100 text-gray-800"
+                          }
+                        >
+                          {statusConfig[withdrawal.status]?.label ||
+                            withdrawal.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>
-                            {format(
-                              new Date(withdrawal.reviewedAt),
-                              "dd/MM/yyyy"
-                            )}
+                            {format(new Date(withdrawal.createdAt), "dd/MM/yyyy")}
                           </span>
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{withdrawal.bankName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-mono text-xs">
-                        {withdrawal.accountNumber}
-                      </span>
+                      </TableCell>
+                      <TableCell>
+                        {withdrawal.reviewedAt ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>
+                              {format(
+                                new Date(withdrawal.reviewedAt),
+                                "dd/MM/yyyy"
+                              )}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{withdrawal.bankName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-xs">
+                          {withdrawal.accountNumber}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(withdrawal)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No hay retiros registrados
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No hay retiros registrados
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {meta && meta.totalItems > 0 && (
-          <div className="flex items-center justify-between space-x-2 mt-4">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm text-muted-foreground">
-                Mostrando
-                <Select
-                  value={`${itemsPerPage}`}
-                  onValueChange={(value) => {
-                    onPageSizeChange(Number(value));
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[70px] mx-1">
-                    <SelectValue placeholder={itemsPerPage} />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                de {meta.totalItems} registros
-              </p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage - 1)}
-                disabled={!meta || currentPage <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm">
-                Página {currentPage} de {meta?.totalPages || 1}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={!meta || currentPage >= meta.totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+                )}
+              </TableBody>
+            </Table>
           </div>
         )}
+
+        {meta && meta.totalItems > 0 && (
+          <div className="mt-4">
+            <TablePagination
+              pagination={{
+                pageIndex: currentPage - 1,
+                pageSize: itemsPerPage,
+              }}
+              pageCount={meta.totalPages}
+              pageIndex={currentPage - 1}
+              totalItems={meta.totalItems}
+              setPageIndex={(index) => onPageChange(Number(index) + 1)}
+              setPageSize={() => onPageSizeChange}
+              previousPage={() => onPageChange(currentPage - 1)}
+              nextPage={() => onPageChange(currentPage + 1)}
+              canPreviousPage={currentPage <= 1}
+              canNextPage={currentPage >= meta.totalPages}
+            />
+          </div>
+        )}
+
+        <WithdrawalDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseModal}
+          withdrawal={selectedWithdrawal}
+        />
       </CardContent>
     </Card>
   );
@@ -273,7 +275,7 @@ function WithdrawalsTableSkeleton() {
         <Skeleton className="h-6 w-48" />
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="hidden md:block rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -297,6 +299,9 @@ function WithdrawalsTableSkeleton() {
                 </TableHead>
                 <TableHead>
                   <Skeleton className="h-4 w-32" />
+                </TableHead>
+                <TableHead>
+                  <Skeleton className="h-4 w-16" />
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -324,10 +329,45 @@ function WithdrawalsTableSkeleton() {
                   <TableCell>
                     <Skeleton className="h-4 w-32" />
                   </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-8 w-8" />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="md:hidden space-y-4">
+          {[...Array(3)].map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-4 w-10" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3 border-t">
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="flex items-center justify-between space-x-2 mt-4">
