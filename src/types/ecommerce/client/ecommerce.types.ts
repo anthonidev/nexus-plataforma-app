@@ -8,6 +8,7 @@ export interface Item {
   id: number;
   name: string;
   description: string;
+  composition?: string;
   sku: string;
   memberPrice: number;
   publicPrice: number;
@@ -43,6 +44,7 @@ export interface Product {
   id: number;
   name: string;
   description: string;
+  composition?: string;
   sku: string;
   memberPrice: number;
   publicPrice: number;
@@ -143,3 +145,5 @@ export interface OrderHistory {
   metadata: null;
   createdAt: Date;
 }
+
+//-------------------------------------------------------------------------------------------

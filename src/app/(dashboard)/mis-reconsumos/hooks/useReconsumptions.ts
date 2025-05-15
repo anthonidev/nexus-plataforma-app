@@ -9,9 +9,16 @@ import {
 import { getListReconsumptions } from "@/lib/actions/membership/membership.action";
 import { ReconsumptionsResponse } from "@/types/plan/membership";
 import { PaymentImageModalType } from "@/app/(dashboard)/planes-de-membresia/validations/suscription.zod";
+import { usePointsUser } from "@/hooks/usePointsUser";
+
+// Enum para los métodos de pago (similar al de órdenes)
+export enum ReconsumptionPaymentMethod {
+  VOUCHER = "VOUCHER",
+  POINTS = "POINTS",
+}
 
 interface UseReconsumptionsReturn {
-  // Datos principales en un solo objeto
+  // Datos principales
   listReconsumptions: ReconsumptionsResponse | undefined;
   isLoading: boolean;
   error: string | null;
@@ -20,6 +27,10 @@ interface UseReconsumptionsReturn {
   currentPage: number;
   itemsPerPage: number;
 
+  // Método de pago
+  paymentMethod: ReconsumptionPaymentMethod;
+  setPaymentMethod: (method: ReconsumptionPaymentMethod) => void;
+
   // Estado del formulario de reconsumo
   payments: PaymentImageModalType[];
   isPaymentModalOpen: boolean;
@@ -27,6 +38,18 @@ interface UseReconsumptionsReturn {
   remainingAmount: number;
   isPaymentComplete: boolean;
   isSubmitting: boolean;
+  notes: string;
+  setNotes: (notes: string) => void;
+
+  // Puntos
+  points: {
+    availablePoints: number;
+    totalEarnedPoints: number;
+    totalWithdrawnPoints: number;
+    membershipPlan: { name: string } | null;
+  };
+  hasEnoughPoints: boolean;
+  isLoadingPoints: boolean;
 
   // Funciones para manejar pagos
   addPayment: (payment: Omit<PaymentImageModalType, "fileIndex">) => void;
@@ -64,6 +87,14 @@ export function useReconsumptions(
   const [payments, setPayments] = useState<PaymentImageModalType[]>([]);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [notes, setNotes] = useState<string>("");
+
+  // Estado para método de pago (nuevo)
+  const [paymentMethod, setPaymentMethod] =
+    useState<ReconsumptionPaymentMethod>(ReconsumptionPaymentMethod.VOUCHER);
+
+  // Obtener información de puntos del usuario
+  const { points, isLoading: isLoadingPoints } = usePointsUser();
 
   // Calcular montos basados en los datos disponibles
   const reconsumptionAmount = listReconsumptions?.reconsumptionAmount || 0;
@@ -72,8 +103,16 @@ export function useReconsumptions(
     0
   );
   const remainingAmount = Math.max(0, reconsumptionAmount - totalPaidAmount);
+
+  // Verificar si tiene suficientes puntos para el reconsumo
+  const hasEnoughPoints = points.availablePoints >= reconsumptionAmount;
+
+  // Verificar si el pago está completo dependiendo del método
   const isPaymentComplete =
-    totalPaidAmount === reconsumptionAmount && payments.length > 0;
+    (paymentMethod === ReconsumptionPaymentMethod.POINTS && hasEnoughPoints) ||
+    (paymentMethod === ReconsumptionPaymentMethod.VOUCHER &&
+      totalPaidAmount === reconsumptionAmount &&
+      payments.length > 0);
 
   // Función para obtener la lista de reconsumos
   const fetchReconsumptions = useCallback(
@@ -169,38 +208,82 @@ export function useReconsumptions(
     setCurrentPage(1); // Resetear a la primera página al cambiar el límite
   }, []);
 
+  // Validar antes de crear reconsumo
+  const validateReconsumption = useCallback(() => {
+    if (!listReconsumptions?.canReconsume) {
+      toast.error("No puedes realizar un reconsumo en este momento");
+      return false;
+    }
+
+    if (paymentMethod === ReconsumptionPaymentMethod.VOUCHER) {
+      if (payments.length === 0) {
+        toast.error("Debe agregar al menos un comprobante de pago");
+        return false;
+      }
+
+      if (Math.abs(totalPaidAmount - reconsumptionAmount) > 0.01) {
+        toast.error(
+          `El monto total pagado debe ser igual al valor del reconsumo: ${reconsumptionAmount}`
+        );
+        return false;
+      }
+    } else if (paymentMethod === ReconsumptionPaymentMethod.POINTS) {
+      if (!hasEnoughPoints) {
+        toast.error(
+          "No tienes suficientes puntos para realizar este reconsumo"
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }, [
+    listReconsumptions?.canReconsume,
+    paymentMethod,
+    payments.length,
+    totalPaidAmount,
+    reconsumptionAmount,
+    hasEnoughPoints,
+  ]);
+
   // Función para crear un reconsumo
   const handleCreateReconsumption = useCallback(async () => {
-    if (!isPaymentComplete || !listReconsumptions) {
-      toast.error(`El monto total debe ser ${reconsumptionAmount}`);
-      return;
-    }
+    if (!validateReconsumption()) return;
 
     try {
       setIsSubmitting(true);
 
       const formData = new FormData();
       formData.append("totalAmount", reconsumptionAmount.toFixed(2));
+      formData.append("methodPayment", paymentMethod);
 
-      const paymentsData = payments.map((payment, index) => ({
-        bankName: payment.bankName || "",
-        transactionReference: payment.transactionReference,
-        transactionDate: payment.transactionDate,
-        amount: payment.amount,
-        fileIndex: index,
-      }));
+      if (notes) {
+        formData.append("notes", notes);
+      }
 
-      formData.append("payments", JSON.stringify(paymentsData));
+      // Si el método es VOUCHER, añadir los pagos y imágenes
+      if (paymentMethod === ReconsumptionPaymentMethod.VOUCHER) {
+        const paymentsData = payments.map((payment, index) => ({
+          bankName: payment.bankName || "",
+          transactionReference: payment.transactionReference,
+          transactionDate: payment.transactionDate,
+          amount: payment.amount,
+          fileIndex: index,
+        }));
 
-      payments.forEach((payment) => {
-        formData.append("paymentImages", payment.file);
-      });
+        formData.append("payments", JSON.stringify(paymentsData));
+
+        payments.forEach((payment) => {
+          formData.append("paymentImages", payment.file);
+        });
+      }
 
       const result = await createReconsumption(formData);
 
       if (result.success) {
         toast.success(result.message || "Reconsumo creado exitosamente");
         setPayments([]);
+        setNotes("");
         await fetchReconsumptions();
       } else {
         toast.error(result.message || "Error al procesar el reconsumo");
@@ -217,11 +300,12 @@ export function useReconsumptions(
       setIsSubmitting(false);
     }
   }, [
+    validateReconsumption,
     reconsumptionAmount,
-    isPaymentComplete,
+    paymentMethod,
+    notes,
     payments,
     fetchReconsumptions,
-    listReconsumptions,
   ]);
 
   // Función para actualizar la renovación automática
@@ -273,6 +357,10 @@ export function useReconsumptions(
     currentPage,
     itemsPerPage,
 
+    // Método de pago
+    paymentMethod,
+    setPaymentMethod,
+
     // Estado del formulario de reconsumo
     payments,
     isPaymentModalOpen,
@@ -280,6 +368,13 @@ export function useReconsumptions(
     remainingAmount,
     isPaymentComplete,
     isSubmitting,
+    notes,
+    setNotes,
+
+    // Puntos
+    points,
+    hasEnoughPoints,
+    isLoadingPoints,
 
     // Funciones para manejar pagos
     addPayment,

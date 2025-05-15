@@ -116,6 +116,18 @@ export default function RegisterProductPage() {
                                     <p className="text-sm text-destructive">{errors.description.message}</p>
                                 )}
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="composition">Composición</Label>
+                                <Textarea
+                                    id="composition"
+                                    {...register("composition")}
+                                    placeholder="Especifica la composición del producto"
+                                    rows={4}
+                                />
+                                {errors.composition && (
+                                    <p className="text-sm text-destructive">{errors.composition.message}</p>
+                                )}
+                            </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">

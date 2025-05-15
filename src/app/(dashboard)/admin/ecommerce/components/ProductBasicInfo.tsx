@@ -73,6 +73,7 @@ export function ProductBasicInfo({
                 </div>
             </div>
 
+
             <div className="space-y-2">
                 <Label htmlFor="description">Descripción</Label>
                 <Textarea
@@ -83,6 +84,19 @@ export function ProductBasicInfo({
                 />
                 {errors.description && (
                     <p className="text-sm text-destructive">{errors.description.message}</p>
+                )}
+
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="composition">Composición</Label>
+                <Textarea
+                    id="composition"
+                    {...register("composition")}
+                    placeholder="Composición del producto"
+                    rows={4}
+                />
+                {errors.composition && (
+                    <p className="text-sm text-destructive">{errors.composition.message}</p>
                 )}
             </div>
 

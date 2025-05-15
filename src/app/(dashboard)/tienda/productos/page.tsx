@@ -10,12 +10,9 @@ import { ProductFilters } from "../components/ProductFilters";
 import { ProductsList } from "../components/ProductsList";
 import { useProducts } from "../hooks/useProducts";
 
-
-
 export default function TiendaPage() {
     const [showFilters, setShowFilters] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-
     const {
         products,
         categories,
@@ -28,8 +25,6 @@ export default function TiendaPage() {
         resetFilters,
         refresh,
     } = useProducts();
-
-
 
     return (
         <div className="container max-w-7xl mx-auto p-6">

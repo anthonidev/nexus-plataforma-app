@@ -1,25 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { toast } from "sonner";
-import { useParams, useRouter } from "next/navigation";
 import {
+  addImageProduct,
+  addStockProduct,
+  deleteImageProduct,
+  getCategoriesEcommerce,
   getDetailProduct,
   getListStockHistory,
-  updateProduct,
-  deleteImageProduct,
   updateImageProduct,
-  getCategoriesEcommerce,
-  addStockProduct,
-  addImageProduct,
+  updateProduct,
 } from "@/lib/actions/ecommerce/ecommerce-admin.action";
 import {
   Category,
   ProductDetailAdmin,
-  ImageProduct,
 } from "@/types/ecommerce/admin/ecommerce-admin.type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 // Definir schema de Zod para la actualización
@@ -34,6 +33,11 @@ const UpdateProductSchema = z.object({
     .string()
     .min(1, "La descripción del producto es requerida")
     .transform((val) => val.trim()),
+
+  composition: z
+    .string()
+    .optional()
+    .transform((val) => val?.trim()),
 
   memberPrice: z
     .number()
@@ -115,6 +119,7 @@ export function useProductDetail() {
     defaultValues: {
       name: "",
       description: "",
+      composition: "",
       memberPrice: 0,
       publicPrice: 0,
       benefits: [],
@@ -163,6 +168,7 @@ export function useProductDetail() {
         // Preparar datos para el formulario
         form.reset({
           name: response.product.name,
+          composition: response.product.composition,
           description: response.product.description,
           memberPrice: response.product.memberPrice,
           publicPrice: response.product.publicPrice,

@@ -31,6 +31,11 @@ export const ProductFormSchema = z.object({
     .min(1, "La descripción del producto es requerida")
     .transform((val) => val.trim()),
 
+  composition: z
+    .string()
+    .optional()
+    .transform((val) => val?.trim()),
+
   memberPrice: z
     .number()
     .min(0, "El precio de socio no puede ser negativo")

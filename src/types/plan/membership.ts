@@ -49,6 +49,12 @@ export interface MembershipHistoryItem {
   notes?: string;
   metadata?: Record<string, any>;
   createdAt: Date;
+  amount: number;
+  status: "PENDING" | "ACTIVE" | "CANCELLED";
+  methodPayment?: "VOUCHER" | "POINTS";
+  periodDate: Date;
+  paymentReference?: string;
+  updatedAt: Date;
 }
 
 export interface ReconsumptionsResponse {

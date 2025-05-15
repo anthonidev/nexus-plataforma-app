@@ -66,6 +66,7 @@ export interface ProductDetailAdmin {
   id: number;
   name: string;
   description: string;
+  composition?: string;
   sku: string;
   memberPrice: number;
   publicPrice: number;

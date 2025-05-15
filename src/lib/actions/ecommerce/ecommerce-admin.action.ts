@@ -65,8 +65,6 @@ export async function createProduct(
       }
     }
 
-    console.log("Enviando datos del producto:", Object.fromEntries(formData));
-
     const response = await httpClient<{
       success: boolean;
       message: string;
@@ -76,8 +74,6 @@ export async function createProduct(
       contentType: "multipart/form-data",
       skipJsonStringify: true,
     });
-
-    console.log("Respuesta del servidor:", response);
 
     revalidatePath("/admin/ecommerce/productos");
 

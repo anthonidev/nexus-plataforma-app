@@ -58,8 +58,8 @@ export function PaymentResponseModal({
         <div className="py-4">
           <div
             className={`p-4 rounded-lg border ${isApproved
-                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50"
-                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
+              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50"
+              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
               }`}
           >
             <div className="space-y-3">
@@ -78,7 +78,6 @@ export function PaymentResponseModal({
                 </span>
               </div>
 
-              {/* Información del usuario */}
               {response.user && (
                 <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-2 mb-2">

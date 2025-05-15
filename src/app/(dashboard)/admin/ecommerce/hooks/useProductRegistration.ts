@@ -28,6 +28,7 @@ export function useProductRegistration() {
     defaultValues: {
       name: "",
       description: "",
+      composition: "",
       memberPrice: 0,
       publicPrice: 0,
       stock: 0,
@@ -110,6 +111,7 @@ export function useProductRegistration() {
 
       formData.append("name", data.name);
       formData.append("description", data.description);
+      formData.append("composition", data.composition || "");
       formData.append("memberPrice", data.memberPrice.toString());
       formData.append("publicPrice", data.publicPrice.toString());
 

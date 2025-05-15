@@ -1,14 +1,12 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { PaymentImageModal } from "../planes-de-membresia/components/PaymentImageModal";
 import AutoRenewalCard from "./components/AutoRenewalCard";
 import ReconsumptionForm from "./components/ReconsumptionForm";
 import ReconsumptionsHeader from "./components/ReconsumptionsHeader";
 import ReconsumptionsTable from "./components/ReconsumptionsTable";
-import { useReconsumptions } from "./hooks/useReconsumptions";
+import { ReconsumptionPaymentMethod, useReconsumptions } from "./hooks/useReconsumptions";
 
 export default function MisReconsumosPage() {
   const {
@@ -21,6 +19,10 @@ export default function MisReconsumosPage() {
     currentPage,
     itemsPerPage,
 
+    // Método de pago
+    paymentMethod,
+    setPaymentMethod,
+
     // Estado del formulario de reconsumo
     payments,
     isPaymentModalOpen,
@@ -28,6 +30,13 @@ export default function MisReconsumosPage() {
     remainingAmount,
     isPaymentComplete,
     isSubmitting,
+    notes,
+    setNotes,
+
+    // Puntos
+    points,
+    hasEnoughPoints,
+    isLoadingPoints,
 
     // Funciones para manejar pagos
     addPayment,
@@ -60,43 +69,6 @@ export default function MisReconsumosPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="container py-8">
-        <Skeleton className="h-10 w-64 mb-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-6">
-                <Skeleton className="h-8 w-48 mb-4" />
-                <Skeleton className="h-40 w-full" />
-              </CardContent>
-            </Card>
-            <Card className="mt-6">
-              <CardContent className="p-6">
-                <Skeleton className="h-8 w-56 mb-4" />
-                <div className="space-y-4">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div>
-            <Card>
-              <CardContent className="p-6">
-                <Skeleton className="h-8 w-40 mb-4" />
-                <Skeleton className="h-20 w-full mb-3" />
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container py-8">
       <ReconsumptionsHeader
@@ -116,10 +88,17 @@ export default function MisReconsumosPage() {
               reconsumptionAmount={listReconsumptions.reconsumptionAmount}
               isPaymentComplete={isPaymentComplete}
               isSubmitting={isSubmitting}
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
+              notes={notes}
+              onNotesChange={setNotes}
               onOpenPaymentModal={handlePaymentModalOpen}
               onDeletePayment={deletePayment}
               onEditPayment={handleEditPayment}
               onSubmit={handleCreateReconsumption}
+              points={points}
+              hasEnoughPoints={hasEnoughPoints}
+              isLoadingPoints={isLoadingPoints}
             />
           )}
 
@@ -146,8 +125,8 @@ export default function MisReconsumosPage() {
         </div>
       </div>
 
-      {/* Modal para agregar comprobantes de pago */}
-      {listReconsumptions && (
+      {/* Modal para agregar comprobantes de pago - solo si el método es VOUCHER */}
+      {listReconsumptions && paymentMethod === ReconsumptionPaymentMethod.VOUCHER && (
         <PaymentImageModal
           isOpen={isPaymentModalOpen}
           onClose={handlePaymentModalClose}
@@ -156,14 +135,14 @@ export default function MisReconsumosPage() {
             bankName: "",
             transactionReference: "",
             transactionDate: new Date().toISOString().split("T")[0],
-            amount: listReconsumptions.reconsumptionAmount,
+            amount: remainingAmount > 0 ? remainingAmount : listReconsumptions.reconsumptionAmount,
             file: undefined,
           }}
         />
       )}
 
       {/* Modal para editar pago */}
-      {editingPayment && (
+      {editingPayment && paymentMethod === ReconsumptionPaymentMethod.VOUCHER && (
         <PaymentImageModal
           isOpen={!!editingPayment}
           onClose={() => setEditingPayment(null)}

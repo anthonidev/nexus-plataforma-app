@@ -10,34 +10,40 @@ export async function createReconsumption(
   formData: FormData
 ): Promise<ReconsumptionResponse> {
   try {
-    // Parse and validate payments
-    const paymentsString = formData.get("payments") as string;
-    const payments = JSON.parse(paymentsString);
-    const paymentImages = formData.getAll("paymentImages") as File[];
+    // Obtener el método de pago
+    const methodPayment = formData.get("methodPayment") as string;
 
-    // Validate payments structure
-    if (!Array.isArray(payments) || payments.length === 0) {
-      throw new Error("Debe proporcionar al menos un pago");
-    }
+    // Si es por voucher, validar los pagos
+    if (methodPayment === "VOUCHER") {
+      // Parse and validate payments
+      const paymentsString = formData.get("payments") as string;
+      const payments = JSON.parse(paymentsString);
+      const paymentImages = formData.getAll("paymentImages") as File[];
 
-    // Validate file count matches payment count
-    if (paymentImages.length !== payments.length) {
-      throw new Error(
-        "El número de imágenes debe coincidir con el número de pagos"
+      // Validate payments structure
+      if (!Array.isArray(payments) || payments.length === 0) {
+        throw new Error("Debe proporcionar al menos un pago");
+      }
+
+      // Validate file count matches payment count
+      if (paymentImages.length !== payments.length) {
+        throw new Error(
+          "El número de imágenes debe coincidir con el número de pagos"
+        );
+      }
+
+      // Validate total amount
+      const totalAmount = parseFloat(formData.get("totalAmount") as string);
+      const paymentTotal = payments.reduce(
+        (sum, payment) => sum + payment.amount,
+        0
       );
-    }
 
-    // Validate total amount
-    const totalAmount = parseFloat(formData.get("totalAmount") as string);
-    const paymentTotal = payments.reduce(
-      (sum, payment) => sum + payment.amount,
-      0
-    );
-
-    if (Math.abs(totalAmount - paymentTotal) > 0.01) {
-      throw new Error(
-        `La suma de los pagos (${paymentTotal}) debe ser igual al monto total (${totalAmount})`
-      );
+      if (Math.abs(totalAmount - paymentTotal) > 0.01) {
+        throw new Error(
+          `La suma de los pagos (${paymentTotal}) debe ser igual al monto total (${totalAmount})`
+        );
+      }
     }
 
     // Send reconsumption request
