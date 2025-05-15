@@ -9,74 +9,35 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Item } from "@/types/withdrawals/finance-withdrawals.type";
+import { FinanceWithdrawalDetailResponse } from "@/types/withdrawals/finance-withdrawals.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
-import { CheckCircle2, CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 interface ApproveWithdrawalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onApprove: () => Promise<void>;
-  withdrawal: Item;
-  approveData: {
-    codeOperation: string;
-    banckNameApproval: string;
-    dateOperation: string;
-    numberTicket: string;
-  };
-  setApproveData: (
-    data: Partial<ApproveWithdrawalModalProps["approveData"]>
-  ) => void;
+  withdrawal: FinanceWithdrawalDetailResponse;
   isSubmitting: boolean;
 }
 
-export default function ApproveWithdrawalModal({
+export function ApproveWithdrawalModal({
   isOpen,
   onClose,
   onApprove,
   withdrawal,
-  approveData,
-  setApproveData,
   isSubmitting,
 }: ApproveWithdrawalModalProps) {
-  const isFormValid =
-    approveData.codeOperation.trim() !== "" &&
-    approveData.banckNameApproval.trim() !== "" &&
-    approveData.dateOperation !== "" &&
-    approveData.numberTicket.trim() !== "";
-
-  // Manejo de la fecha
-  const selectedDate = approveData.dateOperation
-    ? new Date(approveData.dateOperation)
-    : new Date();
-
-  const onDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setApproveData({ dateOperation: date.toISOString().split("T")[0] });
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            Aprobar Solicitud de Retiro
+            Confirmar Aprobación de Retiro
           </DialogTitle>
           <DialogDescription>
-            Complete la información requerida para aprobar esta solicitud de
-            retiro.
+            ¿Estás seguro de que deseas aprobar este retiro? Esta acción generará el pago automáticamente.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,75 +59,25 @@ export default function ApproveWithdrawalModal({
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="codeOperation">Código de operación</Label>
-              <Input
-                id="codeOperation"
-                value={approveData.codeOperation}
-                onChange={(e) =>
-                  setApproveData({ codeOperation: e.target.value })
-                }
-                placeholder="Ingrese el código de operación"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="banckNameApproval">Nombre del banco</Label>
-              <Input
-                id="banckNameApproval"
-                value={approveData.banckNameApproval}
-                onChange={(e) =>
-                  setApproveData({ banckNameApproval: e.target.value })
-                }
-                placeholder="Ingrese el nombre del banco"
-                disabled={isSubmitting}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dateOperation">Fecha de operación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !selectedDate && "text-muted-foreground"
-                    )}
-                    disabled={isSubmitting}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? (
-                      format(selectedDate, "PPP")
-                    ) : (
-                      <span>Seleccione una fecha</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={onDateSelect}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="numberTicket">Número de ticket/recibo</Label>
-              <Input
-                id="numberTicket"
-                value={approveData.numberTicket}
-                onChange={(e) =>
-                  setApproveData({ numberTicket: e.target.value })
-                }
-                placeholder="Ingrese el número de ticket"
-                disabled={isSubmitting}
-              />
+          <div className="space-y-2 text-sm">
+            <p className="text-muted-foreground">
+              Al aprobar este retiro, se realizará un pago bancario automáticamente a la cuenta del usuario con los siguientes detalles:
+            </p>
+            <div className="bg-muted/30 p-3 rounded-lg border">
+              <div className="flex justify-between mb-1">
+                <span className="text-muted-foreground">Banco:</span>
+                <span className="font-medium">{withdrawal.bankName}</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span className="text-muted-foreground">Cuenta:</span>
+                <span className="font-mono">{withdrawal.accountNumber}</span>
+              </div>
+              {withdrawal.cci && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">CCI:</span>
+                  <span className="font-mono">{withdrawal.cci}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -179,7 +90,7 @@ export default function ApproveWithdrawalModal({
             variant="default"
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={onApprove}
-            disabled={isSubmitting || !isFormValid}
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
@@ -187,7 +98,7 @@ export default function ApproveWithdrawalModal({
                 Procesando...
               </>
             ) : (
-              "Aprobar Retiro"
+              "Confirmar Aprobación"
             )}
           </Button>
         </DialogFooter>

@@ -1,15 +1,9 @@
 "use client";
 
+import { TablePagination } from "@/components/common/table/TablePagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -19,24 +13,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  FinanceWithdrawals,
-  Item,
-} from "@/types/withdrawals/finance-withdrawals.type";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Item } from "@/types/withdrawals/finance-withdrawals.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import { format } from "date-fns";
 import {
   AlertCircle,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  CreditCard,
-  RefreshCw,
-  ThumbsUp,
-  ThumbsDown,
   CircleDollarSign,
-  // User,
+  CreditCard,
+  Eye,
+  RefreshCw
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { MobileWithdrawalsView } from "./MobileWithdrawalsView";
+import { WithdrawalQuickViewModal } from "./WithdrawalQuickViewModal";
 
 // Configuración de estados para badges
 const statusConfig = {
@@ -60,13 +52,16 @@ interface WithdrawalsTableProps {
   withdrawals: Item[];
   isLoading: boolean;
   error: string | null;
-  meta: FinanceWithdrawals["meta"] | null;
+  meta: {
+    totalItems: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  } | null;
   currentPage: number;
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
-  onApprove: (withdrawal: Item) => void;
-  onReject: (withdrawal: Item) => void;
   onRefresh: () => void;
 }
 
@@ -79,10 +74,17 @@ export default function WithdrawalsTable({
   itemsPerPage,
   onPageChange,
   onPageSizeChange,
-  onApprove,
-  onReject,
   onRefresh,
 }: WithdrawalsTableProps) {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<Item | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleQuickView = (withdrawal: Item) => {
+    setSelectedWithdrawal(withdrawal);
+    setIsQuickViewOpen(true);
+  };
+
   if (isLoading) {
     return <WithdrawalsTableSkeleton />;
   }
@@ -123,177 +125,170 @@ export default function WithdrawalsTable({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Monto</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha Solicitud</TableHead>
-                <TableHead>Fecha Revisión</TableHead>
-                <TableHead>Banco</TableHead>
-                <TableHead>Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {withdrawals.length > 0 ? (
-                withdrawals.map((withdrawal) => (
-                  <TableRow key={withdrawal.id}>
-                    <TableCell className="font-medium">
-                      #{withdrawal.id}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {withdrawal.user.personalInfo.firstName}{" "}
-                          {withdrawal.user.personalInfo.lastName}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {withdrawal.user.email}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatCurrency(withdrawal.amount)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          statusConfig[withdrawal.status]?.variant ||
-                          "bg-gray-100 text-gray-800"
-                        }
-                      >
-                        {statusConfig[withdrawal.status]?.label ||
-                          withdrawal.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>
-                          {format(new Date(withdrawal.createdAt), "dd/MM/yyyy")}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {withdrawal.reviewedAt ? (
+        {isMobile ? (
+          <MobileWithdrawalsView
+            withdrawals={withdrawals}
+            onQuickView={handleQuickView}
+          />
+        ) : (
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Usuario</TableHead>
+                  <TableHead>Monto</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha Solicitud</TableHead>
+                  <TableHead>Fecha Revisión</TableHead>
+                  <TableHead>Banco</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withdrawals.length > 0 ? (
+                  withdrawals.map((withdrawal) => (
+                    <TableRow key={withdrawal.id}>
+                      <TableCell className="font-medium">
+                        #{withdrawal.id}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {withdrawal.user.personalInfo.firstName}{" "}
+                            {withdrawal.user.personalInfo.lastName}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {withdrawal.user.email}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(withdrawal.amount)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={
+                            statusConfig[withdrawal.status]?.variant ||
+                            "bg-gray-100 text-gray-800"
+                          }
+                        >
+                          {statusConfig[withdrawal.status]?.label ||
+                            withdrawal.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>
-                            {format(
-                              new Date(withdrawal.reviewedAt),
-                              "dd/MM/yyyy"
-                            )}
+                            {format(new Date(withdrawal.createdAt), "dd/MM/yyyy")}
                           </span>
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{withdrawal.bankName}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {withdrawal.status === "PENDING" ? (
+                      </TableCell>
+                      <TableCell>
+                        {withdrawal.reviewedAt ? (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>
+                              {format(
+                                new Date(withdrawal.reviewedAt),
+                                "dd/MM/yyyy"
+                              )}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-green-600 border-green-200 hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20"
-                            onClick={() => onApprove(withdrawal)}
-                          >
-                            <ThumbsUp className="h-3.5 w-3.5 mr-1" />
-                            Aprobar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20"
-                            onClick={() => onReject(withdrawal)}
-                          >
-                            <ThumbsDown className="h-3.5 w-3.5 mr-1" />
-                            Rechazar
-                          </Button>
+                          <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{withdrawal.bankName}</span>
                         </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">
-                          {withdrawal.status === "APPROVED"
-                            ? "Aprobado"
-                            : "Rechazado"}
-                        </span>
-                      )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuickView(withdrawal)}
+                            className="h-8 w-8 p-0"
+                            title="Vista rápida"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+
+                          {withdrawal.status === "PENDING" && (
+                            <Link href={`/admin/retiros/detalle/${withdrawal.id}`}>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="h-8"
+                              >
+                                Gestionar
+                              </Button>
+                            </Link>
+                          )}
+
+                          {withdrawal.status !== "PENDING" && (
+                            <Link href={`/admin/retiros/detalle/${withdrawal.id}`}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8"
+                              >
+                                Ver detalle
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No hay solicitudes de retiro registradas
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No hay solicitudes de retiro registradas
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
         {meta && meta.totalItems > 0 && (
           <div className="flex items-center justify-between space-x-2 mt-4">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm text-muted-foreground">
-                Mostrando
-                <Select
-                  value={`${itemsPerPage}`}
-                  onValueChange={(value) => {
-                    onPageSizeChange(Number(value));
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[70px] mx-1">
-                    <SelectValue placeholder={itemsPerPage} />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                de {meta.totalItems} registros
-              </p>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage - 1)}
-                disabled={!meta || currentPage <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm">
-                Página {currentPage} de {meta?.totalPages || 1}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(currentPage + 1)}
-                disabled={!meta || currentPage >= meta.totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            <TablePagination
+              pagination={{
+                pageIndex: currentPage - 1,
+                pageSize: itemsPerPage,
+              }}
+              pageCount={meta.totalPages}
+              pageIndex={currentPage - 1}
+              totalItems={meta.totalItems}
+              setPageIndex={(updatedPageIndex) => onPageChange(Number(updatedPageIndex) + 1)}
+              setPageSize={() => onPageSizeChange}
+              previousPage={() => onPageChange(currentPage - 1)}
+              nextPage={() => onPageChange(currentPage + 1)}
+              canPreviousPage={currentPage <= 1}
+              canNextPage={currentPage >= meta.totalPages}
+            />
           </div>
         )}
       </CardContent>
+
+      {/* Modal de vista rápida */}
+      {selectedWithdrawal && (
+        <WithdrawalQuickViewModal
+          isOpen={isQuickViewOpen}
+          onClose={() => setIsQuickViewOpen(false)}
+          withdrawal={selectedWithdrawal}
+        />
+      )}
     </Card>
   );
 }
@@ -305,7 +300,7 @@ function WithdrawalsTableSkeleton() {
         <Skeleton className="h-6 w-48" />
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="hidden md:block rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -366,6 +361,38 @@ function WithdrawalsTableSkeleton() {
               ))}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="md:hidden space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-4 w-10" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3 border-t">
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="flex items-center justify-between space-x-2 mt-4">

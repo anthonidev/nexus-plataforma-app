@@ -20,7 +20,7 @@ interface WithdrawalResponseModalProps {
   onViewAllWithdrawals: () => void;
 }
 
-export default function WithdrawalResponseModal({
+export function WithdrawalResponseModal({
   isOpen,
   onClose,
   approveResponse,
@@ -60,11 +60,10 @@ export default function WithdrawalResponseModal({
 
         <div className="py-4">
           <div
-            className={`p-4 rounded-lg border ${
-              isApproved
+            className={`p-4 rounded-lg border ${isApproved
                 ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50"
                 : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50"
-            }`}
+              }`}
           >
             <div className="space-y-3">
               <div className="flex justify-between">

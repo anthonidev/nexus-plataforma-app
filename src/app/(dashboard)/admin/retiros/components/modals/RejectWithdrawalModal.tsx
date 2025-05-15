@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Item } from "@/types/withdrawals/finance-withdrawals.type";
+import { FinanceWithdrawalDetailResponse } from "@/types/withdrawals/finance-withdrawals.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import { Loader2, XCircle } from "lucide-react";
 
@@ -19,13 +19,13 @@ interface RejectWithdrawalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onReject: () => Promise<void>;
-  withdrawal: Item;
+  withdrawal: FinanceWithdrawalDetailResponse;
   rejectionReason: string;
   setRejectionReason: (reason: string) => void;
   isSubmitting: boolean;
 }
 
-export default function RejectWithdrawalModal({
+export function RejectWithdrawalModal({
   isOpen,
   onClose,
   onReject,
@@ -43,8 +43,7 @@ export default function RejectWithdrawalModal({
             Confirmar Rechazo de Retiro
           </DialogTitle>
           <DialogDescription>
-            Por favor, ingrese el motivo por el cual está rechazando esta
-            solicitud de retiro.
+            Por favor, ingrese el motivo por el cual está rechazando esta solicitud de retiro.
           </DialogDescription>
         </DialogHeader>
 
