@@ -12,8 +12,9 @@ import {
 import { Category } from "@/types/ecommerce/admin/ecommerce-admin.type";
 import { ProductClientFilters } from "@/types/ecommerce/client/ecommerce.types";
 import { cn } from "@/lib/utils";
-import { FilterX, RotateCcw, Search } from "lucide-react";
+import { FilterX, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface ProductFiltersProps {
     filters: ProductClientFilters;
@@ -43,21 +44,26 @@ export function ProductFilters({
         filters.categoryId !== undefined;
 
     return (
-        <div className={cn("space-y-4", className)}>
-            <div className="bg-card rounded-lg shadow-sm border p-4">
+        <motion.div
+            className={cn("space-y-4", className)}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+            <div className="bg-card rounded-lg shadow-sm border p-5">
                 <div className="flex flex-col space-y-4">
                     {/* Header - Title and reset button */}
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium flex items-center gap-2">
-                            <FilterX className="h-4 w-4 text-muted-foreground" />
-                            Filtros
+                            <SlidersHorizontal className="h-4 w-4 text-primary" />
+                            Filtrar productos
                         </h3>
                         {hasActiveFilters && (
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={onResetFilters}
-                                className="h-8 px-2 text-xs"
+                                className="h-8 px-2 text-xs hover:bg-destructive/10 hover:text-destructive"
                             >
                                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
                                 Limpiar filtros
@@ -109,8 +115,37 @@ export function ProductFilters({
                             </Select>
                         </div>
                     </div>
+
+                    {/* Applied filters indicators */}
+                    {hasActiveFilters && (
+                        <div className="pt-3 flex flex-wrap gap-2">
+                            <span className="text-xs text-muted-foreground">Filtros aplicados:</span>
+                            {filters.name && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center">
+                                    Búsqueda: {filters.name}
+                                    <button
+                                        onClick={() => onFilterChange({ name: undefined })}
+                                        className="ml-1 hover:text-destructive"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                            {filters.categoryId && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full flex items-center">
+                                    Categoría: {categories.find(c => c.id === filters.categoryId)?.name}
+                                    <button
+                                        onClick={() => onFilterChange({ categoryId: undefined })}
+                                        className="ml-1 hover:text-destructive"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

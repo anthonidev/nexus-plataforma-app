@@ -2,9 +2,8 @@
 
 import { TablePagination } from "@/components/common/table/TablePagination";
 import { Item } from "@/types/ecommerce/client/ecommerce.types";
-import { formatCurrency } from "@/utils/format-currency.utils";
-import { motion } from "framer-motion";
-import { ShoppingBag, Package, Filter, Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingBag, Package, Info } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 
 interface ProductsListProps {
@@ -27,36 +26,43 @@ export function ProductsList({
 }: ProductsListProps) {
     if (products.length === 0) {
         return (
-            <div className="text-center p-8 border rounded-lg">
-                <div className="mx-auto w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-4">
-                    <Package className="h-8 w-8 text-muted-foreground" />
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center p-12 border rounded-lg bg-muted/10"
+            >
+                <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                    <Package className="h-10 w-10 text-primary/70" />
                 </div>
-                <h3 className="text-lg font-medium mb-1">No hay productos</h3>
-                <p className="text-muted-foreground mb-4">
-                    No se encontraron productos que coincidan con los filtros aplicados.
+                <h3 className="text-xl font-medium mb-2">No hay productos disponibles</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                    No se encontraron productos que coincidan con los filtros aplicados. Intenta con otras opciones de búsqueda.
                 </p>
-            </div>
+            </motion.div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
-                    <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <ProductCard product={product} />
-                    </motion.div>
-                ))}
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-6">
+                <AnimatePresence>
+                    {products.map((product) => (
+                        <motion.div
+                            key={product.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <ProductCard product={product} />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
 
-            {meta && (
-                <div className="py-3 border-t mt-6">
+            {meta && meta.totalPages > 1 && (
+                <div className="py-4 border-t mt-6">
                     <TablePagination
                         pagination={{
                             pageIndex: meta.currentPage - 1,
