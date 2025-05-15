@@ -45,6 +45,7 @@ export interface Product {
   name: string;
   description: string;
   composition?: string;
+  benefits?: string[];
   sku: string;
   memberPrice: number;
   publicPrice: number;
