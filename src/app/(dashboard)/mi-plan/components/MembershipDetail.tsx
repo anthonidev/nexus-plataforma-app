@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import MembershipDetailSkeleton from "./skeleton/MembershipDetailSkeleton";
+import { DateFormatDisplay } from "@/components/common/table/DateFormatDisplay";
 
 interface Props {
   membership: MembershipDetailResponse | null;
@@ -65,6 +66,7 @@ export default function MembershipDetail({
   }
 
   const status = membership.membership.status;
+  console.log(membership.membership.nextReconsumptionDate)
 
   return (
     <Card className="mb-6 shadow-sm overflow-hidden border-primary/10">
@@ -127,7 +129,8 @@ export default function MembershipDetail({
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold">
-                          {format(membership.membership.nextReconsumptionDate, "dd/MM/yyyy")}
+
+                          {format(new Date(membership.membership.nextReconsumptionDate).toISOString().split("T")[0], "dd/MM/yyyy")}
                         </p>
 
                       </div>

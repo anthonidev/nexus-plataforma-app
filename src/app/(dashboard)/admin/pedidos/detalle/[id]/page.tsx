@@ -2,10 +2,11 @@
 
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, RefreshCw, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ClipboardList, RefreshCw } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useOrderDetail } from "../../hooks/useOrderDetail";
 import { AdminOrderDetailContent } from "../../components/AdminOrderDetailContent";
+import { useOrderDetail } from "../../hooks/useOrderDetail";
+
 export default function OrderDetailPage() {
     const params = useParams<{ id: string }>();
     const orderId = Number(params.id);
@@ -18,7 +19,18 @@ export default function OrderDetailPage() {
         isUpdating,
         error,
         refresh,
-        updateStatus
+
+        // Modales
+        showSendModal,
+        showDeliverModal,
+        openSendModal,
+        closeSendModal,
+        openDeliverModal,
+        closeDeliverModal,
+
+        // Acciones
+        handleSendOrder,
+        handleDeliverOrder
     } = useOrderDetail(orderId);
 
     const handleBack = () => {
@@ -100,7 +112,14 @@ export default function OrderDetailPage() {
             <AdminOrderDetailContent
                 orderDetail={orderDetail}
                 isUpdating={isUpdating}
-                onUpdateStatus={updateStatus}
+                showSendModal={showSendModal}
+                showDeliverModal={showDeliverModal}
+                openSendModal={openSendModal}
+                closeSendModal={closeSendModal}
+                openDeliverModal={openDeliverModal}
+                closeDeliverModal={closeDeliverModal}
+                handleSendOrder={handleSendOrder}
+                handleDeliverOrder={handleDeliverOrder}
             />
         </div>
     );

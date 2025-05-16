@@ -25,11 +25,9 @@ export function useMembershipsByDay() {
       setIsLoading(true);
       setError(null);
 
-      // Calculate date ranges for filtering
       const today = new Date();
       const startDate = new Date(today);
 
-      // Set appropriate date range based on selection
       if (timeRange === "7d") {
         startDate.setDate(today.getDate() - 7);
       } else if (timeRange === "30d") {
@@ -38,7 +36,6 @@ export function useMembershipsByDay() {
         startDate.setDate(today.getDate() - 90);
       }
 
-      // Format dates for API params
       const startDateStr = startDate.toISOString().split("T")[0];
       const endDateStr = today.toISOString().split("T")[0];
 
@@ -48,7 +45,6 @@ export function useMembershipsByDay() {
       });
 
       if (response) {
-        // Transform the data for the chart
         const formattedData = response.map((item) => ({
           date: new Date(item.date).toISOString().split("T")[0], // Format date as YYYY-MM-DD
           Ejecutivo: item.Ejecutivo,
@@ -56,7 +52,6 @@ export function useMembershipsByDay() {
           VIP: item.VIP,
         }));
 
-        // Sort by date
         formattedData.sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );

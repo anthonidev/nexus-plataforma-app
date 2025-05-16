@@ -70,23 +70,7 @@ export interface ReconsumptionsResponse {
   reconsumptionAmount: number;
 }
 export interface MembershipHistoryResponse {
-  items: {
-    id: number;
-    action:
-      | "CREATED"
-      | "RENEWED"
-      | "CANCELLED"
-      | "UPGRADED"
-      | "DOWNGRADED"
-      | "REACTIVATED"
-      | "EXPIRED"
-      | "STATUS_CHANGED"
-      | "PAYMENT_RECEIVED";
-    changes?: Record<string, any>;
-    notes?: string;
-    metadata?: Record<string, any>;
-    createdAt: Date;
-  }[];
+  items: MembershipHistoryItem[];
   meta: {
     totalItems: number;
     itemsPerPage: number;

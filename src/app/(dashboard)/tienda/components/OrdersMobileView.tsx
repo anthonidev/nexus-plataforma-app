@@ -187,7 +187,7 @@ export function OrdersMobileView({
 
                                     {/* Pie con botón de acción */}
                                     <div className="p-3 bg-muted/10">
-                                        <Link href={`/tienda/pedidos/${order.id}`}>
+                                        <Link href={`/tienda/pedidos/detalle/${order.id}`}>
                                             <Button
                                                 variant="default"
                                                 size="sm"

@@ -23,11 +23,13 @@ interface MembershipCardProps {
 
 export default function MembershipCard({ membership }: MembershipCardProps) {
   // Calcular días restantes
-  const endDate = new Date(membership.endDate);
+  // {format(new Date(membership.membership.nextReconsumptionDate).toISOString().split("T")[0], "dd/MM/yyyy")}
+  const endDate = new Date(membership.endDate)
   const today = new Date();
   const daysRemaining = Math.ceil(
     (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
+  console.log("Días restantes:", daysRemaining);
 
   // Estado de la membresía basado en días restantes
   const getStatusColor = () => {
@@ -71,11 +73,11 @@ export default function MembershipCard({ membership }: MembershipCardProps) {
             <div
               className={`text-sm p-2 rounded border flex items-center gap-2 ${getStatusColor()}`}
             >
-              {daysRemaining <= 0 ? (
+              {daysRemaining < 0 ? (
                 <span>Membresía vencida</span>
               ) : (
                 <span>
-                  {daysRemaining} {daysRemaining === 1 ? "día" : "días"}{" "}
+                  {daysRemaining === 0 ? 1 : daysRemaining} {daysRemaining === 1 ? "día" : "días"}{" "}
                   restantes
                 </span>
               )}

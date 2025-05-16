@@ -11,7 +11,6 @@ import {
     Clock,
     Coins,
     CreditCard,
-    Loader2,
     Package,
     ShieldAlert,
     Truck,
@@ -19,17 +18,36 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ConfirmUpdateModal } from "./ConfirmUpdateModal";
 
 interface AdminOrderDetailContentProps {
     orderDetail: DetailOrderAdminResponse;
     isUpdating: boolean;
-    onUpdateStatus: (status: "ENVIADO" | "ENTREGADO") => Promise<void>;
+
+    // Modal states and handlers
+    showSendModal: boolean;
+    showDeliverModal: boolean;
+    openSendModal: () => void;
+    closeSendModal: () => void;
+    openDeliverModal: () => void;
+    closeDeliverModal: () => void;
+
+    // Actions
+    handleSendOrder: () => Promise<void>;
+    handleDeliverOrder: () => Promise<void>;
 }
 
 export function AdminOrderDetailContent({
     orderDetail,
     isUpdating,
-    onUpdateStatus
+    showSendModal,
+    showDeliverModal,
+    openSendModal,
+    closeSendModal,
+    openDeliverModal,
+    closeDeliverModal,
+    handleSendOrder,
+    handleDeliverOrder
 }: AdminOrderDetailContentProps) {
 
     const getStatusBadge = (status: string) => {
@@ -276,40 +294,22 @@ export function AdminOrderDetailContent({
                                     <div className="bg-muted/20 p-4 rounded-lg space-y-3">
                                         {canUpdateToShipped && (
                                             <Button
-                                                onClick={() => onUpdateStatus("ENVIADO")}
+                                                onClick={openSendModal}
                                                 className="w-full"
                                                 disabled={isUpdating}
                                             >
-                                                {isUpdating ? (
-                                                    <>
-                                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                        Actualizando...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Truck className="h-4 w-4 mr-2" />
-                                                        Marcar como Enviado
-                                                    </>
-                                                )}
+                                                <Truck className="h-4 w-4 mr-2" />
+                                                Marcar como Enviado
                                             </Button>
                                         )}
                                         {canUpdateToDelivered && (
                                             <Button
-                                                onClick={() => onUpdateStatus("ENTREGADO")}
+                                                onClick={openDeliverModal}
                                                 className="w-full"
                                                 disabled={isUpdating}
                                             >
-                                                {isUpdating ? (
-                                                    <>
-                                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                                        Actualizando...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                                        Marcar como Entregado
-                                                    </>
-                                                )}
+                                                <CheckCircle className="h-4 w-4 mr-2" />
+                                                Marcar como Entregado
                                             </Button>
                                         )}
                                     </div>
@@ -387,6 +387,25 @@ export function AdminOrderDetailContent({
                     </div>
                 </CardFooter>
             </Card>
+
+            {/* Modales de confirmación */}
+            <ConfirmUpdateModal
+                isOpen={showSendModal}
+                onClose={closeSendModal}
+                onConfirm={handleSendOrder}
+                title="Confirmar envío de pedido"
+                description={`¿Estás seguro de que deseas marcar el pedido #${orderDetail.id} como enviado? Esta acción no se puede deshacer.`}
+                isLoading={isUpdating}
+            />
+
+            <ConfirmUpdateModal
+                isOpen={showDeliverModal}
+                onClose={closeDeliverModal}
+                onConfirm={handleDeliverOrder}
+                title="Confirmar entrega de pedido"
+                description={`¿Estás seguro de que deseas marcar el pedido #${orderDetail.id} como entregado? Esta acción no se puede deshacer.`}
+                isLoading={isUpdating}
+            />
         </div>
     );
 }

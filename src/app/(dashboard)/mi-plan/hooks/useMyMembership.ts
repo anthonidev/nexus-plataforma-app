@@ -6,6 +6,7 @@ import {
 } from "@/lib/actions/membership/membership.action";
 import {
   MembershipDetailResponse,
+  MembershipHistoryItem,
   MembershipHistoryResponse,
 } from "@/types/plan/membership";
 import { useCallback, useEffect, useState } from "react";
@@ -18,7 +19,7 @@ interface UseMyMembershipReturn {
   membershipError: string | null;
 
   // Datos del historial
-  historyItems: MembershipHistoryResponse["items"];
+  historyItems: MembershipHistoryItem[];
   historyLoading: boolean;
   historyError: string | null;
   historyMeta: {
@@ -53,9 +54,7 @@ export function useMyMembership(
   const [membershipError, setMembershipError] = useState<string | null>(null);
 
   // Estados para el historial
-  const [historyItems, setHistoryItems] = useState<
-    MembershipHistoryResponse["items"]
-  >([]);
+  const [historyItems, setHistoryItems] = useState<MembershipHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState<boolean>(true);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [historyMeta, setHistoryMeta] =

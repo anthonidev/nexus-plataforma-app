@@ -185,7 +185,7 @@ export function OrdersTable({
                                             </TableCell>
                                             <TableCell>{getStatusBadge(order.status)}</TableCell>
                                             <TableCell className="text-right">
-                                                <Link href={`/tienda/pedidos/${order.id}`}>
+                                                <Link href={`/tienda/pedidos/detalle/${order.id}`}>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
