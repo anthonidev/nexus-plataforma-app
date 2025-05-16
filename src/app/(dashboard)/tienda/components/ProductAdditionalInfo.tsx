@@ -50,7 +50,7 @@ export function ProductAdditionalInfo({ product }: ProductAdditionalInfoProps) {
                             <span className="inline-block w-6 h-6 rounded-full bg-primary/10 flex-shrink-0"></span>
                             Composición
                         </h3>
-                        <div className="flex flex-wrap">
+                        <div className="flex flex-wrap">Hu
                             {processComposition(product.composition)}
                         </div>
                     </div>

@@ -101,3 +101,23 @@ export async function rejectPayment(
     throw error;
   }
 }
+export async function updatePayment(
+  paymentId: number,
+  data: {
+    codeOperation: string;
+    numberTicket: string;
+  }
+): Promise<ResponseApprovePayment> {
+  try {
+    return await httpClient<ResponseApprovePayment>(
+      `/api/finance/payments/${paymentId}`,
+      {
+        method: "PUT",
+        body: data,
+      }
+    );
+  } catch (error) {
+    console.error(`Error al actualizar el pago con ID ${paymentId}:`, error);
+    throw error;
+  }
+}
