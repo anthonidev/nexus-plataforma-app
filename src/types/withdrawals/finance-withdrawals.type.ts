@@ -63,13 +63,7 @@ export interface FinanceWithdrawalDetailResponse {
   metadata?: Record<string, any>;
   user: UserDetail;
   reviewedBy: ReviewedBy;
-  withdrawalPoints: WithdrawalPoint[];
-  meta: {
-    totalItems: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-  };
+  withdrawalPoints: WithdrawalPoint;
 }
 
 export interface UserDetail {
@@ -105,6 +99,15 @@ export interface PersonalInfo {
 }
 
 export interface WithdrawalPoint {
+  items: Items[];
+  meta: {
+    totalItems: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+}
+export interface Items {
   id: number;
   amountUsed: number;
   createdAt: Date;

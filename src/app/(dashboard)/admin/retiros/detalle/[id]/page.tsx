@@ -1,16 +1,12 @@
 "use client";
 
 import { PageHeader } from "@/components/common/PageHeader";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import {
-    ArrowLeft,
-    Calendar,
     Check,
     CheckCircle2,
     CircleDollarSign,
@@ -21,15 +17,17 @@ import {
     UserRound,
     Wallet,
     X,
-    XCircle,
+    XCircle
 } from "lucide-react";
-import { useWithdrawalDetail } from "../../hooks/useWithdrawalDetail";
-import { WithdrawalDetailSkeleton } from "../../components/WithdrawalDetailSkeleton";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { WithdrawalDetailError } from "../../components/WithdrawalDetailError";
-import { ApproveWithdrawalModal } from "../../components/modals/ApproveWithdrawalModal";
+import { WithdrawalDetailSkeleton } from "../../components/WithdrawalDetailSkeleton";
 import { WithdrawalPointsList } from "../../components/WithdrawalPointsList";
+import { ApproveWithdrawalModal } from "../../components/modals/ApproveWithdrawalModal";
 import { RejectWithdrawalModal } from "../../components/modals/RejectWithdrawalModal";
 import { WithdrawalResponseModal } from "../../components/modals/WithdrawalResponseModal";
+import { useWithdrawalDetail } from "../../hooks/useWithdrawalDetail";
 
 
 export default function WithdrawalDetailPage() {
@@ -367,7 +365,7 @@ export default function WithdrawalDetailPage() {
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">Total de puntos:</span>
-                                        <span className="font-medium">{withdrawal.withdrawalPoints?.length || 0}</span>
+                                        <span className="font-medium">{withdrawal.withdrawalPoints?.items.length || 0}</span>
                                     </div>
                                 </div>
                             </div>

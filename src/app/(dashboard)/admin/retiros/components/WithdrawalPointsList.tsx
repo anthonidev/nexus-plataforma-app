@@ -12,7 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { WithdrawalPoint } from "@/types/withdrawals/finance-withdrawals.type";
+import { Items } from "@/types/withdrawals/finance-withdrawals.type";
 import { formatCurrency } from "@/utils/format-currency.utils";
 import { format } from "date-fns";
 import {
@@ -26,7 +26,7 @@ import {
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface WithdrawalPointsListProps {
-    points: WithdrawalPoint[];
+    points: Items[];
     pointsMeta: any;
     currentPage: number;
     itemsPerPage: number;

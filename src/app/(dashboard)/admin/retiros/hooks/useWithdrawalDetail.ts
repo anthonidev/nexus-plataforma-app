@@ -7,26 +7,24 @@ import {
 } from "@/lib/actions/withdrawals/finance-withdrawals";
 import {
   FinanceWithdrawalDetailResponse,
+  Items,
   WithdrawalPoint,
 } from "@/types/withdrawals/finance-withdrawals.type";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export function useWithdrawalDetail(withdrawalId: number) {
-  // Estados principales
   const [withdrawal, setWithdrawal] =
     useState<FinanceWithdrawalDetailResponse | null>(null);
-  const [points, setPoints] = useState<WithdrawalPoint[]>([]);
+  const [points, setPoints] = useState<Items[]>([]);
   const [pointsMeta, setPointsMeta] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Obtener detalles del retiro
   const fetchWithdrawalDetail = useCallback(async () => {
     if (!withdrawalId) return;
 
@@ -37,13 +35,13 @@ export function useWithdrawalDetail(withdrawalId: number) {
       const response = await getWithdrawalDetail(withdrawalId);
 
       setWithdrawal(response);
-      setPoints(response.withdrawalPoints || []);
-      setPointsMeta(response.meta || null);
+      setPoints(response.withdrawalPoints.items || []);
+      setPointsMeta(response.withdrawalPoints.meta || null);
 
       // Actualizar estados de paginación si vienen en la respuesta
-      if (response.meta) {
-        setCurrentPage(response.meta.currentPage);
-        setItemsPerPage(response.meta.itemsPerPage);
+      if (response.withdrawalPoints.meta) {
+        setCurrentPage(response.withdrawalPoints.meta.currentPage);
+        setItemsPerPage(response.withdrawalPoints.meta.itemsPerPage);
       }
     } catch (err) {
       const errorMessage =
