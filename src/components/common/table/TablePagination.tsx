@@ -34,6 +34,17 @@ export function TablePagination({
     totalItems,
     setPageIndex
 }: TablePaginationProps) {
+    // Hide pagination controls if there's only one page
+    if (pageCount <= 1) {
+        return (
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+                <p className="text-sm text-muted-foreground whitespace-nowrap">
+                    Mostrando {totalItems} registro{totalItems !== 1 ? "s" : ""}
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 w-full sm:w-auto">
