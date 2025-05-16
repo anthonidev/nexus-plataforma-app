@@ -10,7 +10,7 @@ interface PaymentInfoSectionProps {
 }
 
 export default function PaymentInfoSection({ payment }: PaymentInfoSectionProps) {
-    const isApproved = payment.status === "APPROVED";
+    const isApproved = payment.status === "APPROVED" || payment.status === "COMPLETED";
 
     return (
         <Card>

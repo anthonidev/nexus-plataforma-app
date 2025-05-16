@@ -34,7 +34,7 @@ export interface PaymentConfigResponse {
 export interface PaymentResponse {
   id: number;
   amount: number;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "COMPLETED";
   methodPayment: "VOUCHER" | "POINTS" | "PAYMENT_GATEWAY";
 
   codeOperation: string | null;

@@ -347,3 +347,53 @@ export async function updateOrderStatus(
     };
   }
 }
+
+export async function sendOrder(
+  id: number
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/orders/sent/${id}`, {
+      method: "PUT",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al enviar el pedido:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al enviar el pedido. Inténtelo nuevamente.",
+    };
+  }
+}
+
+export async function deliveredOrder(
+  id: number
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await httpClient<{
+      success: boolean;
+      message: string;
+    }>(`/api/orders/delivered/${id}`, {
+      method: "PUT",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error al enviar el pedido:", error);
+
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error al enviar el pedido. Inténtelo nuevamente.",
+    };
+  }
+}

@@ -110,7 +110,7 @@ export async function updatePayment(
 ): Promise<ResponseApprovePayment> {
   try {
     return await httpClient<ResponseApprovePayment>(
-      `/api/finance/payments/${paymentId}`,
+      `/api/finance/payments/approval/${paymentId}/complete`,
       {
         method: "PUT",
         body: data,

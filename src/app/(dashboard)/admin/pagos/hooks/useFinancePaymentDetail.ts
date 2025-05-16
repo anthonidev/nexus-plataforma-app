@@ -8,6 +8,7 @@ import {
   approvePayment,
   getPaymentById,
   rejectPayment,
+  updatePayment,
 } from "@/lib/actions/payments/payment.action";
 import {
   PaymentResponse,
@@ -127,6 +128,32 @@ export function useFinancePaymentDetail(paymentId: number) {
     }
   }, [paymentId, rejectionReason, closeModals, fetchPaymentDetail]);
 
+  const handleUpdatePayment = useCallback(
+    async (updateData: { codeOperation: string; numberTicket: string }) => {
+      try {
+        setIsSubmitting(true);
+
+        await updatePayment(paymentId, updateData);
+
+        toast.success("Información del pago actualizada correctamente");
+        fetchPaymentDetail();
+
+        return true;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Error al actualizar la información del pago";
+
+        toast.error(errorMessage);
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [paymentId, fetchPaymentDetail]
+  );
+
   const navigateToPaymentsList = useCallback(() => {
     router.push("/admin/pagos");
   }, [router]);
@@ -159,6 +186,7 @@ export function useFinancePaymentDetail(paymentId: number) {
 
     handleApprovePayment,
     handleRejectPayment,
+    handleUpdatePayment,
 
     approveResponse,
     rejectResponse,

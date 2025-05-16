@@ -13,11 +13,13 @@ import PaymentDetailModals from "./components/PaymentDetailModals";
 import PaymentImagesSection from "./components/PaymentImagesSection";
 import PaymentInfoSection from "./components/PaymentInfoSection";
 import PaymentUserSection from "./components/PaymentUserSection";
+import { UpdatePaymentDetailsModal } from "./components/UpdatePaymentDetailsModal";
 
 export default function PaymentDetailPage() {
   const params = useParams<{ id: string }>();
   const paymentId = Number(params.id);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   if (isNaN(paymentId)) {
     notFound();
@@ -37,6 +39,7 @@ export default function PaymentDetailPage() {
     closeModals,
     handleApprovePayment,
     handleRejectPayment,
+    handleUpdatePayment,
     approveResponse,
     rejectResponse,
     isResponseModalOpen,
@@ -52,6 +55,22 @@ export default function PaymentDetailPage() {
     setSelectedImageUrl(null);
   };
 
+  const openUpdateModal = () => {
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+  };
+  const handleUpdateAndClose = async (updateData: {
+    codeOperation: string;
+    numberTicket: string;
+  }) => {
+    const success = await handleUpdatePayment(updateData);
+    if (success) {
+      closeUpdateModal();
+    }
+  }
   // Mapeo de estados a estilos y colores
   const statusMap = {
     PENDING: {
@@ -88,8 +107,6 @@ export default function PaymentDetailPage() {
     color: "bg-gray-100 text-gray-800",
   };
 
-  const canApproveOrReject = payment.status === "PENDING";
-
   return (
     <div className="container py-8">
       <PageHeader
@@ -106,12 +123,12 @@ export default function PaymentDetailPage() {
               {statusInfo.label}
             </Badge>
 
-            {canApproveOrReject && (
-              <PaymentActionButtons
-                onApprove={openApproveModal}
-                onReject={openRejectModal}
-              />
-            )}
+            <PaymentActionButtons
+              status={payment.status}
+              onApprove={payment.status === "PENDING" ? openApproveModal : undefined}
+              onReject={payment.status === "PENDING" ? openRejectModal : undefined}
+              onUpdate={(payment.status === "APPROVED" || payment.status === "COMPLETED") ? openUpdateModal : undefined}
+            />
           </>
         }
       />
@@ -148,6 +165,15 @@ export default function PaymentDetailPage() {
         approveResponse={approveResponse}
         rejectResponse={rejectResponse}
         onCloseImageViewer={handleCloseImageViewer}
+      />
+
+      {/* Modal de actualización */}
+      <UpdatePaymentDetailsModal
+        isOpen={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        onUpdate={handleUpdateAndClose}
+        payment={payment}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
