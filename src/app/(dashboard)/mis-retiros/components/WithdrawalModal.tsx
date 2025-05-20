@@ -112,6 +112,7 @@ export default function WithdrawalModal({
                 onChange={handleAmountChange}
                 className="pl-8"
                 disabled={isSubmitting}
+                step="0.01"
               />
             </div>
             {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
