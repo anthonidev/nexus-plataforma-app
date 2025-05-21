@@ -92,7 +92,7 @@ const PointsIcon = () => {
                                 Ver historial
                             </Button>
                         </Link>
-                        <Link href="/solicitar-retiro" className="flex-1">
+                        <Link href="/mis-retiros" className="flex-1">
                             <Button size="sm" className="w-full">
                                 Solicitar retiro
                             </Button>
