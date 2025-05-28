@@ -22,6 +22,7 @@ interface MembershipCardProps {
 }
 
 export default function MembershipCard({ membership }: MembershipCardProps) {
+  console.log("MembershipCard", membership);
   // Calcular días restantes
   // {format(new Date(membership.membership.nextReconsumptionDate).toISOString().split("T")[0], "dd/MM/yyyy")}
   const endDate = new Date(membership.endDate)

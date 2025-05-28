@@ -118,6 +118,24 @@ export function PaymentsTable({
         ),
       },
       {
+        accessorKey: "Detalle",
+        header: "Detalles",
+
+        cell: ({ row }) => {
+          const { codeOperation, numberTicket } = row.original;
+          return (
+            <div className="text-sm">
+              <div>
+                <strong>Código:</strong> {codeOperation || "N/A"}
+              </div>
+              <div>
+                <strong>Ticket:</strong> {numberTicket || "N/A"}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
         id: "actions",
         header: "Acciones",
         cell: ({ row }) => {

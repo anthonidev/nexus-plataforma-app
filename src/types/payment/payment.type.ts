@@ -28,6 +28,10 @@ export interface PaymentListItem {
   amount: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
+  codeOperation?: string;
+  banckName?: string;
+  dateOperation?: string;
+  numberTicket?: string;
   reviewedAt: Date | null;
   paymentConfig: ItemPaymentConfig;
   reviewedBy: ReviewedBy | null;

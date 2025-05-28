@@ -134,6 +134,18 @@ export function MobileTableView({ payments }: MobileTableViewProps) {
                                             </div>
                                         </div>
                                     )}
+                                    {payment.codeOperation && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium">Código de operación:</span>
+                                            <span className="text-xs text-muted-foreground">{payment.codeOperation}</span>
+                                        </div>
+                                    )}
+                                    {payment.numberTicket && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium">Número de ticket:</span>
+                                            <span className="text-xs text-muted-foreground">{payment.numberTicket}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Pie con botón de acción */}
