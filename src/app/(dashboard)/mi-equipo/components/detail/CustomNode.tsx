@@ -88,7 +88,6 @@ const CustomNode = ({ data }: Props) => {
                         <span className="truncate max-w-[90px]">{data?.rank?.currentRank?.name}</span>
                     </div>
                 )}
-
                 <div className="flex flex-col items-center gap-2 mt-3">
                     <div
                         className={`rounded-full flex items-center justify-center h-12 w-12 text-lg font-semibold bg-gradient-to-br ${colorStyle.gradient} text-white 
@@ -96,28 +95,17 @@ const CustomNode = ({ data }: Props) => {
                     >
                         {data.initials}
                     </div>
-
-                    <div className="text-center">
+                    <div className="text-center flex-col flex items-center">
                         <p className="font-medium truncate text-sm">{data.label}</p>
-
-                        <div className="flex items-center justify-center gap-1 mt-1">
-                            <div
-                                className={`w-2 h-2 rounded-full ${data.isActive ? "bg-green-500" : "bg-red-500"}`}
-                            ></div>
-                            <span
-                                className={`text-xs ${data.isActive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                            >
-                                {data.isActive ? "Activo" : "Inactivo"}
-                            </span>
-                        </div>
+                        {hasMembership && (
+                            <p className={`text-[10px] px-1.5 py-0.5 rounded-md ${statusStyle} flex items-center gap-1 w-fit`}>
+                                <span className="truncate max-w-[90px]">{membershipName}</span>
+                            </p>
+                        )}
                     </div>
                 </div>
 
-                {hasMembership && (
-                    <div className={`absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded-md ${statusStyle} flex items-center gap-1 w-fit`}>
-                        <span className="truncate max-w-[90px]">{membershipName}</span>
-                    </div>
-                )}
+
             </div>
 
             <Handle type="source" position={Position.Bottom} className="w-3 h-3 -bottom-1.5" />
